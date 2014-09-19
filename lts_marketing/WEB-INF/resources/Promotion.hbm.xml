@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+<class name="keyword.Promotion" table="promotions">
+	
+<id name="id" column="promotion_id" type="java.lang.Integer">
+<generator class="native"/>
+</id>
+
+<property
+name="startDate"
+type="java.util.Date"
+column="start_date"
+/>
+
+<property
+name="endDate"
+type="java.util.Date"
+column="end_date"
+/>
+
+<property
+name="promoCode"
+type="java.lang.String"
+column="promo_code"
+/>
+
+<property
+name="monthlyDiscountPercent"
+type="java.math.BigDecimal"
+column="monthly_discount_percent"
+/>
+
+<property
+name="monthlyDiscountAmount"
+type="java.math.BigDecimal"
+column="monthly_discount_amount"
+/>
+
+<property
+name="setupDiscountPercent"
+type="java.math.BigDecimal"
+column="setup_discount_percent"
+/>
+
+<property
+name="setupDiscountAmount"
+type="java.math.BigDecimal"
+column="setup_discount_amount"
+/>
+
+<property
+name="description"
+type="java.lang.String"
+column="description"
+/>
+
+<property
+name="freeMonths"
+type="java.lang.Integer"
+column="free_months"
+/>
+</class>
+</hibernate-mapping>

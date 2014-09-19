@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+		<property name="hibernate.connection.datasource">java:/comp/env/jdbc/pooledInstab</property>
+		<property name="show_sql">true</property>
+		<property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+		<property name="hibernate.hbm2ddl.auto">update</property>
+		
+		<property name="hibernate.c3p0.acquire_increment">5</property>
+		<property name="hibernate.c3p0.idle_test_period">3600</property>
+		<property name="hibernate.c3p0.max_size">100</property>
+		<property name="hibernate.c3p0.max_statements">10</property>
+		<property name="hibernate.c3p0.min_size">10</property>
+		<property name="hibernate.c3p0.timeout">10800</property>
+		<property name="hibernate.c3p0.preferredTestQuery">select 1;</property>
+		<property name="hibernate.c3p0.acquireRetryAttempts">10</property>
+
+		<property name="hibernate.cache.region.factory_class">net.sf.ehcache.hibernate.SingletonEhCacheRegionFactory</property>		
+        <property name="hibernate.cache.use_second_level_cache">true</property>
+		<property name="hibernate.cache.use_query_cache">true</property>
+	
+	<mapping resource="/KeywordApplication.hbm.xml"/>	
+	<mapping resource="/Promotion.hbm.xml"/>	
+    <mapping resource="/User.hbm.xml"/>
+    <mapping resource="/Login.hbm.xml"/>
+    <mapping resource="/Report.hbm.xml"/>
+    <mapping resource="/TargetListData.hbm.xml"/>    
+    <mapping resource="/Campaign.hbm.xml"/>	
+	<mapping resource="/Category_1.hbm.xml"/>
+	<mapping resource="/LTCategory_3.hbm.xml"/>
+	<mapping resource="/LibertyClosure.hbm.xml"/>	
+	<mapping resource="/CustomFields.hbm.xml"/>
+	<mapping resource="/LibertyTerritoryMB.hbm.xml"/>
+	<mapping resource="/TargetUserList.hbm.xml"/>
+	<mapping resource="/ApprovedMessage.hbm.xml"/>
+	<mapping resource="/LTReport.hbm.xml"/>
+	
+    </session-factory>	
+</hibernate-configuration>

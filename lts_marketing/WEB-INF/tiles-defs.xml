@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+
+<tiles-definitions>
+
+ 	<definition name="baseDef" template="/WEB-INF/jsp/layout.jsp">
+		<put-attribute name="header" value="/WEB-INF/jsp/header.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/jsp/footer.jsp" />
+		<put-attribute name="body" value="" />
+	</definition>
+	
+ 	<definition name="baseDef_1" template="/WEB-INF/jsp/layout.jsp">
+		<put-attribute name="header" value="/WEB-INF/jsp/header_afterlogin.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/jsp/footer.jsp" />
+		<put-attribute name="body" value="" />
+	</definition>	
+
+ 	<definition name="baseDef_2" template="/WEB-INF/jsp/layout.jsp">
+		<put-attribute name="header" value="/WEB-INF/jsp/header_kw_reserve.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/jsp/footer.jsp" />
+		<put-attribute name="body" value="" />
+	</definition>	
+
+ 	<definition name="baseDef_3" template="/WEB-INF/jsp/layout.jsp">
+		<put-attribute name="header" value="/WEB-INF/jsp/header_kw_purchase.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/jsp/footer.jsp" />
+		<put-attribute name="body" value="" />
+	</definition>	
+	
+ 	<definition name="baseDef_4" template="/WEB-INF/jsp/layout.jsp">
+		<put-attribute name="header" value="/WEB-INF/jsp/header_kw_decals.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/jsp/footer.jsp" />
+		<put-attribute name="body" value="" />
+	</definition>
+	
+ 	<definition name="baseDef_popup" template="/WEB-INF/jsp/layout.jsp">
+		<put-attribute name="header" value="/WEB-INF/jsp/header_popup.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/jsp/footer.jsp" />
+		<put-attribute name="body" value="" />
+	</definition>	
+		
+	<definition name="login" extends="baseDef_1">
+		<put-attribute name="body" value="/WEB-INF/view/login.jsp" />
+	</definition>
+
+	<definition name="no_login" extends="baseDef_1">
+		<put-attribute name="body" value="/WEB-INF/view/no_login.jsp" />
+	</definition>
+
+	<definition name="error" extends="baseDef_1">
+		<put-attribute name="body" value="/WEB-INF/view/error.jsp" />
+	</definition>
+
+	<definition name="dashboard_office" extends="baseDef_1">
+		<put-attribute name="body" value="/WEB-INF/view/dashboard_office.jsp" />
+	</definition>
+	
+	<definition name="customMessage" extends="baseDef_1">
+		<put-attribute name="body" value="/WEB-INF/view/custom_message.jsp" />
+	</definition>
+
+	<definition name="confirmationMessage" extends="baseDef_1">
+		<put-attribute name="body" value="/WEB-INF/view/confirmation_message.jsp" />
+	</definition>
+
+	<definition name="profile" extends="baseDef_1">
+		<put-attribute name="body" value="/WEB-INF/view/profile.jsp" />
+	</definition>
+	
+	<definition name="reports" extends="baseDef_1">
+		<put-attribute name="body" value="/WEB-INF/view/report.jsp" />
+	</definition>
+	
+<!-- Entity -->	
+	<definition name="dashboard_entity" extends="baseDef_1">
+		<put-attribute name="body" value="/WEB-INF/view/entity/dashboard_entity.jsp" />
+	</definition>
+		
+	<definition name="customMessageEntity" extends="baseDef_1">
+		<put-attribute name="body" value="/WEB-INF/view/entity/custom_message_entity.jsp" />
+	</definition>
+	
+	<definition name="send_message" extends="baseDef_1">
+		<put-attribute name="body" value="/WEB-INF/view/entity/send_message.jsp" />
+	</definition>	
+	
+<!-- Corporate -->		
+	<definition name="dashboard_corp" extends="baseDef_1">
+		<put-attribute name="body" value="/WEB-INF/view/corp/dashboard_corp.jsp" />
+	</definition>	
+	
+	<definition name="advanced_search" extends="baseDef_1">
+		<put-attribute name="body" value="/WEB-INF/view/corp/advanced_search.jsp" />
+	</definition>
+		
+	<definition name="customMessageCorp" extends="baseDef_1">
+		<put-attribute name="body" value="/WEB-INF/view/corp/custom_message_corp.jsp" />
+	</definition>		
+</tiles-definitions>

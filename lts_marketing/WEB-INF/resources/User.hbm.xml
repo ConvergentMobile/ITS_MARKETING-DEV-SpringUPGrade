@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+<class 
+name="user.User" 
+table="user">
+	
+<id name="userId" column="user_id" type="java.lang.Long">
+<generator class="native"/>
+</id>
+  
+<idbag name="targetUserLists" table="target_user_list" lazy="false">
+	<collection-id column="tul_list_id" type="java.lang.String">
+		<generator class="uuid" />
+	</collection-id>
+	<key column="user_id" />
+	<composite-element class="user.TargetUserList"> 
+		<property name="listId" column="list_id" not-null="true" type="java.lang.String"/>	
+		<property name="listName" column="list_name" not-null="true" type="java.lang.String"/>
+		<property name="listPath" column="list_path" type="java.lang.String"/>		
+		<property name="listDisplayPath"  column="list_display_path" type="java.lang.String"/>
+	</composite-element>
+</idbag>
+
+<property
+name="categoryId"
+type="java.lang.Integer"
+column="category_id"
+/>
+
+<property
+name="keyword"
+type="java.lang.String"
+column="keyword"
+/>
+
+<property
+name="email"
+type="java.lang.String"
+column="email_id"
+/>
+
+<property
+name="userType"
+type="java.lang.String"
+column="user_type"
+/>
+
+<property
+name="adminProfileId"
+type="java.lang.Long"
+column="admin_profile_id"
+/>
+
+<property
+name="siteId"
+type="java.lang.Integer"
+column="site_id"
+/>
+
+<property
+name="firstName"
+type="java.lang.String"
+column="first_name"
+/>
+
+<property
+name="lastName"
+type="java.lang.String"
+column="last_name"
+/>
+
+<property
+name="billingAddress1"
+type="java.lang.String"
+column="billing_address1"
+/>
+
+<property
+name="billingAddress2"
+type="java.lang.String"
+column="billing_address2"
+/>
+
+<property
+name="billingCity"
+type="java.lang.String"
+column="billing_city"
+/>
+
+<property
+name="billingState"
+type="java.lang.String"
+column="billing_state"
+/>
+
+<property
+name="billingZip"
+type="java.lang.String"
+column="billing_zip"
+/>
+
+<property
+name="amount"
+type="java.lang.Double"
+column="amount"
+/>
+
+<property
+name="paymentTxId"
+type="java.lang.String"
+column="payment_tx_id"
+/>
+
+<property
+name="hotspotFile"
+type="java.lang.String"
+column="hotspot_file"
+/>
+
+<property
+name="subCategoryId"
+type="java.lang.Integer"
+column="sub_category_id"
+/>
+
+<property
+name="arbPaymentTxId"
+type="java.lang.String"
+column="arb_payment_tx_id"
+/>
+
+<property
+name="arbAmount"
+type="java.lang.Double"
+column="arb_amount"
+/>
+
+<property
+name="userAccountNumber"
+type="java.lang.String"
+column="user_account_number"
+/>
+
+<property
+name="businessCategoryId"
+type="java.lang.Integer"
+column="business_category_id"
+/>
+</class>
+</hibernate-mapping>

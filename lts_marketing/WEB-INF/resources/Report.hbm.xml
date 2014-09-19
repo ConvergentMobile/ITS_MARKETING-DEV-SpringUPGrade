@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+<class 
+name="user.Report" 
+table="reports">
+	
+<id name="reportId" column="report_id" type="java.lang.Integer">
+<generator class="native"/>
+</id>
+
+<property
+name="name"
+type="java.lang.String"
+column="name"
+/>
+
+<property
+name="description"
+type="java.lang.String"
+column="description"
+/>
+
+<property
+name="sortOrder"
+type="java.lang.Integer"
+column="sort_order"
+/>
+
+<property
+name="reportType"
+type="java.lang.Integer"
+column="report_type"
+/>
+
+<property
+name="isMulti"
+type="java.lang.Boolean"
+column="is_multi"
+/>
+</class>
+</hibernate-mapping>

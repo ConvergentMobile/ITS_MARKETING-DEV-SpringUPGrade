@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+<class name="user.TargetUserList" table="target_user_list">
+	
+<id name="listId" column="list_id" type="java.lang.String">
+<generator class="assigned"/>
+</id>
+
+<property
+name="userId"
+type="java.lang.Long"
+column="user_id"
+/>
+
+<property
+name="listName"
+type="java.lang.String"
+column="list_name"
+/>
+
+<property
+name="listPath"
+type="java.lang.String"
+column="list_path"
+/>
+
+<property
+name="listDisplayPath"
+type="java.lang.String"
+column="list_display_path"
+/>
+</class>
+</hibernate-mapping>

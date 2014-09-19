@@ -1,0 +1,70 @@
+/* file: functions.js */
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+
+$(document).ready(function(){
+	
+  $("#tabs_01 ul").idTabs();
+  
+  $('.ul_scroll_list').slimScroll({
+    height: '137px',
+    distance: '6px',
+    railVisible: true,
+    alwaysVisible: true
+  });
+  
+
+  $('.msg_text_scroll').slimScroll({
+    height: '86px',
+    distance: '6px',
+    railVisible: true,
+    alwaysVisible: true
+  });
+ 
+
+  $('.ul_scroll_list input:radio').screwDefaultButtons({ 
+  	image: "url(images/radio.png)",
+  	width:	 18,
+  	height:	 18
+  });
+  
+  $('.chk_light').screwDefaultButtons({ 
+  	image: "url(images/checkbox.png)",
+  	width:	 13,
+  	height:	 13
+  });
+
+  $('.chk_dark').screwDefaultButtons({ 
+  	image: "url(images/checkbox_dark.png)",
+  	width:	 13,
+  	height:	 13
+  });
+
+  $('.ul_scroll_list input["type=radio"]').change(function(){
+    if (this.checked) {
+      
+    }
+    
+  });
+  
+  $('.ul_phone_numbers .chk_light').change(function(){
+    if (this.checked) {
+      $(this).parent().parent().addClass('selected');
+    } else {
+      $(this).parent().parent().removeClass('selected');
+    }
+  });
+  
+//  if (('.chk_dark').is(':checked')) {
+
+    
+
+
+
+  
+  // alert(0);
+});
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////

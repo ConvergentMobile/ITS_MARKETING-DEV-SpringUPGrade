@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+<class name="user.TargetListData" table="target_list_data">
+    <composite-id>
+      <key-property name="listId" column="list_id" type="java.lang.String"/>
+      <key-property name="mobilePhone" column="mobile_phone" type="java.lang.String"/>
+    </composite-id>
+
+</class>
+</hibernate-mapping>

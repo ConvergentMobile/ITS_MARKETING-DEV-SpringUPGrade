@@ -1,0 +1,36 @@
+<Context path="/lts_marketing" debug="5" reloadable="true" crossContext="true">
+
+        <Resource name="jdbc/pooledInstab" auth="Container"
+                type="com.mchange.v2.c3p0.ComboPooledDataSource"
+                factory="org.apache.naming.factory.BeanFactory"
+                maxPoolSize="15" minPoolSize="3"
+                maxStatements="10"
+                idleConnectionTestPeriod="100"
+                maxIdleTime="0"
+
+               user="us411ad" password="us411ad" driverClass="com.mysql.jdbc.Driver"
+               jdbcUrl="jdbc:mysql://localhost/us411?autoReconnect=true"/>
+               
+        <Resource name="jdbc/GXS_DS" auth="Container"
+                type="com.mchange.v2.c3p0.ComboPooledDataSource"
+                factory="org.apache.naming.factory.BeanFactory"
+                maxPoolSize="15" minPoolSize="3"
+                maxStatements="10"
+                idleConnectionTestPeriod="100"
+                maxIdleTime="0"
+
+               user="qtzadm" password="qtzadm" driverClass="com.mysql.jdbc.Driver"
+               jdbcUrl="jdbc:mysql://localhost/quartz?autoReconnect=true"/>           
+               
+	<Resource name="jms/ConnectionFactory" auth="Container"
+		type="org.apache.activemq.ActiveMQConnectionFactory"
+		description="JMS Connection Factory"
+		factory="org.apache.activemq.jndi.JNDIReferenceFactory"
+		brokerURL="failover:(tcp://localhost:61616)" brokerName="LocalActiveMQBroker"
+		useEmbeddedBroker="true" />
+
+	<Resource name="jms/us411Queue" auth="Container"
+		type="org.apache.activemq.command.ActiveMQQueue"
+		factory="org.apache.activemq.jndi.JNDIReferenceFactory"
+		physicalName="US411.QUEUE" />                   
+</Context>    

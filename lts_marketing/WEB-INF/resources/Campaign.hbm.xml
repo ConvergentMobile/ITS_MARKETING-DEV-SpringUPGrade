@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+<class name="user.Campaign" table="campaign">
+	
+<id name="campaignId" column="campaign_id" type="java.lang.String">
+<generator class="assigned"/>
+</id>
+
+<property
+name="userId"
+type="java.lang.Long"
+column="user_id"
+/>
+
+<property
+name="name"
+type="java.lang.String"
+column="name"
+/>
+
+<property
+name="description"
+type="java.lang.String"
+column="description"
+/>
+
+<property
+name="startDate"
+type="date"
+column="start_date"
+/>
+
+<property
+name="endDate"
+type="date"
+column="end_date"
+/>
+
+<property
+name="messageText"
+type="java.lang.String"
+column="message_text"
+/>
+
+<property
+name="listId"
+type="java.lang.String"
+column="list_id"
+/>
+
+<property
+name="keyword"
+type="java.lang.String"
+column="keyword"
+/>
+
+<!-- 
+<idbag name="multiList" table="campaign_multi_list" lazy="false">
+	<collection-id column="multi_list_id" type="java.lang.String">
+		<generator class="uuid" />
+	</collection-id>
+	<key>
+	 <column name="user_id"/>
+	</key>
+	<element column="list_id" type="java.lang.String"/>	
+</idbag>
+-->
+
+<!-- Commented out. Save separately
+<idbag name="multiList" table="campaign_multi_list" lazy="false">
+	<collection-id column="multi_list_id" type="java.lang.String">
+		<generator class="uuid" />
+	</collection-id>
+	<key>
+	 <column name="campaign_id" />
+	</key>
+	<composite-element class="user.TargetUserList"> 
+		<property name="listId" column="list_id" not-null="true" type="java.lang.String"/>	
+		<property name="userId" column="user_id" not-null="true" type="java.lang.Long"/>
+	</composite-element>
+</idbag>
+-->
+
+<!-- 
+		<list name="multiList" table="campaign_multi_list" cascade="all">
+			<key column="campaign_id"></key>
+			<list-index column="idx">
+			</list-index>
+			<element column="list_id" type="string" />
+		</list>
+-->
+
+</class>
+</hibernate-mapping>

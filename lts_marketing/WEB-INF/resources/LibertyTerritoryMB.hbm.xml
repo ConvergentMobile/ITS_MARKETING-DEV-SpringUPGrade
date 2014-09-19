@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+<class name="liberty.Territory" table="liberty_territory_mb">
+
+<id name="territoryId" column="territory_id" type="java.lang.String">
+<generator class="assigned"/>
+</id>
+
+<property
+name="mbEntityId"
+type="java.lang.String"
+column="mb_entity_id"
+/>
+
+<property
+name="entityId"
+type="java.lang.String"
+column="entity_id"
+/>
+
+<property
+name="dmaCode"
+type="java.lang.Integer"
+column="dma_code"
+/>
+
+<property
+name="territoryStatus"
+type="java.lang.Integer"
+column="status"
+/>
+
+</class>
+</hibernate-mapping>

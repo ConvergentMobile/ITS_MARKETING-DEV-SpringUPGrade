@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+<class 
+name="user.UserProfile" 
+table="profile_1">
+	
+<id name="profileId" column="profile_id" type="java.lang.Long">
+<generator class="native"/>
+</id>
+
+<map name="fieldValues" table="field_value" cascade="all">
+	<key column="profile_id" />
+	<index column="field_name" type="java.lang.String"/>
+	<element column="field_value" type="java.lang.String"/>
+</map>
+
+<property
+name="userId"
+type="java.lang.Long"
+column="user_id"
+/>
+
+</class>
+</hibernate-mapping>

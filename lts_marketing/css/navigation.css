@@ -1,0 +1,51 @@
+/* navigation.css */
+
+.ul_left_nav {
+	width: 179px;
+	margin:  0 0 0 -179px;
+	padding: 0;
+	float: left;
+	font: 13px/17px OpenSansSemibold, Arial, Helvetica, sans-serif;
+	border-top: #334685 2px solid;
+	color: #fff;
+}
+
+.ul_left_nav li {
+	width: 179px;
+	height: 98px;
+	overflow: hidden;
+	text-align: center;
+	background: url(../images/sidenav_item_bg.png) 0 0 no-repeat;
+}
+
+.ul_left_nav li:hover, .ul_left_nav li:focus {
+	background: url(../images/sidenav_item_bg.png) 0 -98px no-repeat;
+}
+
+.ul_left_nav a,       .ul_left_nav a:visited,
+.ul_left_nav a:hover, .ul_left_nav a:focus {
+	padding: 71px 0 0 0;
+	width: 179px;
+	height: 98px;
+	display: block;
+	text-decoration: none;
+	text-shadow: #2f417c 0 1px 1px;
+	color: #fff;
+}
+
+.ul_left_nav li.selected {
+	background: url(../images/sidenav_item_bg_selected.png) 0 0 no-repeat;
+	z-index: 100000000;
+	position: relative;
+}
+
+.si_dashboard          a { background: url(../images/ico_si_dashboard.png)      51px 15px no-repeat; }
+.si_confirmation       a { background: url(../images/ico_si_confirmation.png)   54px 10px no-repeat; }
+.si_custom_msg         a { background: url(../images/ico_si_custom_msg.png)     63px  6px no-repeat; }
+.si_custom_msg_approve a { background: url(../images/ico_si_custom_msg.png)     63px  6px no-repeat; letter-spacing: -0.25px; }
+.si_reports            a { background: url(../images/ico_si_reports.png)        61px  5px no-repeat; }
+.si_mobile_profile     a { background: url(../images/ico_si_mobile_profile.png) 53px 11px no-repeat; }
+.si_toolbox            a { background: url(../images/ico_si_toolbox.png)        54px 11px no-repeat; }
+.si_send_msg           a { background: url(../images/ico_si_send_msg.png)       51px 13px no-repeat; }
+.si_search             a { background: url(../images/ico_si_search.png)         54px  6px no-repeat; }
+

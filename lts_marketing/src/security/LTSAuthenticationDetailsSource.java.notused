@@ -1,0 +1,79 @@
+package security;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.log4j.Logger;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthoritiesContainer;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails;
+
+import dao.LTUserDAOManager;
+
+import service_impl.LTSMarketingServiceImpl;
+import user.RoleAction;
+import user.User;
+
+public class LTSAuthenticationDetailsSource implements AuthenticationDetailsSource {
+	protected static final Logger logger = Logger.getLogger(LTSAuthenticationDetailsSource.class);
+
+	@Override
+	public GrantedAuthoritiesContainer buildDetails(Object req) {
+		logger.debug("In buildDetails");
+		
+		User user = null;
+		HttpServletRequest request = (HttpServletRequest) req;
+		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth == null) {
+			String roleP = request.getParameter("role");
+			String fp = request.getParameter("fingerprint");
+			String idP = request.getParameter("id");
+			
+			try {
+				user = new LTSMarketingServiceImpl().loginSSO(roleP, idP, fp, new LTUserDAOManager(), request);						
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//myUser = (User)request.getSession().getAttribute("User");
+		} else {
+			UserDetails ud = (UserDetails)auth.getPrincipal();
+
+			try {
+				Long userId = Long.valueOf(ud.getUsername());
+				if (userId.equals("0")) { //Corporate user
+					user = new User();
+					user.setUserId(0L);
+				} else {
+					user = new LTUserDAOManager().getUser(Long.valueOf(ud.getUsername()));
+				}
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		List gal = new ArrayList();
+
+		for (RoleAction ra : user.getRoleActions()) {
+			GrantedAuthority ga = new SimpleGrantedAuthority(ra.getRoleAction());
+			gal.add(ga);
+		}
+			
+//		gal.add(new SimpleGrantedAuthority("ROLE_USER"));
+		
+		return new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(request, gal);	
+	}
+
+}

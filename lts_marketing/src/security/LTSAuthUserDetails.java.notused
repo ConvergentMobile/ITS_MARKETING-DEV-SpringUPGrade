@@ -1,0 +1,51 @@
+package security;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import service_impl.LTSMarketingServiceImpl;
+import user.RoleAction;
+import user.User;
+import dao.LTUserDAOManager;
+
+public class LTSAuthUserDetails implements AuthenticationUserDetailsService {
+	protected static final Logger logger = Logger.getLogger(LTSAuthUserDetails.class);
+
+	@Override
+	public UserDetails loadUserDetails(Authentication auth) throws UsernameNotFoundException {
+		logger.debug("In loadUserDetails");
+		Long userId = Long.valueOf(auth.getName());
+		
+		LTSMarketingServiceImpl ltsService = new LTSMarketingServiceImpl();
+
+		User user = null;
+		try {
+			user = new LTUserDAOManager().getUser(userId);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+		
+		Collection<GrantedAuthority> gal = new ArrayList<GrantedAuthority>(); 
+
+		for (RoleAction ra : user.getRoleActions()) {
+			GrantedAuthority ga = new SimpleGrantedAuthority(ra.getRoleAction());
+			gal.add(ga);
+		}
+		
+		UserDetails myUser = new org.springframework.security.core.userdetails.User(user.getUserId().toString(), "password", true, true, true, true, 
+					gal);
+		
+		return myUser;
+	}
+
+}

@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+<class name="category_1.Category_1" table="profile">
+	
+<id name="profileId" column="profile_id" type="java.lang.Long">
+<generator class="native"/>
+</id>
+
+<!-- need to use uuid as native is not allowed for idbag and sequence is not supported by mysql -->
+<idbag name="menuSections" table="menu_section" lazy="false">
+	<collection-id column="section_id" type="java.lang.String">
+		<generator class="uuid" />
+	</collection-id>
+	<key>
+	 <column name="profile_id" />
+	</key>
+    <composite-element class="category_1.MenuSection"> 
+        <property name="name"/>
+        <property name="contents"/>
+        <property name="type" column="section_type"/>
+        <property name="introText" column="intro_text"/>
+        <property name="itemLineFont" column="itemline_font"/>
+        <property name="descLineFont" column="descline_font"/>        
+    </composite-element>
+</idbag>
+
+<idbag name="events" table="events" lazy="false">
+	<collection-id column="event_id" type="java.lang.String">
+		<generator class="uuid" />
+	</collection-id>
+	<key>
+	 <column name="profile_id" />
+	</key>
+    <composite-element class="category_1.Event"> 
+        <property name="name"/>
+        <property name="date"/>
+        <property name="hourStart"/>
+        <property name="hourEnd"/>
+        <property name="cost"/>
+        <property name="description"/>
+        <property name="offer"/>
+    </composite-element>
+</idbag>
+
+<idbag name="photos" table="image_files" lazy="false">
+	<collection-id column="image_file_id" type="java.lang.String">
+		<generator class="uuid" />
+	</collection-id>
+	<key>
+	 <column name="profile_id" />
+	</key>
+	<composite-element class="util.ImageFile"> 
+		<property name="fileName" column="filename" not-null="true" type="java.lang.String"/>
+		<property name="filePath"  column="filepath" not-null="true" type="java.lang.String"/>
+		<property name="location" column="tab_location" type="java.lang.String"/>
+		<property name="displayPath"  column="displaypath" not-null="true" type="java.lang.String"/>
+		<property name="description" column="description" type="java.lang.String"/>
+	</composite-element>
+</idbag>
+
+<idbag name="offerList" table="offers" lazy="false">
+	<collection-id column="offer_id" type="java.lang.String">
+		<generator class="uuid" />
+	</collection-id>
+	<key>
+	 <column name="profile_id" />
+	</key>
+	<composite-element class="user.Offer"> 
+		<property name="offerId" column="class_offer_id" type="java.lang.String"/>		
+		<property name="name" column="name" not-null="true" type="java.lang.String"/>
+		<property name="description" column="description" type="java.lang.String"/>		
+		<property name="expiration"  column="expiration_date" type="java.util.Date"/>
+		<property name="code" column="code" type="java.lang.String"/>
+		<property name="status" column="status" type="java.lang.String"/>
+	</composite-element>
+</idbag>
+
+<idbag name="searchAttrs" table="m_search" lazy="false">
+	<collection-id column="m_search_id" type="java.lang.String">
+		<generator class="uuid" />
+	</collection-id>
+	<key>
+	 <column name="profile_id" />
+	</key>
+    <composite-element class="user.SearchAttribute"> 
+    	 <property name="searchKeywords" column="search_keywords"/>
+    </composite-element>
+</idbag>
+
+<property
+name="userId"
+type="java.lang.Long"
+column="user_id"
+/>
+
+<property
+name="categoryId"
+type="java.lang.Integer"
+column="category_id"
+/>
+
+<property
+name="cuisine"
+type="java.lang.String"
+column="field_4"
+/>
+
+<property
+name="dressCode"
+type="java.lang.String"
+column="field_5"
+/>
+
+<property
+name="mealsServedDB"
+type="java.lang.String"
+column="field_6"
+/>
+
+<property
+name="price"
+type="java.lang.String"
+column="field_7"
+/>
+
+<property
+name="description"
+type="java.lang.String"
+column="field_1"
+/>
+
+<property
+name="paymentOptionsDB"
+type="java.lang.String"
+column="field_9"
+/>
+
+<property
+name="whatOthersSay"
+type="java.lang.String"
+column="field_10"
+/>
+
+<property
+name="eventIntroText"
+type="java.lang.String"
+column="field_11"
+/>
+
+<property
+name="busHours"
+type="java.lang.String"
+column="field_12"
+/>
+
+<property
+name="yelpReview"
+type="java.lang.String"
+column="field_3"
+/>
+
+<property
+name="initialMessage"
+type="java.lang.String"
+column="initial_message"
+/>
+
+<property
+name="autoResponse"
+type="java.lang.String"
+column="auto_response"
+/>
+
+<property
+name="businessName"
+type="java.lang.String"
+column="business_name"
+/>
+
+<property
+name="address"
+type="java.lang.String"
+column="business_address"
+/>
+
+<property
+name="zip"
+type="java.lang.String"
+column="zip"
+/>
+
+<property
+name="phone"
+type="java.lang.String"
+column="phone"
+/>
+
+<property
+name="mwpPath"
+type="java.lang.String"
+column="mwp_path"
+/>
+
+<property
+name="website"
+type="java.lang.String"
+column="website"
+/>
+
+<property
+name="xmlFile"
+type="java.lang.String"
+column="xml_file"
+/>
+
+<property
+name="city"
+type="java.lang.String"
+column="business_city"
+/>
+
+<property
+name="state"
+type="java.lang.String"
+column="business_state"
+/>
+
+<property
+name="custStatus"
+type="java.lang.String"
+column="customer_status"
+/>
+
+<property
+name="offers"
+type="java.lang.String"
+column="offers"
+/>
+
+<property
+name="email"
+type="java.lang.String"
+column="email"
+/>
+
+<property
+name="adminMobilePhone"
+type="java.lang.String"
+column="admin_mobile_phone"
+/>
+
+<property
+name="repeatingLogo"
+type="java.lang.Integer"
+column="repeating_logo"
+/>
+
+<property
+name="timezone"
+type="java.lang.String"
+column="timezone"
+/>
+
+</class>
+</hibernate-mapping>
