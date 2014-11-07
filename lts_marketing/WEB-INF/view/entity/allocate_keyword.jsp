@@ -70,12 +70,12 @@
 									<c:if test = "${ltUser.currentPage == 'Off'}">
 										<spring:message code="label.officeId" />
 										</td>
-										<td><form:input path="searchOfficeIdString" size="20" /></td>										
+										<td><form:input path="searchOfficeIdString" size="15" /></td>										
 									</c:if>
 									<c:if test = "${ltUser.currentPage == 'Ent'}">
 										<spring:message code="label.entityId" />
 										</td>
-										<td><form:input path="searchEntityIdString" size="20" /></td>										
+										<td><form:input path="searchEntityIdString" size="10" /></td>										
 									</c:if>									
 								</form:label></strong>
 							<td>&nbsp;</td>
@@ -94,7 +94,7 @@
 							<td colspan="2" valign="top">
 								<strong><form:label path="searchKeywordString"><spring:message code="label.keyword" /></form:label></strong>
 							</td>
-							<td><form:input path="searchKeywordString" size="35" /></td>
+							<td><form:input path="searchKeywordString" size="20" /></td>
 							<td>&nbsp;</td>
 						</tr>
 			</table>
