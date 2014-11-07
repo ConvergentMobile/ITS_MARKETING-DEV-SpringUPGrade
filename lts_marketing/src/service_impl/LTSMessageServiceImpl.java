@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import subclass.LTCategory_3;
 import user.Campaign;
 import user.CategoryBase;
 import user.JobScheduler;
@@ -104,10 +105,13 @@ public class LTSMessageServiceImpl {
 		
 		// check if it is for immediate send or to be scheduled
 		if (! ltUser.isSendNow()) {
+			String tzone = "US/Pacific";
 			try {
-				if (cbase.getTimezone() == null)
-					cbase.setTimezone("US/Pacific");  //this is a stop gap for now - 11/19/2013
-        		logger.debug("tzone: " + cbase.getTimezone());
+				LTCategory_3 catg = ltUser.getCategory();
+				if (catg != null && catg.getTimezone() != null)
+					tzone = catg.getTimezone();
+				
+        		logger.debug("tzone: " + tzone);
         		
         		Integer repeatDayCount = null;
         		Integer repeatMonthCount = null;
@@ -127,7 +131,7 @@ public class LTSMessageServiceImpl {
 				//					ltUser.getNumberOccurrencesDays(), ltUser.getNumberOccurrencesMonths(), campaign, cbase.getTimezone());
         		
 				this.scheduleJob(ltUser.getSchedDate(), ltUser.getSchedTime(), repeatDayCount, repeatMonthCount, 
-						numberOccurrencesDays, numberOccurrencesMonths, campaign, cbase.getTimezone());        		
+						numberOccurrencesDays, numberOccurrencesMonths, campaign, tzone);        		
 			} catch (Exception e) {
 				throw new LTException(e.getMessage()
 						+ "\nPlease check your timezone setting and the schedule date & time");
