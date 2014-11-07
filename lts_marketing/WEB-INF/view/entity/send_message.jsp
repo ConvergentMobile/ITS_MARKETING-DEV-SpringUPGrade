@@ -56,6 +56,10 @@
 			}                        
         });
 	}
+
+	function uploadList(){		
+		window.open('uploadFile',"mywindow","scrollbars=yes,menubar=1,resizable=1,width=450,height=550");		
+	}
 	
 	function createHotspot(keyword){		
 		window.open('createHotspot?keyword=' + keyword,"mywindow","scrollbars=yes,menubar=1,resizable=1,width=450,height=550");		
@@ -82,6 +86,10 @@
 	}
 	
 	function viewList(listId) {
+		window.open('viewListData?listId=' + listId,"mywindow","scrollbars=yes,menubar=1,resizable=1,width=450,height=550");			
+	}
+	
+	function viewList1(listId) {
 		var outstr = '';
 	        $.ajax({
 	            type : 'GET',
@@ -231,7 +239,12 @@
 			alert("Must specify a Campaign Name");
 			return;		
 		}
-				
+		
+		if ($('#sendSearchCityString').val() == "") {
+			alert("Must select a Message");
+			return;		
+		}
+		
 		//alert('cnt: ' + $('[name="listIds"]:checked').length);
 		cnt = $('[name="listIds"]:checked').length;
 		if (cnt == 0) {
@@ -241,6 +254,9 @@
 		
 		$('#nowSched').val(isNow);
 
+		$('#sendNow').hide();
+		$('#scheduleIt').hide();
+		
 	        $.ajax({
 	            type : 'POST',
 	            url : 'sendMessage',
@@ -248,10 +264,14 @@
 	            success : function(result) {
             		alert(result);
             		resetForm($('#thisForm'));
-				},
-				error : function(e) {
-					alert('error: ' + e);
-				}                        
+				$('#sendNow').show();
+				$('#scheduleIt').show();	            		
+			},
+			error : function(e) {
+				alert('error: ' + e);
+				$('#sendNow').show();
+				$('#scheduleIt').show();					
+			}                        
 	        });		
 	}
 	
@@ -301,26 +321,36 @@
 		
   	<!-- left side navigation -->
   	<ul class="ul_left_nav">
-	<c:if test = '${ltUser.user.roleActions[0].roleType == "Entity"}'>  	
-    		<li class="si_dashboard"><a href="dashboardEntity">Dashboard</a></li>
-		<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
-	      	<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>		
-	</c:if>
-	<c:if test = '${ltUser.user.roleActions[0].roleType == "Office"}'>
-    		<li class="si_dashboard"><a href="dashboardOffice">Dashboard</a></li>	
-		<li class="si_custom_msg"><a href="customMessage">Create Custom Message</a></li>
-	      	<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>	
-	</c:if>   
- 	<c:if test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
-    		<li class="si_dashboard"><a href="dashboardCorp">Dashboard</a></li>	
-      		<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>   
-	      	<li class="si_search"><a href="corpSearch">Search</a></li>	
-	</c:if> 
-	<li class="si_send_msg selected"><a href="sendMessage">Send Message</a></li>		
-	<li class="si_reports"><a href="getReports">Reports</a></li>
-      	<li class="si_mobile_profile"><a href="getProfile">My Mobile Profile</a></li>
-      	<li class="si_toolbox"><a href="toolbox-office.html">Convergent Toolbox</a></li>
-    </ul>
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "Entity"}'>  	
+				<li class="si_dashboard"><a href="dashboardEntity">Dashboard</a></li>
+				<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
+				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>		
+				<li class="si_send_msg selected"><a href="sendMessage">Send Message</a></li>
+				<li class="si_reports"><a href="getReports">Reports</a></li>     		
+				<li class="si_mobile_profile"><a href="getProfile">My Mobile Profile</a></li>	
+			</c:if>
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "Office"}'>
+				<li class="si_dashboard"><a href="dashboardOffice">Dashboard</a></li>	
+				<li class="si_custom_msg"><a href="customMessage">Create Custom Message</a></li>
+				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>	
+				<li class="si_reports"><a href="getReports">Reports</a></li>	      	
+				<li class="si_mobile_profile selected"><a href="getProfile">My Mobile Profile</a></li>	
+			</c:if>   
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
+				<li class="si_dashboard"><a href="dashboardCorp">Dashboard</a></li>	
+				<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>   
+				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>	      	
+				<li class="si_search"><a href="corpSearch">Search</a></li>	
+				<li class="si_reports"><a href="getReports">Reports</a></li>	      	
+			</c:if> 
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "AD"}'>  	
+				<li class="si_dashboard"><a href="dashboardAD">Dashboard</a></li>
+				<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
+				<li class="si_reports"><a href="getReports">Reports</a></li>		
+			</c:if>
+				    	
+			<li class="si_toolbox"><a href="cmtoolbox">Convergent Toolbox</a></li>
+		</ul>			
     <!-- // left side navigation -->
     <!-- content area -->
     <div class="content" id="id_content">
@@ -342,6 +372,7 @@
         <div  class="grid grid_06">
 			<label class="h3_sub" for="campaign">Campaign Name: </label>    
 			<form:input path="sendSearchKeywordString"/>
+			<a href="#" class="h3_sub" onclick="uploadList()">Upload List</a>			
 	    </div>
 	              
           <!-- // title -->
@@ -405,7 +436,7 @@
                 </div>
 	          	<form:hidden path="nowSched" />
                 <center>
-					<input type="button" onclick="sendIt('Y')" value="Send Now" class="btn_send_now">                	                	               	
+					<input type="button" id="sendNow" onclick="sendIt('Y')" value="Send Now" class="btn_send_now">                	                	               	
                 </center>	        
               </div>
             </div>
@@ -495,7 +526,7 @@
 	<!-- // repeat -->
 	<div class="btn_schedule_box">
 	  <center>
-	    <input type="button" onclick="sendIt('N')" value="Schedule" class="btn_schedule"><br>
+	    <input type="button" id="scheduleIt" onclick="sendIt('N')" value="Schedule" class="btn_schedule"><br>
 	    <a href="#" onclick="getJobs()" class="lnk_scheduled">See Scheduled</a>
 	  </center>
 	</div>
