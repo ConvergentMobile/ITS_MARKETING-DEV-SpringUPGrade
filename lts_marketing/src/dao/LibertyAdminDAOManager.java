@@ -248,9 +248,10 @@ public class LibertyAdminDAOManager implements Serializable {
 		}
 	}
 	
-	//get all the sites for an AD user
+	//get the sites for an AD user
 	public List<UserProfileVO> getSitesAD(Long userId) throws Exception {
-		String sql = "select u.keyword, u.user_id uid, ifnull(ucd.custom_field_2, 'AD') office_id"
+		String sql = "select u.keyword, u.user_id userId, ifnull(ucd.custom_field_2, 'AD') customField2,"
+				+ " ucd.custom_field_1 customField1, kw.status customField3"					
 				+ " from user u, user_customer_defined ucd,"
 				+ " keyword_application kw, liberty_closure lc"
 				+ " where u.user_id = ucd.user_id"
@@ -259,12 +260,19 @@ public class LibertyAdminDAOManager implements Serializable {
 				+ " and ucd.custom_field_4 = 'LIB_AD'"
 				+ " and ucd.custom_field_8 = 4"	
 				+ " and u.user_id = lc.child_id and lc.parent_id = ?"
-				+ " order by office_id desc";
+				+ " order by customField2 desc";
 		
 		List<UserProfileVO> sites = new ArrayList<UserProfileVO>();		
 		try {
 			session = HibernateUtil.currentSession();
-			Query q = session.createSQLQuery(sql).setResultTransformer(Transformers.aliasToBean(UserProfileVO.class));
+			Query q = session.createSQLQuery(sql)
+					.addScalar("userId", new LongType())
+					.addScalar("keyword", new StringType())
+					.addScalar("customField1", new StringType())					
+					.addScalar("customField2", new StringType())
+					.addScalar("customField3", new StringType())					
+					.setResultTransformer(Transformers.aliasToBean(UserProfileVO.class));
+			
 			sites = q.setLong(0, userId)
 						.list();			
 			
@@ -277,6 +285,44 @@ public class LibertyAdminDAOManager implements Serializable {
 			close();
 		}
 	}
+	
+	//get all the sites for an AD user
+	public List<UserProfileVO> getAllSitesAD(Long userId) throws Exception {
+		String sql = "select u.keyword, u.user_id userId, ifnull(ucd.custom_field_2, 'AD') customField2,"
+				+ "  ucd.custom_field_1 customField1, kw.status customField3"
+				+ " from user u, user_customer_defined ucd,"
+				+ " keyword_application kw, liberty_closure lc"
+				+ " where u.user_id = ucd.user_id"
+				+ " and kw.keyword = u.keyword"
+				+ " and ucd.custom_field_4 = 'LIB_AD'"
+				+ " and ucd.custom_field_8 = 4"	
+				+ " and u.user_id = lc.child_id and lc.parent_id = ?"
+				+ " order by customField2 desc";
+		
+		List<UserProfileVO> sites = new ArrayList<UserProfileVO>();		
+		try {
+			session = HibernateUtil.currentSession();
+			Query q = session.createSQLQuery(sql)
+					.addScalar("userId", new LongType())
+					.addScalar("keyword", new StringType())
+					.addScalar("customField1", new StringType())					
+					.addScalar("customField2", new StringType())
+					.addScalar("customField3", new StringType())					
+					.setResultTransformer(Transformers.aliasToBean(UserProfileVO.class));	
+			
+			sites = q.setLong(0, userId)
+						.list();			
+			
+			if (sites.isEmpty())
+				return null;
+			
+			logger.debug("getSites: size = " + sites.size());
+			return sites;
+		} finally {
+			close();
+		}
+	}
+	
 	//get all the sites with status = P for a Corporate user
 	//get only the storefront keywords - type = LIB_S
 	public List<UserProfileVO> getSites() throws Exception {
@@ -977,8 +1023,8 @@ public class LibertyAdminDAOManager implements Serializable {
 					+ " where u.keyword = ?"
 					+ " and u.site_id = ?";
 		
-		String usql1 = "update user set keyword = ? where user_id = ?";
-		String usql2 = "update target_user_list set list_name = ? where user_id = ?";
+		String usql1 = "update user set keyword = ? where user_id = ? and keyword = ?";
+		String usql2 = "update target_user_list set list_name = ? where user_id = ? and list_name = ?";
 		String usql3 = "update keyword_application set keyword = ? where keyword = ?";
 			
 		try {
@@ -999,13 +1045,15 @@ public class LibertyAdminDAOManager implements Serializable {
 			
 			q = session.createSQLQuery(usql1);	
 			q.setString(0, keyword)
-			  .setLong(1, userId);					
+			  .setLong(1, userId)
+			  .setString(2, oldKeyword);					
 			int ret = q.executeUpdate();			
 			logger.debug(ret + " rows updated in user");
 			
 			q = session.createSQLQuery(usql2);	
 			q.setString(0, keyword)
-			 .setLong(1, userId);					
+			 .setLong(1, userId)
+			 .setString(2, oldKeyword);					
 			ret = q.executeUpdate();
 			logger.debug(ret + " rows updated in target_user_list");
 	
