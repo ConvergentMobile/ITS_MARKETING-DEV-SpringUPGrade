@@ -20,10 +20,12 @@
 	}
 	
 	function rejectMsg(msgId) {
+		var comment = $('#aMsg\\.comments').val();
+		alert('cmt: ' + comment);
 		$.ajax({
 		    type : 'POST',
 		    url : 'approveMessage',
-		    data: 'msgId=' + msgId + '&status=R',
+		    data: 'msgId=' + msgId + '&reject=R&comment=' + comment,
 		    success : function(result) {
 			$('#office').html(result)
 				},
@@ -78,7 +80,7 @@
           <!-- comment wrapper -->
           <div class="comment_wrapper">
 	          <label for="comments" class="lb_01">Comments:</label>
-  	        <form:textarea path="searchDMAString" class="input_comment" rows="3"></form:textarea>
+  	        <form:textarea path="aMsg.comments" class="input_comment" rows="3"></form:textarea>
           </div>          
           <!-- buttons wrapper -->
           <div class="button_wrapper_03 clearfix">
