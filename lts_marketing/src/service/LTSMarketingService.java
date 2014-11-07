@@ -6,10 +6,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import keyword.KeywordApplication;
+import liberty.CustomFields;
 
 import reports.LTReport;
 import reports.ReportData;
 import subclass.LTCategory_3;
+import user.User;
 
 import admin_user.UserProfileVO;
 
@@ -28,11 +30,17 @@ public interface LTSMarketingService {
 	public List<UserProfileVO> getSites(Long userId, String sortColumn, String sortOrder);
 	public List<UserProfileVO> getAllSites(Long userId, String sortColumn, String sortOrder);
 	
+	public List<UserProfileVO> getSitesAD(Long userId) throws Exception;
+	public List<UserProfileVO> getAllSitesAD(Long userId) throws Exception;
+
+	public User getUser(Long userId) throws Exception;
+
 	public LTCategory_3 getProfile(Long userId);
 	public LTCategory_3 getProfileByFromSession(Long userId);
 
 	public List<ApprovedMessage> getPendingMessages(String eid);
 	public List<ApprovedMessage> getCorporateMessages(Integer siteId);
+	public List<ApprovedMessage> getCorporateMessages(Integer siteId, String lang);
 	public List<ApprovedMessage> getCustomMessages(Integer siteId, String eid);
 	
 	public List<ApprovedMessage> getCorporateMessagesCA(Integer siteId);
@@ -50,4 +58,5 @@ public interface LTSMarketingService {
 	
 	public KeywordApplication getKeywordByUserId(Long userId) throws Exception;
 
+	public CustomFields getCustomFields(Long userId) throws Exception;
 }
