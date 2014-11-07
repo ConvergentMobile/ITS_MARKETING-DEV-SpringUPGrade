@@ -2,6 +2,7 @@
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+ <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <script type="text/JavaScript">	
 	function resetForm() {
@@ -32,6 +33,55 @@
 	    });
 	});
 
+	function viewList(listId) {
+		window.open('viewListData?listId=' + listId,"mywindow","scrollbars=yes,menubar=1,resizable=1,width=450,height=550");			
+	}
+	
+	function viewList1(listId) {
+		var outstr = '';
+	        $.ajax({
+	            type : 'GET',
+	            url : 'viewListData',
+	            contentType: "application/html",
+	            data: 'listId='+ listId,
+	            success : function(result) {
+					newwin = window.open('',"mywindow","scrollbars=yes,menubar=1,resizable=1,width=450,height=550");		
+	            	
+	                if (result.length == 0) {
+                        	outstr = "<span class='name'><font size='-0.5'>Empty list</font></span>";
+                	}  else {
+                        	$.each(result, function(index, value) {
+					outstr += '<br/>' + value;
+					outstr += ' <a href="javascript:deleteNumber(\'' + listId + '\', \'' + value + '\');"><img src="images/delete.png" title="Delete"/></a>';
+            			});
+           		}	
+           		//$(newwin.document,body).html(outstr);
+           		newwin.document.write(outstr);
+	            },
+				error : function(e) {
+					alert('error: ' + e.toString());
+				}                        
+	        });		
+	}
+
+	function deleteNumber(listId, number) {
+	        $.ajax({
+	            type : 'POST',
+	            url : 'deleteNumber',
+            	    data: 'listId=' + listId + '&number=' + number,
+	            success : function(result) {
+            		alert(result);
+				},
+				error : function(e) {
+					alert('error: ' + e);
+				}                        
+	        });	
+	}
+	
+	function uploadList(){		
+		window.open('uploadFile',"mywindow","scrollbars=yes,menubar=1,resizable=1,width=450,height=550");		
+	}
+	
 	function createHotspot(keyword){		
 		window.open('createHotspot?keyword=' + keyword,"mywindow","scrollbars=yes,menubar=1,resizable=1,width=450,height=550");		
 	}
@@ -86,24 +136,51 @@
 	
 	function sendIt(isNow) {
 		var isRes = '${sites[0].customField3}';
+		
 		if (isRes == 'R') {
 			alert("You must get a keyword first");
 			return;
 		}
 		
+		if ($('#sendSearchKeywordString').val() == "") {
+			alert("Must specify a Campaign Name");
+			return;		
+		}
+		
+		if ($('#sendSearchCityString').val() == "") {
+			alert("Must select a Message");
+			return;		
+		}		
+				
+		cnt = $('[name="listIds"]:checked').length;
+		if (cnt == 0) {
+			alert("Must select a list to send to");
+			return;
+		}	
+		
 			$('#nowSched').val(isNow);
+			
+		$('#sendNow').hide();
+		$('#scheduleIt').hide();
+		
+		
 	        $.ajax({
 	            type : 'POST',
 	            url : 'sendMessage',
             	data: $("#thisForm").serialize(),
 	            success : function(result) {
-            		alert(result);
+            			alert(result);
+            			$('#sendNow').show();
+				$('#scheduleIt').show();
             		resetForm();
 				},
 				error : function(e) {
 					alert('error: ' + e);
-				}                        
+					$('#sendNow').show();
+					$('#scheduleIt').show();					
+				}   				
 	        });
+
 	}	
 	
 
@@ -183,25 +260,35 @@ display: none;
 		
   	<!-- left side navigation -->
   	<ul class="ul_left_nav">
-	<c:if test = '${ltUser.user.roleActions[0].roleType == "Entity"}'>  	
-    		<li class="si_dashboard selected"><a href="dashboardEntity">Dashboard</a></li>
-		<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
-	      	<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>		
-		<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>			
-	</c:if>
-	<c:if test = '${ltUser.user.roleActions[0].roleType == "Office"}'>
-    		<li class="si_dashboard selected"><a href="dashboardOffice">Dashboard</a></li>	
-		<li class="si_custom_msg"><a href="customMessage">Create Custom Message</a></li>
-	      	<li class="si_confirmation" selected><a href="confirmationMessage">Confirmation Message</a></li>	
-	</c:if>   
- 	<c:if test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
-    		<li class="si_dashboard selected"><a href="dashboardCorp">Dashboard</a></li>	
-      		<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>   
-		<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>			
-	</c:if> 
-	<li class="si_reports"><a href="getReports">Reports</a></li>
-      	<li class="si_mobile_profile"><a href="getProfile">My Mobile Profile</a></li>
-      	<li class="si_toolbox"><a href="toolbox-office.html">Convergent Toolbox</a></li>
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "Entity"}'>  	
+				<li class="si_dashboard"><a href="dashboardEntity">Dashboard</a></li>
+				<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
+				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>		
+				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>
+				<li class="si_reports"><a href="getReports">Reports</a></li>     		
+				<li class="si_mobile_profile"><a href="getProfile">My Mobile Profile</a></li>	
+			</c:if>
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "Office"}'>
+				<li class="si_dashboard selected"><a href="dashboardOffice">Dashboard</a></li>	
+				<li class="si_custom_msg"><a href="customMessage">Create Custom Message</a></li>
+				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>	
+				<li class="si_reports"><a href="getReports">Reports</a></li>	      	
+				<li class="si_mobile_profile"><a href="getProfile">My Mobile Profile</a></li>	
+			</c:if>   
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
+				<li class="si_dashboard"><a href="dashboardCorp">Dashboard</a></li>	
+				<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>   
+				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>	      	
+				<li class="si_search"><a href="corpSearch">Search</a></li>	
+				<li class="si_reports"><a href="getReports">Reports</a></li>	      	
+			</c:if> 
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "AD"}'>  	
+				<li class="si_dashboard"><a href="dashboardAD">Dashboard</a></li>
+				<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
+				<li class="si_reports"><a href="getReports">Reports</a></li>		
+			</c:if>	
+      	
+      		<li class="si_toolbox"><a href="cmtoolbox">Convergent Toolbox</a></li>
     </ul>
     <!-- // left side navigation -->
     <!-- content area -->
@@ -273,12 +360,16 @@ display: none;
         <div class="box box_red_title box_send_msg">
         	<!-- title -->
         	<div class="box_title mb9">
-           	<h2>Send Message</h2>                						
-		<div class="campaign clearfix">
+           	<h2>Send Message</h2> 
+           	</div>
+           	
+		<div class="grid grid_06">
+            		<label for="campaign">Campaign Name:</label>           				
 			<form:input path="sendSearchKeywordString"/>
-            		<label for="campaign">Campaign:</label>
-            </div>
+            		<a href="#" class="h3_sub" onclick="uploadList()">Upload List</a>
+		</div>
           </div>
+          
           <!-- // title -->
           <!-- two columns -->
           <div class="two_cols_wrapper_01 clearfix">
@@ -293,7 +384,7 @@ display: none;
                 </ul>
                 <!-- tab 01 -->
                 <div class="tabs_01_content" id="tabs_01_1">
-		<c:if test = "${ltUser.approvedMsgs.size() > 0}">                    
+		<c:if test = "${fn:length(ltUser.approvedMsgs) > 0}">                    
                   <ul class="ul_scroll_list scroll_list_001">
                   	<form:radiobuttons element="li" path="sendSearchStateString" onchange="showSelectedMsg(this, 'Corp')" items="${ltUser.approvedMsgs}" itemValue="messageId" itemLabel="messageText"/>  
 	          </ul>
@@ -302,7 +393,7 @@ display: none;
                       <!-- // tab 01 -->
                 <!-- tab 02 -->
                 <div class="tabs_01_content" id="tabs_01_2">
-                <c:if test = "${ltUser.customMsgs.size() > 0}">
+                <c:if test = "${fn:length(ltUser.customMsgs) > 0}">
                   <ul class="ul_scroll_list scroll_list_001">          
                   	<form:radiobuttons element="li" path="sendSearchDMAString" onchange="showSelectedMsg(this, 'Cust')" items="${ltUser.customMsgs}" itemValue="messageId" itemLabel="messageText"/>  
                   </ul>
@@ -325,7 +416,7 @@ display: none;
                 </div>
 	          	<form:hidden path="nowSched" />
                 <center>
-                	<input type="button" onclick="sendIt('Y')" value="Send Now" class="btn_send_now">               	
+                	<input type="button" id="sendNow" onclick="sendIt('Y')" value="Send Now" class="btn_send_now">               	
                 </center>	        
               </div>
             </div>
@@ -344,10 +435,12 @@ display: none;
                   <label for="all_numbers">Check All</label>
                 </div>
               	<ul class="ul_phone_numbers">
-              		<c:if test = "${ltUser.user.targetUserLists.size() > 0}">             	
-					<form:checkboxes class="chk_light" element="li" path="listIds" items="${ltUser.user.targetUserLists}" 
-						itemValue="listId" itemLabel="listName"  />                 
-                 	</c:if>
+                 	<c:forEach var="item" items="${ltUser.user.targetUserLists}">
+                 		<li>
+				<a href="#" class="lnk_chk_001" onclick="viewList('${item.listId}')"><c:out value="${item.listName}"/></a>                 		
+				<form:checkbox path="listIds" value="${item.listId}" class="chk_light"/> 
+				</li>
+                 	</c:forEach>
                  </ul>
                 <div class="floatfix"></div>
               </div>
@@ -417,7 +510,7 @@ display: none;
 	<!-- // repeat -->
 	<div class="btn_schedule_box">
 	  <center>
-	    <input type="button" onclick="sendIt('N')" value="Schedule" class="btn_schedule"><br>
+	    <input type="button" id="scheduleIt" onclick="sendIt('N')" value="Schedule" class="btn_schedule"><br>
 		<form:checkbox path="officeIds" value="${ltUser.sites[0].customField2}" 
 			checked="true" style="display: none"/>	    
 	    <a href="#" onclick="getJobs()" class="lnk_scheduled">See Scheduled</a>	    
@@ -431,7 +524,6 @@ display: none;
           <!-- // two columns -->
         </div>
       </div>
-    </div>
      <!-- // content area -->
     <!-- sidebar -->
     <div class="sidebar" id="id_sidebar">
@@ -505,7 +597,10 @@ display: none;
 				<c:out value="${ltUser.category.state}"/> 
 				&nbsp;<c:out value="${ltUser.category.zip}"/>
 				<br/>
-				<c:out value="${ltUser.category.phone}"/>
+				<c:set var="phone" value="${ltUser.category.phone}"/>
+				<c:if test="${fn:length(phone) > 0 }">				
+					<c:out value="(${fn:substring(phone, 0, 3)}) ${fn:substring(phone, 3, 6)}-${fn:substring(phone, 6, fn:length(phone))}"/>	
+				</c:if>				
 		    </div>
 		  </td>
 		  <td class="td_02"><a href="#" onclick="getProfile(${ltUser.category.userId})">Expand</a></td>		
