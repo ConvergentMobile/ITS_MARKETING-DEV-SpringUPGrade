@@ -167,8 +167,9 @@ public class LTCategory_3 extends Category_3 implements Serializable {
 		String busName = "";
 		if (catg.getBusinessName() != null)
 			busName = catg.getBusinessName().trim();
-		String repeatMsg = "Welcome back to the Liberty Tax Service " + busName + " SMS program. We will be sending some more great offers soon.";
-		catg.setStdRepeatNotificationMsg(repeatMsg);
+		String repeatMsg = "Welcome back to the Liberty Tax Service SMS program. We will be sending some more great offers soon.";
+		if (catg.getStdRepeatNotificationMsg() == null || catg.getStdRepeatNotificationMsg().length() == 0)
+			catg.setStdRepeatNotificationMsg(repeatMsg);
 		
 		if (catg.getAutoResponse() == null || catg.getAutoResponse().length() <= 0) {
 			catg.setAutoResponse(repeatMsg);
