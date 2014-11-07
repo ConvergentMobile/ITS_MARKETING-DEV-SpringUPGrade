@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import keyword.KeywordApplication;
+import liberty.CustomFields;
 
 import org.apache.log4j.Logger;
 
@@ -121,10 +122,20 @@ public class LTSMarketingServiceImpl {
 		return dao.getAllOffices(userId);
 	}
 	
+	public User getUser(Long userId) throws Exception {
+		return dao.getUser(userId);
+	}
+	
 	public LTCategory_3 getProfile(Long userId) throws Exception {
 		String sql = "from LTCategory_3 as p where p.userId = ?";
 
 		LTCategory_3 catg = dao.getProfile(userId, sql);
+		//set the std repeat opt-in msg
+		
+		String repeatMsg = "Welcome back to the Liberty Tax Service SMS program. We will be sending some more great offers soon.";
+		if (catg != null && (catg.getAutoResponse() == null || catg.getAutoResponse().length() <= 0)) {
+			catg.setAutoResponse(repeatMsg);
+		}
 					
 		return catg;
 	}
@@ -139,6 +150,10 @@ public class LTSMarketingServiceImpl {
 
 	public List<ApprovedMessage> getCorporateMessages(Integer siteId) throws Exception {
 		return adminDao.getApprovedMsgs(siteId);
+	}
+	
+	public List<ApprovedMessage> getCorporateMessages(Integer siteId, String lang) throws Exception {
+		return adminDao.getApprovedMsgs(siteId, lang);
 	}
 	
 	public List<ApprovedMessage> getCustomMessages(Integer siteId, String eid) throws Exception {
@@ -163,6 +178,14 @@ public class LTSMarketingServiceImpl {
 	
 	public List<UserProfileVO> getAllSites(Long userId, String sortColumn, String sortOrder) throws Exception {
 		return adminDao.getAllSites(userId, sortColumn, sortOrder);
+	}
+	
+	public List<UserProfileVO> getSitesAD(Long userId) throws Exception {
+		return adminDao.getSitesAD(userId);
+	}
+	
+	public List<UserProfileVO> getAllSitesAD(Long userId) throws Exception {
+		return adminDao.getAllSitesAD(userId);
 	}
 	
 	//get approved messages from the last x days
@@ -192,5 +215,9 @@ public class LTSMarketingServiceImpl {
 
 	public KeywordApplication getKeywordByUserId(Long userId) throws Exception {
 		return adminDao.getKeywordByUserId(userId);
+	}
+	
+	public CustomFields getCustomFields(Long userId) throws Exception {
+		return dao.getCustomFields(userId);
 	}
 }
