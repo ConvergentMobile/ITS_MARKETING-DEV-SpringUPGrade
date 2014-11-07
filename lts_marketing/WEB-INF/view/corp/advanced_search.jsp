@@ -68,23 +68,35 @@
 		
   	<!-- left side navigation -->
   	<ul class="ul_left_nav">
-	<c:if test = '${ltUser.user.roleActions[0].roleType == "Entity"}'>  	
-    		<li class="si_dashboard"><a href="dashboardEntity">Dashboard</a></li>
-		<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
-	</c:if>
-	<c:if test = '${ltUser.user.roleActions[0].roleType == "Office"}'>
-    		<li class="si_dashboard"><a href="dashboardOffice">Dashboard</a></li>	
-		<li class="si_custom_msg"><a href="customMessage">Create Custom Message</a></li>
-	</c:if>   
- 	<c:if test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
-    		<li class="si_dashboard"><a href="dashboardCorp">Dashboard</a></li>	
-      		<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>   
-	      	<li class="si_search selected"><a href="corpSearch">Search</a></li>	
-	</c:if>    	
-    <li class="si_send_msg"><a href="sendMessage">Send Message</a></li>	
-	<li class="si_reports"><a href="getReports">Reports</a></li>
-    <li class="si_mobile_profile"><a href="getProfile">My Mobile Profile</a></li>
-    <li class="si_toolbox"><a href="toolbox-office.html">Convergent Toolbox</a></li>
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "Entity"}'>  	
+				<li class="si_dashboard"><a href="dashboardEntity">Dashboard</a></li>
+				<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
+				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>		
+				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>
+				<li class="si_reports"><a href="getReports">Reports</a></li>     		
+				<li class="si_mobile_profile"><a href="getProfile">My Mobile Profile</a></li>	
+			</c:if>
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "Office"}'>
+				<li class="si_dashboard selected"><a href="dashboardOffice">Dashboard</a></li>	
+				<li class="si_custom_msg"><a href="customMessage">Create Custom Message</a></li>
+				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>	
+				<li class="si_reports"><a href="getReports">Reports</a></li>	      	
+				<li class="si_mobile_profile"><a href="getProfile">My Mobile Profile</a></li>	
+			</c:if>   
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
+				<li class="si_dashboard"><a href="dashboardCorp">Dashboard</a></li>	
+				<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>   
+				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>	      	
+				<li class="si_search selected"><a href="corpSearch">Search</a></li>	
+				<li class="si_reports"><a href="getReports">Reports</a></li>	      	
+			</c:if> 
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "AD"}'>  	
+				<li class="si_dashboard"><a href="dashboardAD">Dashboard</a></li>
+				<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
+				<li class="si_reports"><a href="getReports">Reports</a></li>		
+			</c:if>			
+    		
+    		<li class="si_toolbox"><a href="cmtoolbox">Convergent Toolbox</a></li>
     </ul>
     <!-- // left side navigation -->
     <!-- content area -->
