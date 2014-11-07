@@ -41,7 +41,7 @@
     <div class="logo_txt"><a href="dashboard-office.html">Liberty Tax Service</a></div>
     <div class="logo_app"><a href="dashboard-office.html"></a></div>
     <ul class="top_nav">
-      <li class="help"><a href="#">Help</a></li>
+      <li class="help"><a href="javascript:openwindow('US411_Help_Guide_2014_update3.pdf')">Help</a></li>
 
 <form:form id="signin" method="post" action="logout" commandName="ltUser"> 		 	
       
