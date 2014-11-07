@@ -54,25 +54,35 @@
 		
   	<!-- left side navigation -->
   	<ul class="ul_left_nav">
-	<c:if test = '${ltUser.user.roleActions[0].roleType == "Entity"}'>  	
-    		<li class="si_dashboard"><a href="dashboardEntity">Dashboard</a></li>
-		<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
-	      	<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>		
-	</c:if>
-	<c:if test = '${ltUser.user.roleActions[0].roleType == "Office"}'>
-    		<li class="si_dashboard selected"><a href="dashboardOffice">Dashboard</a></li>	
-		<li class="si_custom_msg"><a href="customMessage">Create Custom Message</a></li>
-	      	<li class="si_confirmation" selected><a href="confirmationMessage">Confirmation Message</a></li>	
-	</c:if>   
- 	<c:if test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
-    		<li class="si_dashboard selected"><a href="dashboardCorp">Dashboard</a></li>	
-      		<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>   
-	      	<li class="si_search"><a href="corpSearch">Search</a></li>			
-	</c:if> 
-	<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>				
-	<li class="si_reports"><a href="getReports">Reports</a></li>
-      	<li class="si_mobile_profile selected"><a href="getProfile">My Mobile Profile</a></li>
-      	<li class="si_toolbox"><a href="toolbox-office.html">Convergent Toolbox</a></li>
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "Entity"}'>  	
+				<li class="si_dashboard"><a href="dashboardEntity">Dashboard</a></li>
+				<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
+				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>		
+				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>
+				<li class="si_reports"><a href="getReports">Reports</a></li>     		
+				<li class="si_mobile_profile selected"><a href="getProfile">My Mobile Profile</a></li>	
+			</c:if>
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "Office"}'>
+				<li class="si_dashboard"><a href="dashboardOffice">Dashboard</a></li>	
+				<li class="si_custom_msg"><a href="customMessage">Create Custom Message</a></li>
+				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>	
+				<li class="si_reports"><a href="getReports">Reports</a></li>	      	
+				<li class="si_mobile_profile selected"><a href="getProfile">My Mobile Profile</a></li>	
+			</c:if>   
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
+				<li class="si_dashboard"><a href="dashboardCorp">Dashboard</a></li>	
+				<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>   
+				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>	      	
+				<li class="si_search"><a href="corpSearch">Search</a></li>	
+				<li class="si_reports"><a href="getReports">Reports</a></li>	      	
+			</c:if> 
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "AD"}'>  	
+				<li class="si_dashboard"><a href="dashboardAD">Dashboard</a></li>
+				<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
+				<li class="si_reports"><a href="getReports">Reports</a></li>		
+			</c:if>	
+      	
+      		<li class="si_toolbox"><a href="cmtoolbox">Convergent Toolbox</a></li>
     </ul>
     <!-- // left side navigation -->
     <!-- content area -->
@@ -143,7 +153,9 @@
 						<td class="td_01"><form:label path="category.phone"><spring:message code="label.phone" /></form:label></td>
 						<td class="td_02">
 						<c:set var="phone" value="${ltUser.category.phone}"/>
-						<c:out value="(${fn:substring(phone, 0, 3)}) ${fn:substring(phone, 3, 6)}-${fn:substring(phone, 6, fn:length(phone))}"/>	
+						<c:if test="${fn:length(phone) > 0 }">
+							<c:out value="(${fn:substring(phone, 0, 3)}) ${fn:substring(phone, 3, 6)}-${fn:substring(phone, 6, fn:length(phone))}"/>	
+					    </c:if>
 					    </td>					
 					</tr>
 					<tr>
@@ -154,7 +166,14 @@
 	                  <td class="td_01">
 	                  	<form:label path="category.timezone"><spring:message code="label.timezone"/></form:label>
 					  </td>
-	                  <td class="td_02"><c:out value="${ltUser.category.timezone}"/></td>
+	                  <td class="td_02">
+	                  	<form:select path="category.timezone" class="select_send_notification">
+	                  		<form:option value="US/Central">Central</form:option>
+	                  		<form:option value="US/Eastern">Eastern</form:option>
+	                  		<form:option value="US/Mountain">Mountain</form:option>
+	                  		<form:option value="US/Pacific">Pacific</form:option>
+	                  	</form:select>
+	                  </td>
 	                </tr> 									
 					<tr>
 						<td class="td_01"><form:label path="category.facebookLink"><spring:message code="label.facebookLink" /></form:label></td>
@@ -177,7 +196,19 @@
 						<td class="td_01"><form:label path="category.description"><spring:message code="label.description" /></form:label></td>
 						<td class="td_02"><form:textarea styleClass="text" path="category.description" rows="2" readonly="true"/></td>
 					</tr>
-            
+		              <tr>
+		              	<td class="td_01"></td>
+		                <td class="td_02">
+		                	<div class="pt7">
+		                  	
+		                    <a href="#" onclick="saveProfile()" class="btn_green btn_save_lnk left mr7">Save</a>
+		                    <!-- <a href="#" class="btn_red btn_cancel_lnk">Cancel</a> -->
+		                    <!-- <input type="submit" value="Save" class="btn_green btn_save left mr10"> -->
+		                  	<!-- <input type="submit" value="Cancel" class="btn_red_lnk btn_cancel_lnk left"> -->
+		                    <div class="floatfix"></div>
+		                  </div>
+		                </td>
+		              </tr>            
             </tbody>
             </table>
           </div>
@@ -261,7 +292,9 @@
 				&nbsp;<c:out value="${ltUser.category.zip}"/>
 				<br/>
 				<c:set var="phone" value="${ltUser.category.phone}"/>
-				<c:out value="(${fn:substring(phone, 0, 3)}) ${fn:substring(phone, 3, 6)}-${fn:substring(phone, 6, fn:length(phone))}"/>	
+				<c:if test="${fn:length(phone) > 0 }">				
+					<c:out value="(${fn:substring(phone, 0, 3)}) ${fn:substring(phone, 3, 6)}-${fn:substring(phone, 6, fn:length(phone))}"/>	
+				</c:if>
 				</div>
 		  </td>
 		  <!-- 
