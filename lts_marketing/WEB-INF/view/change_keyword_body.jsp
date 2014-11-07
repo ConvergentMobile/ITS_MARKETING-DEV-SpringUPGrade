@@ -25,7 +25,7 @@
             url : 'changeKeyword',
         	data: $("#thisForm1").serialize(),
             success : function(result) {
-        		//alert(result);
+        		alert(result);
      			location.reload();
      			$('#dialog1').dialog('close');
      		},
