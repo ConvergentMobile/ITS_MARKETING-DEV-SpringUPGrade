@@ -36,7 +36,6 @@
 		if (${userId == ''}) 
 			window.open('createHotspot',"mywindow","scrollbars=yes,menubar=1,resizable=1,width=450,height=550");		
 		else {
-			alert('userId: ' + userId);
 			window.open('createHotspot?userId=' + userId,"mywindow","scrollbars=yes,menubar=1,resizable=1,width=450,height=550");		
 		}
 	}
@@ -309,25 +308,35 @@
 		
   	<!-- left side navigation -->
   	<ul class="ul_left_nav">
-	<c:if test = '${ltUser.user.roleActions[0].roleType == "Entity"}'>  	
-    		<li class="si_dashboard selected"><a href="dashboardEntity">Dashboard</a></li>
-		<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
-	      	<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>		
-		<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>
-	</c:if>
-	<c:if test = '${ltUser.user.roleActions[0].roleType == "Office"}'>
-    		<li class="si_dashboard selected"><a href="dashboardOffice">Dashboard</a></li>	
-		<li class="si_custom_msg"><a href="customMessage">Create Custom Message</a></li>
-	      	<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>	
-	</c:if>   
- 	<c:if test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
-    		<li class="si_dashboard selected"><a href="dashboardCorp">Dashboard</a></li>	
-      		<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>   
-		<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>
-	</c:if> 
-	<li class="si_reports"><a href="getReports">Reports</a></li>
-      	<li class="si_mobile_profile"><a href="getProfile">My Mobile Profile</a></li>
-      	<li class="si_toolbox"><a href="toolbox-office.html">Convergent Toolbox</a></li>
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "Entity"}'>  	
+				<li class="si_dashboard selected"><a href="dashboardEntity">Dashboard</a></li>
+				<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
+				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>		
+				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>
+				<li class="si_reports"><a href="getReports">Reports</a></li>     		
+				<li class="si_mobile_profile"><a href="getProfile">My Mobile Profile</a></li>	
+			</c:if>
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "Office"}'>
+				<li class="si_dashboard"><a href="dashboardOffice">Dashboard</a></li>	
+				<li class="si_custom_msg"><a href="customMessage">Create Custom Message</a></li>
+				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>	
+				<li class="si_reports"><a href="getReports">Reports</a></li>	      	
+				<li class="si_mobile_profile"><a href="getProfile">My Mobile Profile</a></li>	
+			</c:if>   
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
+				<li class="si_dashboard"><a href="dashboardCorp">Dashboard</a></li>	
+				<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>   
+				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>	      	
+				<li class="si_search"><a href="corpSearch">Search</a></li>	
+				<li class="si_reports"><a href="getReports">Reports</a></li>	      	
+			</c:if> 
+			<c:if test = '${ltUser.user.roleActions[0].roleType == "AD"}'>  	
+				<li class="si_dashboard"><a href="dashboardAD">Dashboard</a></li>
+				<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
+				<li class="si_reports"><a href="getReports">Reports</a></li>		
+			</c:if>			
+			
+	    	<li class="si_toolbox"><a href="cmtoolbox">Convergent Toolbox</a></li>
     </ul>
 		<!-- // left side navigation -->
     <!-- content area -->
@@ -437,18 +446,26 @@
           <div class="wide_column_wrapper custom_msg_01" style="height:407px;">
           	<div class="description">  
                <p>
-                All new messages will be reviewed for compliance with the corproate policies. Your message may be Accepted or Rejected. Accepted and Rejected messages will appear on the right hand-side panel. Messages are usually reviewd within 1 week after submission.
+                All new messages will be reviewed for compliance with the corporate policies. Your message may be Accepted or Rejected. Accepted and Rejected messages will appear on the right hand-side panel. Messages are usually reviewed within 1 week after submission.
               </p>
               <p>
                 Please type your Message in the space below.            
               </p>
             </div>
+            <div class="select_office_wrapper">
+            	<label for="selected_office" class="lb_01">Select Office</label>
+                <form:select path="searchOfficeIdString" class="select_send_notification">
+                	<form:option value="">Select an Office</form:option>
+                	<form:options items="${sites}" itemValue="userId" itemLabel="customField2"/>            	
+            	</form:select>            	
+            </div>
+            <div class="floatfix"></div>                        
             <label for="msg_content" class="lb_01">Message Content:</label>
             <div class="big_input_wrapper med_input_wrapper">
             	<form:textarea path="sendSearchCityString" class="input_big" rows="4"/>
             </div>       
             <div class="button_wrapper_01 clearfix">
-            	<input type="submit" onclick="return submitMsg()" class="btn_green btn_01" value="Create & Send for Approval">
+            	<input type="button" onclick="javascript:submitMsg()" class="btn_green btn_01" value="Create & Send for Approval">                        	            	
             </div>
           </div>
           <!-- // wide_column -->
