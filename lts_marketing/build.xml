@@ -17,15 +17,16 @@
     <property name="deploy.dir"         value="${tomcat.home}/webapps"/>
     <property name="build.compiler"     value="modern"/>
     <property name="build.dir"          value="./build/classes" />
+	<property name="git.build.dir"      value="D:/git_repo/lts_marketing/lts_marketing/build/classes" />	
     <property name="src.dir"            value="./src"/>
     <property name="war.file"           value="lts_marketing"/>
     <property name="war.file.name"      value="${war.file}.war"/>
 	<property name="test.dir" 			value="./test" />
 	<property name="testbuild.dir" 		value="./test/classes" />
-	<property name="us411.dir" 			value="../us411/build/classes" />
-	<property name="junit.jar"      	value="../lib_notused/junit-4.5.jar"/>
-	<property name="activemq.jar"      	value="../lib_notused/activemq-all-5.1.0.jar"/>
-	<property name="sms.jar"      		value="../lib/sms.jar"/>
+	<property name="us411.dir" 			value="D:/workspace/us411/build/classes" />
+	<property name="junit.jar"      	value="D:/workspace/lib_notused/junit-4.5.jar"/>
+	<property name="activemq.jar"      	value="D:/workspace/lib_notused/activemq-all-5.1.0.jar"/>
+	<property name="sms.jar"      		value="D:/workspace/lib/sms.jar"/>
 	<property name="spring-test.jar"    value="D:/spring-framework-3.2.2/spring-test-3.2.2.RELEASE.jar"/>	
 	<property name="jersey.lib.path"    value="D:/jersey-archive-1.15/lib"/>
 	
@@ -88,8 +89,8 @@
 				<include name="MessageResources_common.properties"/>
 		    </fileset>
 		</concat>			
-        <copy todir="./build/classes">
-            <fileset dir="../us411/build/classes">
+        <copy todir="${build.dir}">
+            <fileset dir="${us411.dir}">
             	<exclude name="**/*.properties"/>
             	<exclude name="**/category_2/**"/>
             	<exclude name="**/category_4/**"/>

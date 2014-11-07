@@ -57,7 +57,11 @@
 	<definition name="dashboard_office" extends="baseDef_1">
 		<put-attribute name="body" value="/WEB-INF/view/dashboard_office.jsp" />
 	</definition>
-	
+
+	<definition name="dashboard_ad" extends="baseDef_1">
+		<put-attribute name="body" value="/WEB-INF/view/ad/dashboard_ad.jsp" />
+	</definition>
+		
 	<definition name="customMessage" extends="baseDef_1">
 		<put-attribute name="body" value="/WEB-INF/view/custom_message.jsp" />
 	</definition>
@@ -98,5 +102,9 @@
 		
 	<definition name="customMessageCorp" extends="baseDef_1">
 		<put-attribute name="body" value="/WEB-INF/view/corp/custom_message_corp.jsp" />
-	</definition>		
+	</definition>	
+	
+	<definition name="cmtoolbox" extends="baseDef_1">
+		<put-attribute name="body" value="/WEB-INF/view/cmtoolbox.jsp" />
+	</definition>
 </tiles-definitions>
