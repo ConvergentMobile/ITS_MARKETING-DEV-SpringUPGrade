@@ -186,7 +186,7 @@
 					<tr>
 						<td class="td_01"><form:label path="category.busHours"><spring:message code="label.hours" /></form:label>
 						</td>
-						<td class="td_02"><form:textarea path="category.busHours" rows="2" readonly="true"/></td>
+						<td class="td_02"><form:textarea path="category.busHours" style="border: 0px solid #000000;" rows="2" readonly="true"/></td>
 					</tr>
 					<tr>
 						<td class="td_01"><form:label path="category.areaServed"><spring:message code="label.areaServed" /></form:label></td>
@@ -194,7 +194,7 @@
 					</tr>
 					<tr>
 						<td class="td_01"><form:label path="category.description"><spring:message code="label.description" /></form:label></td>
-						<td class="td_02"><form:textarea styleClass="text" path="category.description" rows="2" readonly="true"/></td>
+						<td class="td_02"><form:textarea styleClass="text" path="category.description" style="border: 0px solid #000000;" rows="2" readonly="true"/></td>
 					</tr>
 		              <tr>
 		              	<td class="td_01"></td>
