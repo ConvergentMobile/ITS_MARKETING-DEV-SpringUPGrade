@@ -4,16 +4,34 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 
+<style>
+.no-close .ui-dialog-titlebar-close {
+display: none;
+</style>
+
 <script type="text/JavaScript">	
 	function resetForm() {
 		$('#thisForm')[0].reset();			
 		$('input[type="radio"]').prop('checked', false);
 		$('input:checkbox').removeAttr('checked');
-				
 	}
 	
 	 $(document).ready(function() {
 		resetForm();
+		
+		$( "#errwin" ).dialog({
+			title: 'Alerts & Notifications',
+			width: 400,
+			height: 200,		
+			dialogClass: 'no-close',
+			autoOpen: false, 
+			buttons: {
+			  OK: function() {
+				$(this).dialog("close");
+				//location.reload();
+			  }
+		       },
+		});			
 	});
 	
 	function createHotspot(keyword){		
@@ -79,13 +97,27 @@
 	}	
 	
 	function saveMsg(msgType) {
+		var offId = $('#searchOfficeIdString').val();
+		if (offId == "") {
+			alert("Must select an Office");
+			return;
+		}
+		if (msgType == 'ini') {
+			if ($('#category\\.initialMessage').val() == '') {
+				alert("Must select a msg");
+				return;
+			}
+		}
 		$('#currentPage').val(msgType);			
 	        $.ajax({
 	            type : 'POST',
 	            url : 'saveConfirmationMessage',
-            	    data: $("#thisForm").serialize(),
+            	data: $("#thisForm").serialize(),
 	            success : function(result) {
-            		alert(result);
+            		//alert(result);
+        			//$('#errwin').html('<div align="center">' + result + '</div>');
+        			//$( "#errwin" ).dialog('open');  
+        			popup(result, 0);        			
 				},
 				error : function(e) {
 					alert('error: ' + e.text());
@@ -126,6 +158,7 @@
 				<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
 				<li class="si_confirmation selected"><a href="confirmationMessage">Confirmation Message</a></li>		
 				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>
+				<li class="si_sendafriend"><a href="sendAFriend">Send a Friend</a></li>
 				<li class="si_reports"><a href="getReports">Reports</a></li>     		
 				<li class="si_mobile_profile"><a href="getProfile">My Mobile Profile</a></li>	
 			</c:if>
@@ -139,6 +172,7 @@
 			<c:if test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
 				<li class="si_dashboard"><a href="dashboardCorp">Dashboard</a></li>	
 				<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>   
+				<li class="si_confirmation selected"><a href="confirmationMessage">Confirmation Message</a></li>						
 				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>	      	
 				<li class="si_search"><a href="corpSearch">Search</a></li>	
 				<li class="si_reports"><a href="getReports">Reports</a></li>	      	
@@ -188,53 +222,67 @@
           	<h2>First Time Opt-In</h2>
           </div>
           <!-- // title -->
+           <form:hidden path="sendSearchCityString"/>
+
           <!-- two columns -->
           <div class="two_cols_wrapper_01 clearfix">
           	<!-- left column -->
-            <div class="left">
             	<h3 class="h3_sub ico_select">Select a Message:</h3>
               <!-- tabs ///////////////////////////////////////////////////////////////////  -->
               <div class="tabs_01 tabs_height_02" id="tabs_01">
                 <ul class="ul_tabs_select">
                   <li class="tab_01"><a href="#tabs_01_1" class="selected">Corporate</a></li>
-                  <li class="tab_02"><a href="#tabs_01_2">Custom</a></li>
+                  <li class="tab_02"><a href="#tabs_01_2">Spanish</a></li>
+                  <li class="tab_02"><a href="#tabs_01_3">Custom</a></li>                  
                 </ul>
                 <!-- tab 01 -->
                 <div class="tabs_02_content" id="tabs_01_1">
-                  <ul class="ul_scroll_list scroll_list_002">                
+                  <ul class="ul_scroll_list scroll_list_002"> 
+                  <c:if test="${fn:length(ltUser.approvedMsgs) > 0}">
                   	<form:radiobuttons element="li" path="sendSearchCityString" onchange="showSelectedMsg(this, 'Corp', 'ini')"
                   		items="${ltUser.approvedMsgs}" itemValue="messageId" itemLabel="messageText"/>  
+                  </c:if>
                   </ul>
                 </div>                  
                  <!-- // tab 01 -->
-                 <!-- tab 02 -->
-                 <div class="tabs_01_content" id="tabs_01_2">
+                <!-- tab 02 -->
+                <div class="tabs_02_content" id="tabs_01_2">
+                  <ul class="ul_scroll_list scroll_list_002">  
+                  <c:if test="${fn:length(ltUser.approvedMsgsSP) > 0}">                  
+                  	<form:radiobuttons element="li" path="sendSearchCityString" onchange="showSelectedMsg(this, 'Corp', 'ini')"
+                  		items="${ltUser.approvedMsgsSP}" itemValue="messageId" itemLabel="messageText"/>  
+                  </c:if>
+                  </ul>
+                </div>                  
+                 <!-- // tab 02 -->                 
+                 <!-- tab 03 -->
+                 <div class="tabs_02_content" id="tabs_01_3">
                  <c:if test = "${fn:length(ltUser.customMsgs) > 0}" >
-                   <ul class="ul_scroll_list scroll_list_001">          
+                   <ul class="ul_scroll_list scroll_list_001">   
+                  <c:if test="${fn:length(ltUser.customMsgs) > 0}">                   
                    	<form:radiobuttons element="li" path="sendSearchEntityIdString" onchange="showSelectedMsg(this, 'Cust', 'ini')" 
                    		items="${ltUser.customMsgs}" itemValue="messageId" itemLabel="messageText"/>  
+                   </c:if>
                    </ul>
                  </c:if>
                  </div>         
-                <!-- // tab 02 -->
+                <!-- // tab 03 -->
               </div>
               <!-- // tabs ////////////////////////////////////////////////////////////////  -->
-            </div>
             <!-- // left column -->
 
           <!-- right column -->
-            <div class="right">
-            	<div class="msg_content_box mcb_height_02">
-              	<h4 class="mb30">Message to Send:</h4>
-                <div class="msg_text_scroll mts_02">            
-			<form:textarea path="category.initialMessage" rows="4" class="ta_text_msg" readonly="true"/>				                			
-                </div>
-                <div class="chk_wrapper mt35 clearfix">
-                	<form:checkbox path="category.includePhoneIni" class="chk_light mr5" />                	
+            <div class="btn_message_box">
+                <div class="box_curr_message">
+                  <label>Current message:</label>
+			<form:textarea path="category.initialMessage" rows="4" readonly="true"/>				                						
+                </div>            
+                <div class="chk_wrapper clearfix">
+                	<form:checkbox path="category.includePhoneIni" class="chk_light mr5" />
                 	<label for="include_phone">Include default phone number</label>
-                </div>			
-                <center><input type="button" value="Save" onclick="saveMsg('ini')" class="btn_green btn_save"></center>
-              </div>
+                	<input type="button" value="Save" onclick="saveMsg('ini')" class="btn_green btn_save">               
+               </div>
+                <div class="clearfix"></div>    
             </div>
             <!-- // right column -->
           </div>
@@ -249,27 +297,41 @@
           	<h2>Repeat Opt-In</h2>
           </div>
           <!-- // title -->
+          <form:hidden path="sendSearchStateString"/>
+
           <!-- two columns -->
           <div class="two_cols_wrapper_01 clearfix">
           	<!-- left column -->
-            <div class="left">
             	<h3 class="h3_sub ico_select">Select a Message:</h3>
               <!-- tabs ///////////////////////////////////////////////////////////////////  -->
-              <div class="tabs_01 tabs_height_02" id="tabs_02">
+              <div class="tabs_01 tabs_height_02" id="tabs_01">
                 <ul class="ul_tabs_select">
                   <li class="tab_01"><a href="#tabs_02_1" class="selected">Corporate</a></li>
-                  <li class="tab_02"><a href="#tabs_02_2">Custom</a></li>
+                  <li class="tab_02"><a href="#tabs_02_2">Spanish</a></li>
+                  <li class="tab_02"><a href="#tabs_02_3">Custom</a></li>                  
                 </ul>
                 <!-- tab 01 -->
                 <div class="tabs_02_content" id="tabs_02_1">
                   <ul class="ul_scroll_list scroll_list_002">
+                  <c:if test="${fn:length(ltUser.approvedMsgs) > 0}">                  
                    	<form:radiobuttons element="li" path="sendSearchStateString" onchange="showSelectedMsg(this, 'Corp', 'rpt')" 
                    		items="${ltUser.approvedMsgs}" itemValue="messageId" itemLabel="messageText"/>  
+                   </c:if>
                    </ul>
                  </div>                    
                  <!-- // tab 01 -->
                 <!-- tab 02 -->
                 <div class="tabs_02_content" id="tabs_02_2">
+                  <ul class="ul_scroll_list scroll_list_002">
+                  <c:if test="${fn:length(ltUser.approvedMsgsSP) > 0}">                
+                   	<form:radiobuttons element="li" path="sendSearchStateString" onchange="showSelectedMsg(this, 'Corp', 'rpt')" 
+                   		items="${ltUser.approvedMsgsSP}" itemValue="messageId" itemLabel="messageText"/>  
+                   </c:if>
+                   </ul>
+                 </div>                    
+                 <!-- // tab 02 -->                 
+                <!-- tab 03 -->
+                <div class="tabs_02_content" id="tabs_02_3">
                  <c:if test = "${fn:length(ltUser.customMsgs) > 0}" >                              
                   <ul class="ul_scroll_list scroll_list_002">  
                    	<form:radiobuttons element="li" path="sendSearchDMAString" onchange="showSelectedMsg(this, 'Cust', 'rpt')" 
@@ -277,25 +339,23 @@
                    </ul>
                  </c:if>
                  </div>  
-                <!-- // tab 02 -->
+                <!-- // tab 03 -->
               </div>
               <!-- // tabs ////////////////////////////////////////////////////////////////  -->
-            </div>
             <!-- // left column -->
             
           	<!-- right column -->
-            <div class="right">
-            	<div class="msg_content_box mcb_height_02">
-              	<h4 class="mb30">Message to Send:</h4>
-                <div class="msg_text_scroll mts_02">            
-			<form:textarea path="category.autoResponse" rows="4" class="ta_text_msg" readonly="true"/>				                						
-                </div>                
-                <div class="chk_wrapper mt35 clearfix">
+            <div class="btn_message_box">
+                <div class="box_curr_message">
+                  <label>Current message:</label>
+			<form:textarea path="category.autoResponse" rows="4" readonly="true"/>				                						
+                </div>            
+                <div class="chk_wrapper clearfix">
                 	<form:checkbox path="category.includePhoneRpt" class="chk_light mr5" />
                 	<label for="include_phone">Include default phone number</label>
-                </div>
-                <center><input type="button" value="Save" onclick="saveMsg('rpt')" class="btn_green btn_save"></center>
-              </div>
+                	<input type="button" value="Save" onclick="saveMsg('rpt')" class="btn_green btn_save">               
+               </div>
+                <div class="clearfix"></div>               
             </div>
             <!-- // right column -->
           </div>
@@ -321,34 +381,28 @@
           	<div class="info_title">
             	<a href="#" class="prevnext info_prev" id="id_prev_info"></a>
               <a href="#" class="prevnext info_next get_next_info"></a>
-              <h3>Information</h3>
+              <h3>Key Points For This Page</h3>
             </div>
             <!-- slider -->
             <div class="infoslider" id="infoslider">
             	<!-- slide -->
               <div class="slide">
-              	<p>
-                	Now, you can instantly reach your customers with the latest deals, promos, discounts, and other general information about your business 
-                  using the power of text messaging&hellip; <b>any time of the day</b>!
-                </p>
-                <p class="p_small">
-                	Don't forget&hellip; it is important to <span class="sp_red">PROMOTE, PROMOTE, PROMOTE</span> your call to action. You can send the best offers to your subscribers, 
-                  but customers will only know you are there if you promote.
-                </p>
-              </div>
-              <!-- // slide -->
-            	<!-- slide -->
-              <div class="slide">
-              	<p>
-                	1 Now, you can instantly reach your customers with the latest deals, promos, discounts, and other general information about your business 
-                  using the power of text messaging&hellip; <b>any time of the day</b>!
-                </p>
+<ul>
+<li>1. <b>Select Your Office</b> you want to create your message for.</li><br/>
+<li>2. <b>First Time Opt-In</b> - Once you choose a message, any time a customer or potential 
+customer texts your KEYWORD to US411 (87411) they will get this message.  Remember to 
+pick a good offer so that it is worth somebody opting in.</li><br/>
+<li>3. <b>Repeat Opt-In</b> - If a customer text your KEYWORD to US411 (87411) again, the system 
+will recognize their phone number and send the appropriate message back to them.  We have 
+a "Welcome back to Liberty Tax" message already in there as a default, so there is 
+no need to select a message for this box unless you really want to.</li>
+</ul>
               </div>
               <!-- // slide -->
 
+
             </div>
             <!-- // slider -->
-            <div class="infonext_wrapper"><a href="#" class="lnk_infonext get_next_info">Next</a></div>
           </div>
           <!-- // information wrapper -->
           <!-- biz info wrapper -->
@@ -370,7 +424,14 @@
                   	<div>
 				<c:out value="${ltUser.category.businessName}"/>
 				<br/>
-				<c:out value="${ltUser.category.website}"/>						
+				<c:choose>
+				<c:when test = '${ltUser.user.roleActions[0].roleType == "Office"}'>	
+					<c:out value="http://libertytax.com/${ltUser.sites[0].customField2}"/>									
+				</c:when>
+				<c:otherwise>		
+					<c:out value="http://libertytax.com"/>														
+				</c:otherwise>
+				</c:choose>									
 				<br/>
 				<c:out value="${ltUser.category.address}"/>
 				<br/>
@@ -378,7 +439,10 @@
 				<c:out value="${ltUser.category.state}"/> 
 				&nbsp;<c:out value="${ltUser.category.zip}"/>
 				<br/>
-				<c:out value="${ltUser.category.phone}"/>
+				<c:if test="${fn:length(ltUser.category.phone) > 0}">
+					<c:set var="phone" value="${ltUser.category.phone}"/>
+					<c:out value="(${fn:substring(phone, 0, 3)}) ${fn:substring(phone, 3, 6)}-${fn:substring(phone, 6, fn:length(phone))}"/>				
+				</c:if>				
 		    </div>
 		  </td>
 		  <td class="td_02"><a href="#" onclick="getProfile(${ltUser.category.userId})">Expand</a></td>		
@@ -401,7 +465,12 @@
           		<div class="hotspot_box">
               	<p class="p_left">Customize <br>your <br>Hotspot</p>
                 <p class="p_right">Select <br>your <br>design</p>
-                <div class="hotspot_seal"><img src="images/seal_hotspot_001.png" width="168" height="168"></div>
+                <c:if test='${loc == "CA"}'>                
+                	<div class="hotspot_seal"><img src="images/seal_hotspot_ca.png" width="168" height="168"></div>               
+                </c:if>
+                <c:if test='${loc == "US"}'>
+                	<div class="hotspot_seal"><img src="images/seal_hotspot_001.png" width="168" height="168"></div>
+              	</c:if>                
               </div>
               <!-- // box -->
               <ul class="ul_hotspot">
@@ -415,7 +484,14 @@
                 <li><img src="images/hotspot_thumb_008.png" width="44" height="44"></li>
               </ul>
               <div class="btn_hotspot_wrapper">
-              	<a href="javascript:createHotspot('${keyword}');" class="btn_dark_blue btn_hotspot">Get My Hotspot!</a>
+                <c:choose>
+              	<c:when test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
+              		<h3>Please go to the Send Message page to get your hotspot</h3>
+              	</c:when>
+              	<c:otherwise>
+              		<h3>Please go to the Dashboard page to get your hotspot</h3>              	
+              	</c:otherwise>
+              	</c:choose>              	
               </div>
             </div>
           </div>

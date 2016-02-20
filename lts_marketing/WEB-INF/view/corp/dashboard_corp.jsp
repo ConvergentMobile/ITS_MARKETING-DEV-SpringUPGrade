@@ -3,16 +3,38 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<style>
-.ui-dialog .ui-dialog-title {
-  text-align: center;
-  width: 100%;
-}
-
-tr.redc { background-color: red; };
-</style>
 
 <script type="text/JavaScript">	
+	function resetForm() {
+		$('#thisForm')[0].reset();			
+		//$('input[type="radio"]').prop('checked', false);
+		//$('input:checkbox').removeAttr('checked');
+		$('#thisFormP')[0].reset();
+				
+	}
+	
+	 $(document).ready(function() {
+		resetForm();
+		
+		/*
+		$(document).ready(function() {		
+			$( "#errwin" ).dialog({
+				title: 'Alerts & Notifications',
+				width: 400,
+				height: 200,		
+				dialogClass: 'no-close',
+				autoOpen: false, 
+				buttons: {
+				  OK: function() {
+					$(this).dialog("close");
+					location.reload();
+				  }
+			       },
+			});		
+		});	
+		*/
+	});	
+ 
 	function sendEvent(evId) {
 		var form = document.getElementById("thisForm");
 		form.action = 'getListData?evId=' + evId;
@@ -44,6 +66,29 @@ tr.redc { background-color: red; };
 		}	
 					
 		$('#sendSearchCityString').val(msgText);
+	}
+
+	function optout() {
+		var mp = $('#searchCityString').val();
+		if (mp == '') {
+			popup("Must enter a mobile phone number", 0);
+			return;
+		}
+		
+	        $.ajax({
+	            type : 'POST',
+	            url : 'optout',
+	            data: {
+	            	'mobilePhone': mp,
+	            },
+	            success : function(result) {
+ 					popup(result, 0);    
+ 					resetForm();
+ 		    	},
+		    	error : function(e) {
+					alert('error: ' + e.text());
+		    	}    		    
+	        });
 	}
 	
 	function getProfile(userId) {
@@ -148,19 +193,94 @@ tr.redc { background-color: red; };
         });
        }
         
+	function deleteMessage(msgId) {
+		$.ajax({
+		    type : 'POST',
+		    url : 'deleteCorpMessage',
+		    data: 'msgId=' + msgId,
+		    success : function(result) {
+				//alert(result);
+        		//$('#errwin').html('<div align="center">' + result + '</div>');
+        		//$( "#errwin" ).dialog('open');
+        		popup(result, 1);
+                //location.reload();            						
+			},
+			error : function(e) {
+					alert('error: ' + e.text());
+			}                        
+		});
+	}     
+	
+	function createMessage1(){		
+		//window.open('createCorpMessageG',"mywindow","scrollbars=yes,menubar=1,resizable=1,width=550,height=250");		
+		$.ajax({
+			type : 'GET',
+			url : 'createCorpMessageG',
+			success : function(result) {
+				$('#dialog1').html(result);
+				$('#dialog1').dialog({
+					title : 'Create Message',
+					height : 350,
+					width : 550,
+					position: {
+					    my: "center",
+					    at: "center",
+					    of: "#corp_messages"
+					},						
+					buttons : {
+						"Close" : function() {
+							$(this).dialog("close");
+							location.reload();
+						}
+					},
+				});
+
+			},
+			error : function(e) {
+				alert('error: ' + e.text());
+			}
+		});	
+	}	     
+
     	function createMessage() {
             $.ajax({
                 type : 'POST',
                 url : 'createCorpMessage',
-                data: $("#thisForm").serialize(),
+                data: $("#thisFormP").serialize(),
                 success : function(result) {
-            		alert(result);
+            		//alert(result);
+        			//$('#errwin').html('<div align="center">' + result + '</div>');
+        			//$( "#errwin" ).dialog('open');	  
+        			popup(result, 1);
+            		//location.reload();            		
+    			},
+    			error : function(e) {
+    				alert('error: ' + e.text());
+    			}                        
+            });
+    	}   
+    	
+    	function editMessage(msgId, idx) {
+    		var msgText = document.getElementById('approvedMsgs'+idx+'.messageText').value;
+    		$('#adNewMsg').val(msgText);
+    	
+            $.ajax({
+                type : 'POST',
+                url : 'editCorpMessage',
+                data: 'msgId=' + msgId + '&msgText=' + msgText,
+                success : function(result) {
+            		//alert(result);
+        			//$('#errwin').html('<div align="center">' + result + '</div>');
+        			//$( "#errwin" ).dialog('open');	
+        			popup(result, 1);
+                	//location.reload();            		
     			},
     			error : function(e) {
     				alert('error: ' + e.text());
     			}                        
             });
     	}        
+        	
     
 	function runSort(sortBy) {
 		var form = document.getElementById("thisForm");
@@ -178,20 +298,103 @@ tr.redc { background-color: red; };
 			$('#sortOrder').val('asc');
 		}
 		
-		form.action = 'dashboardCorp';
-		form.method = 'GET';
+		form.action = 'dashboardCorpP';
+		form.method = 'POST';
 		form.submit();	
-	}	    
+	}
+	
+
+	function editMsgShow1(msgId) {
+		$('#msgId').val(msgId);
+		$('#regDiv_' + msgId).hide();
+
+		$('.odd').not('#regDiv_' + msgId).show();
+		$('.even').not('#regDiv_' + msgId).show();
+
+		$('.odd.edit').not('#editDiv_' + msgId).hide();
+		$('.even.edit').not('#editDiv_' + msgId).hide();
+		
+		$('#editDiv_' + msgId).show();
+	}
+	
+	function editMsgShow(msgId) {
+		$('#searchDMAString').val(msgId);
+		
+		$("[id^=editDiv]").hide();
+		$("[id^=regDiv]").show();
+
+				
+		$('#editDiv_' + msgId).show();
+		$('#regDiv_' + msgId).hide();
+	}
+	
+	function changeKeyword(keyword, status) {
+		if (status == 'R') {
+			alert("Must allocate your keyword first");
+			return;
+		}
+	        $.ajax({
+	            type : 'GET',
+	            url : 'changeKeyword',
+            	    data: 'keyword=' + keyword,
+	            success : function(result) {
+			$('#dialog1').html(result);
+			$('#dialog1').dialog({
+ 				dialogClass: "no-close",			
+				title: 'Change Keyword',
+				modal: false,
+				width:600,	
+                position: {
+                    my: "center",
+                    at: "center",
+                    of: "#id_corp_keywords"
+                },	       
+			    	buttons: {
+					"Close": function () {
+				    		$(this).dialog("close");
+				    		location.reload();				    		
+					}
+			    	},								
+			});            	    
+            	    },
+				error : function(e) {
+					alert('error: ' + e);
+				}                        
+	        });	
+	}	
 </script>
 
   <!-- // header -->
   <!-- content wrapper -->
   <div class="content_wrapper" id="content_wrapper">
+
+
+<!-- Create New -->
+
+<div id="popup-book" class="zoom-anim-dialog mfp-hide">
+  <h1>Create new message</h1>
+  <form:form id="thisFormP" method="post" action="" commandName="ltUser">
+	<label>Language:</label>
+	<form:select path="searchStateString">
+		<form:option value="EN">English</form:option>
+		<form:option value="SP">Spanish</form:option>		
+	</form:select>      
+	<br/>
+    	<label>Message Text:</label>
+    	<form:textarea path="adNewMsg" />         
+	<br/><br/>
+    <input type="button" onclick="createMessage()" value="Create Message" class="btn_dark_blue btn_04">    
+  </form:form>
+  <div class="floatfix"></div>
+</div>
+
+<!-- // Create New -->
+
    <form:form id="thisForm" method="post" action="dashboard" commandName="ltUser">
 
 		<div id="dialog1" title="Alert" style="display:none">
 		</div>
-		
+
   	<!-- left side navigation -->
   	<ul class="ul_left_nav">
 			<c:if test = '${ltUser.user.roleActions[0].roleType == "Entity"}'>  	
@@ -212,6 +415,7 @@ tr.redc { background-color: red; };
 			<c:if test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
 				<li class="si_dashboard selected"><a href="dashboardCorp">Dashboard</a></li>	
 				<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>   
+				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>						
 				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>	      	
 				<li class="si_search"><a href="corpSearch">Search</a></li>	
 				<li class="si_reports"><a href="getReports">Reports</a></li>	      	
@@ -252,6 +456,7 @@ tr.redc { background-color: red; };
             <col width="32%" />
             <col width="23%" />
             <col width="20%" />
+            <col width="19%" />            
           </colgroup>
           <thead>
           	<tr>
@@ -259,16 +464,18 @@ tr.redc { background-color: red; };
               <th class="th_02"><div><a href="javascript:runSort('keyword')">Keyword</a></div></th>
               <th class="th_02"><div><a href="javascript:runSort('customField1')">Entity Id</a></div></th>
               <th class="th_02"><div><a href="javascript:runSort('customField2')">Office Id</a></div></th>              
+              <th class="th_03"></th>              
             </tr>
           </thead>
           </table>
-           <div id="id_entity_keywords">
+           <div id="id_corp_keywords">
             <table width="100%" class="grid grid_keyword">
             <colgroup>
               <col width="6%"  />
               <col width="32%" />
               <col width="23%" />
               <col width="20%" />
+            	<col width="19%" />                          
             </colgroup>
              <tbody>           							
 		<c:forEach var="site" items="${ltUser.sites}" varStatus="loopStatus"> 
@@ -287,6 +494,8 @@ tr.redc { background-color: red; };
 						<c:out  value="${site.keyword}"/></a></div></td>								
 				<td class="td_03"><div><c:out  value="${site.customField1}"/></div></td>
 				<td class="td_03"><div><c:out  value="${site.customField2}"/></div></td>									
+				<td class="td_04"><a href="#" onclick="changeKeyword('${site.keyword}', '${status}')" class="btn_select_01">Change</td>
+			        
 			</tr>			   
 		</c:forEach>	
             </tbody>
@@ -298,55 +507,66 @@ tr.redc { background-color: red; };
               <col width="32%" />
               <col width="23%" />
               <col width="20%" />
+              <col width="19%" />              
             </colgroup>
             <tfoot>
               <tr>
-                <td colspan="4"></td>
+                <td colspan="5"></td>
               </tr>
             </tfoot>
           </table>
         </div>
         <!-- // box -->
       	<!-- box -->
-        <div class="box box_red_title box_quick_search">
+        <div class="box box_red_title ico_sb_msg">
         	<!-- title -->
-        	<div class="box_title mb9">
-          	<h2>Quick Search</h2>
+        	<div class="box_title">
+          	<h2>Edit Message</h2>
+          	<a href="#popup-book" class="btn_dark_blue btn_05_lnk popup-with-zoom-anim" style="line-height:28px;" >Create Message</a>
+          	
           </div>
           <!-- // title -->
-          <div class="wide_column_wrapper search_container">
-          	<table width="461" class="grid grid_03">
-            <colgroup>
-            	<col width="83"/>
-              <col width="378"/>
-            </colgroup>
-            <tbody>
-              <tr>
-              	<td class="td_01"><form:label path="searchKeywordString"><spring:message code="label.keyword" /></form:label></strong></td>
-                <td class="td_02"><form:input path="searchKeywordString" /></td>
-              </tr>
-              <tr>
-              	<td class="td_01"><form:label path="searchOfficeIdString"><spring:message code="label.officeId" /></form:label></td>
-                <td class="td_02"><form:input path="searchOfficeIdString" /></td>
-              </tr>
-              <tr>
-              	<td class="td_01"><form:label path="searchEntityIdString"><spring:message code="label.entityId" /></form:label></td>
-                <td class="td_02"><form:input path="searchEntityIdString" /></td>
-              </tr>
-              <tr>
-              	<td></td>
-                <td class="td_03"><input type="button" onclick="qsearch()" value="Search" class="btn_dark_blue btn_03"></td>
-              </tr>
-            </tbody>
-            </table>
-						<div class="result" id="qresult">
-							<span class="label">Search <br>Result</span>						
-						</div>              
-          </div>
+            <div class="corp_msg_wrapper">
+              
+              <!-- grid wrapper -->
+              <div class="corp_messages_wrapper" id="corp_messages">
+                <table class="grid grid_04" width="100%">
+                <colgroup>
+                  <col width="90%" />
+                  <col width="5%" />
+                  <col width="5%" />
+                </colgroup>        
+                <tbody>
+                 <form:hidden path="searchDMAString"/>
+                 <form:hidden path="adNewMsg"/>
+                 
+                  <c:forEach var="corpMsg" items="${ltUser.approvedMsgs}" varStatus="loopStatus">
+			  <tr id="regDiv_${corpMsg.messageId}" class="${loopStatus.index % 2 == 0 ? 'even' : 'odd'}">			  
+			    <td class="td_01"><div><a href="#"><c:out value="${corpMsg.messageText}"/></a></div></td>
+			    <td class="td_02"><a href="#" onclick="editMsgShow(${corpMsg.messageId})" class="lnk_edit_small">Edit</a></td>
+			    <td class="td_03"><a href="#" onclick="deleteMessage(${corpMsg.messageId});" class="lnk_delete_small">Delete</a></td>
+			  </tr>   
+			  
+			  <tr id="editDiv_${corpMsg.messageId}" class="${loopStatus.index % 2 == 0 ? 'even edit' : 'odd edit'}" style="display:none;">			  
+			    <td class="td_01"><div><form:textarea path="approvedMsgs[${loopStatus.index}].messageText"/></div></td>
+			    <td class="td_02"><a href="#" onclick="editMessage(${corpMsg.messageId}, ${loopStatus.index});" class="lnk_approve_small"></a></td>
+			    <td class="td_03"><a href="#" onclick="deleteMessage(${corpMsg.messageId});" class="lnk_delete_small">Delete</a></td>
+			  </tr> 			  
+                 </c:forEach>
+                 </tbody>
+                </table>
+              </div>
+               <!-- // grid wrapper -->
+            </div>
+
         </div>
       </div>
     </div>
-    <!-- // content area -->        
+    <!-- // content area -->
+    
+               
+    
+    
     <!-- sidebar -->
     <div class="sidebar" id="id_sidebar">
     	<div class="inner">
@@ -391,57 +611,69 @@ tr.redc { background-color: red; };
             <!-- // slider -->
             <div class="infonext_wrapper"><a href="#" class="lnk_infonext get_next_info">Next</a></div>
           </div>
+          
           <!-- // information wrapper -->
           <!-- biz info wrapper -->
           <div class="biz_info_wrapper">
             <!-- title -->
-            <div class="sb_title sb_title_ico ico_sb_msg">
-              <h2 class="Mobile Marketing">Create Message</h2>
+            <div class="sb_title sb_title_ico box_opt-out">
+              <h2>Corporate Opt-Out</h2>
             </div>
             <!-- // title -->
             <!-- corp msg wrapper -->
-            <div class="corp_msg_wrapper">
-              <!-- corp msg box -->
-              <div class="corp_msg_box">
-              <!-- 
-                <div class="chk_wrapper_01 clearfix">
-                </div>
-              -->
-                <h4>Message Text</h4>
-                <div class="corp_msg_text" id="id_corp_msg">
-					<form:textarea path="adNewMsg"/>         
-                </div>
-                <div class="btn_04_wrapper">
-                	<input type="button" onclick="createMessage()" value="Save Message" class="btn_dark_blue btn_04"></td>         	
-                </div>
-              </div>
-              <!-- corp msg box -->
-               
-              <!-- grid wrapper -->
-              <div class="corp_messages_wrapper" id="corp_messages">
-              	<table class="grid grid_04" width="100%">
-                <colgroup>
-                	<col width="84%" />
-                  <col width="7%" />
-                  <col width="9%" />
-                </colgroup>
-                <tbody>
-					<c:forEach var="pMsg" items="${ltUser.pendingMsgs}" varStatus="loopStatus"> 
-						<c:set var="keyword" value="${site.keyword}" />
-						<tr>
-                			<tr class="odd">						
-							<td class="td_01"><div><c:out  value="${pMsg.messageText}"/></div></td>								
-							<td class="td_01"><div><fmt:formatDate type="both" pattern="MM/dd/yyyy hh:mm a z" value="${pMsg.lastUpdated}" /></div></td>
-                    		<td class="td_02"><a href="#" class="lnk_edit_small">Edit</a></td>
-                    		<td class="td_03"><a href="#" class="lnk_delete_small">Delete</a></td>						
-						</tr>
-					</c:forEach> 
-                </tbody>
-                </table>
-              </div>
-               <!-- // grid wrapper -->
+            <div class="wide_column_wrapper search_container">
+            <p>This will allow you to opt-out any number in all the liberty tax us411 database. If the number is not in the lts database you will be notified.</p>
+            <div class="mt40 corp">
+              <form:input path="searchCityString" placeholder="Enter a number to opt-out"/>
+              <%--
+              <a href="#" onclick="optout()" class="btn_dark_blue btn_03_lnk popup-with-zoom-anim">Submit</a>
+              --%>
+				<a href="#" onclick="optout()" class="btn_dark_blue btn_03_lnk">Submit</a>              
             </div>
+          </div>
+
+
             <!-- // corp msg wrapper -->
+            <div class="floatfix" style="height:5px;"></div>          
+            <!-- title -->
+            <div class="sb_title sb_title_ico box_quick_search">
+        	<!-- title -->
+          	<h2>Quick Search</h2>
+          </div>
+          <!-- // title -->
+          <div class="wide_column_wrapper search_container">
+          	<table width="130%" class="grid grid_03">
+            <colgroup>
+            	<col width="83"/>
+              <col width="378"/>
+            </colgroup>
+            <tbody>
+              <tr>
+              	<td class="td_01"><form:label path="searchKeywordString"><spring:message code="label.keyword" /></form:label></strong></td>
+                <td class="td_02"><form:input path="searchKeywordString" /></td>
+              </tr>
+              <tr>
+              	<td class="td_01"><form:label path="searchOfficeIdString"><spring:message code="label.officeId" /></form:label></td>
+                <td class="td_02"><form:input path="searchOfficeIdString" /></td>
+              </tr>
+              <tr>
+              	<td class="td_01"><form:label path="searchEntityIdString"><spring:message code="label.entityId" /></form:label></td>
+                <td class="td_02"><form:input path="searchEntityIdString" /></td>
+              </tr>
+              <tr>
+              	<td></td>
+                <td class="td_03"><input type="button" onclick="qsearch()" value="Search" class="btn_dark_blue btn_03"></td>
+              </tr>
+            </tbody>
+            </table>
+		<div class="result" id="qresult">
+			<span class="label">Search <br>Result</span>						
+		</div>              
+          </div>
+          
+            
+            
+
             <div class="floatfix" style="height:5px;"></div>
           </div>
         </div>

@@ -34,20 +34,43 @@ $(document).ready(function(){
     railVisible: true,
     alwaysVisible: true
   });
-
+/*
   $('#id_corp_keywords').slimScroll({
     height: '390px',
     distance: '6px',
     railVisible: true,
     alwaysVisible: true
   });
-  
-  $('#id_report_01').slimScroll({
-    height: '565px',
-    distance: '0px',
+*/
+
+  $('#id_report_scroll_entity').slimScroll({
+    height: '580px',
+    distance: '6px',
     railVisible: true,
     alwaysVisible: true
-  });  
+  });
+  
+  $('#id_report_scroll_corp').slimScroll({
+    height: '580px',
+    distance: '6px',
+    railVisible: true,
+    alwaysVisible: true
+  });
+  
+  $('#id_report_scroll_office').slimScroll({
+    height: '580px',
+    distance: '6px',
+    railVisible: true,
+    alwaysVisible: true
+  });
+
+
+  $('#id_corp_keywords').slimScroll({
+    height: '270px',
+    distance: '6px',
+    railVisible: true,
+    alwaysVisible: true
+  });
   
   $('#results_scroll').slimScroll({
     height: '380px',
@@ -70,13 +93,22 @@ $(document).ready(function(){
     railVisible: true,
     alwaysVisible: true
   });
-  
+
   $('#corp_messages').slimScroll({
-    height: '175px',
+    height: '320px',
+    distance: '6px',
+    railVisible: true,
+    alwaysVisible: false
+  });
+  
+/*
+  $('#corp_messages').slimScroll({
+    height: '200px',
     distance: '6px',
     railVisible: true,
     alwaysVisible: true
   });
+*/
 
   $("#id_pending").slimScroll({
     height: '81px',
@@ -131,6 +163,13 @@ $(document).ready(function(){
     railVisible: true,
     alwaysVisible: true
   });
+
+  $('#id_mn_scrollbox').slimScroll({
+    height: '78px',
+    distance: '0px',
+    railVisible: true,
+    alwaysVisible: true
+  });
   
   $('.ul_hc_scrollbox li .chk_light').change(function(){
     if (this.checked) {
@@ -176,6 +215,15 @@ $(document).ready(function(){
     } 
   });
 
+  
+  $('#all_numbers').change(function(){
+    if (this.checked) {
+      $('.ul_mn_scrollbox .chk_light').screwDefaultButtons("check");
+    } else {
+      $('.ul_mn_scrollbox .chk_light').screwDefaultButtons("uncheck");
+    }
+  });
+
 
   $('#all_numbers').change(function(){
     if (this.checked) {
@@ -194,18 +242,38 @@ $(document).ready(function(){
   });
 
   $('.scroll_list_002').slimScroll({
-    height: '206px',
+    height: '150px',
     distance: '6px',
     railVisible: true,
     alwaysVisible: true
   });
   
 
+   $('.ul_phone_numbers .chk_light').change(function(){
+    if (this.checked) {
+      $(this).parent().parent().addClass('selected');
+    } else {
+      $(this).parent().parent().removeClass('selected');
+    }
+  });
+
+$('.ul_mn_scrollbox .chk_light').change(function(){
+    if (this.checked) {
+      $(this).parent().parent().addClass('selected');
+    } else {
+      $(this).parent().parent().removeClass('selected');
+    }
+  });
+
   // setTimeout ( function () {var ht = $('#id_content').outerHeight( true ); }, 1);
  
   set_equal_heights();  
   // alert(0);
 });
+
+
+/* popups Opt-Out */
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -222,3 +290,43 @@ function set_equal_heights() {
    $('#id_content').css('min-height', (h_sidebar - 3) + "px");
  }
 }
+
+
+
+$(document).ready(function() {
+        $('.popup-with-zoom-anim').magnificPopup({
+          type: 'inline',
+
+          fixedContentPos: false,
+          fixedBgPos: true,
+
+          overflowY: 'auto',
+
+          closeBtnInside: true,
+          preloader: false,
+          
+          midClick: true,
+          removalDelay: 300,
+          mainClass: 'my-mfp-zoom-in'
+        });
+
+        $('.popup-with-move-anim').magnificPopup({
+          type: 'inline',
+
+          fixedContentPos: false,
+          fixedBgPos: true,
+
+          overflowY: 'auto',
+
+          closeBtnInside: true,
+          preloader: false,
+          
+          midClick: true,
+          removalDelay: 300,
+          mainClass: 'my-mfp-slide-bottom'
+        });
+
+      });
+
+
+

@@ -22,6 +22,7 @@ import category_3.Category_3;
 
 import common.HibernateUtil;
 
+import data.ApprovedMessage;
 import data.ValueObject;
 
 public class LTUserDAOManager extends UserDAOManager {
@@ -331,7 +332,8 @@ public class LTUserDAOManager extends UserDAOManager {
 	
 	//return a list of just the phone numbers and userId
 	public List<ValueObject> getListData(String listId) throws Exception {
-		String sql = "select mobile_phone field1, tul.user_id field2 from target_list_data tld, target_user_list tul"
+		String sql = "select mobile_phone field1, tul.user_id field2, tld.address2 field3"
+					+ " from target_list_data tld, target_user_list tul"
 					+ " where tld.list_id = :listId "
 					+ " and tul.list_id = tld.list_id"
 					+ " order by mobile_phone";
@@ -341,6 +343,7 @@ public class LTUserDAOManager extends UserDAOManager {
 			Query q = session.createSQLQuery(sql)
 					.addScalar("field1", new StringType())					
 					.addScalar("field2", new LongType())
+					.addScalar("field3", new StringType())										
 					.setResultTransformer(Transformers.aliasToBean(ValueObject.class));						
 										
 			List<ValueObject> listData = q.setString("listId", listId).list();
@@ -350,4 +353,111 @@ public class LTUserDAOManager extends UserDAOManager {
 			close();
 		}
 	}	
+	
+	//delete a list
+	public int deleteList(String listId) throws Exception {
+		String sql_d = "delete from target_list_data where list_id = ?";
+		String sql = "delete from target_user_list where list_id = ?";
+		int numDeleted = 0;
+
+		try {
+			session = HibernateUtil.currentSession();
+			tx = session.beginTransaction();
+			numDeleted = session.createSQLQuery(sql_d)
+						.setParameter(0, listId)
+						.executeUpdate();
+			numDeleted = session.createSQLQuery(sql)
+	        			.setParameter(0, listId)
+	        			.executeUpdate();
+			tx.commit();
+			return numDeleted;
+		} finally {
+			close();
+		}
+	}
+	
+	//opt out used by Corp
+	public int optout(String mobilePhone, String shortcode, String keyword) throws Exception {
+		String sql = "insert into opt_out(phone_number, shortcode, keyword, firstname, lastname)"
+				+ "	select tld.mobile_phone, ?, u.keyword, tld.first_name, tld.last_name"
+				+ "	from target_list_data tld, target_user_list tul, user u"
+				+ "	where tul.list_id = tld.list_id and u.user_id = tul.user_id and tld.mobile_phone in (?, ?)";
+			
+		String deleteSql = "delete tld"
+				+ " FROM target_list_data tld"
+				+ " where tld.mobile_phone in (?, ?)";
+
+		try {
+			session = HibernateUtil.currentSession();
+			Query q = session.createSQLQuery(sql);				
+							
+			int idx = 0;
+			q.setString(idx++, shortcode)
+			  .setString(idx++, mobilePhone)
+			  .setString(idx++, mobilePhone.substring(1));
+			
+			int ret = q.executeUpdate();
+			
+			q = session.createSQLQuery(deleteSql);
+			idx = 0;
+			q.setString(idx++, mobilePhone)
+				.setString(idx++, mobilePhone.substring(1));
+			  
+			ret = q.executeUpdate();
+			
+			return ret;
+		} finally {
+			close();
+		}
+	}	
+	
+	/*
+	//opt out used by Corp
+	public int optout(String mobilePhone, String shortcode, String keyword) throws Exception {
+		String sql = "insert into opt_out(phone_number, shortcode, keyword, firstname, lastname)"
+				+ " select ?, ?, ?,"
+				+ "		(select tld.first_name from target_list_data tld, target_user_list tul, user u"
+				+ "			where tul.list_id = tld.list_id and u.user_id = tul.user_id and u.keyword = ? and tld.mobile_phone in (?, ?)),"
+				+ " 	(select tld.last_name from target_list_data tld, target_user_list tul, user u"
+				+ "			where tul.list_id = tld.list_id and u.user_id = tul.user_id and u.keyword = ? and tld.mobile_phone in (?, ?))";		
+			
+		String deleteSql = "delete tld"
+				+ " FROM target_user_list tul, keyword_application kw, user u, target_list_data tld"
+				+ " where tul.user_id = u.user_id"
+				+ " and tul.list_id = tld.list_id"
+				+ " and tld.mobile_phone = ?"
+				+ " and kw.keyword = ?"
+				+ " and kw.shortcode in ('87411', 'US411')"
+				+ " and u.keyword = kw.keyword";
+
+		try {
+			session = HibernateUtil.currentSession();
+			Query q = session.createSQLQuery(sql);				
+							
+			int idx = 0;
+			q.setString(idx++, mobilePhone)
+			  .setString(idx++, shortcode)
+			  .setString(idx++, keyword)
+			  .setString(idx++, keyword)
+			  .setString(idx++, mobilePhone)
+			  .setString(idx++, mobilePhone.substring(1))
+			  .setString(idx++, keyword)
+			  .setString(idx++, mobilePhone)
+			  .setString(idx++, mobilePhone.substring(1));
+			
+			int ret = q.executeUpdate();
+			
+			q = session.createSQLQuery(deleteSql);
+			idx = 0;
+			q.setString(idx++, mobilePhone)
+			  .setString(idx++, keyword);
+			  
+			ret = q.executeUpdate();
+			
+			return ret;
+		} finally {
+			close();
+		}
+	}	
+	*/
 }

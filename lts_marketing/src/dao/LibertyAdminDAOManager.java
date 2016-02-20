@@ -1,6 +1,9 @@
 package dao;
 
 import java.io.Serializable;
+import java.sql.BatchUpdateException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -31,10 +34,13 @@ import common.HibernateUtil;
 
 import data.ApprovedMessage;
 import data.SendMessageList;
+import data.ValueObject;
+import util.PropertyUtil;
 
 public class LibertyAdminDAOManager implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger.getLogger(LibertyAdminDAOManager.class);
+	private Integer siteId = Integer.parseInt(PropertyUtil.load().getProperty("siteId"));
 
 	DBStuff dbs = null;
 	Session session = null;
@@ -108,6 +114,78 @@ public class LibertyAdminDAOManager implements Serializable {
 			close();
 		}		
 	}
+	
+	//get all the Send a Friend offices for an entity
+	public List<ValueObject> getSAFOffices(Long userId) throws Exception {
+		String sql = "select s.user_id userId field1, s.keyword field2, s.entity_id field3, s.office_id field4"
+					+ " from send_a_friend_offices s, user_customer_defined ucd"
+					+ " where ucd.user_id = ?"
+					+ " and s.entity_id = ucd.custom_field_1";
+		
+		try {
+			session = HibernateUtil.currentSession();
+			Query q = session.createSQLQuery(sql)
+					.addScalar("field1", new LongType())
+					.addScalar("field2", new StringType())
+					.addScalar("field3", new StringType())					
+					.addScalar("field4", new StringType())							
+					.setResultTransformer(Transformers.aliasToBean(ValueObject.class));
+            
+			List<ValueObject> sites = q.setLong(0, userId)	
+										.list();			
+			
+			if (sites.isEmpty())
+				return null;
+			
+			return sites;
+		} finally {
+			close();
+		}
+	}
+	
+	//get all the Send a Friend offices for an entity
+	public List<UserProfileVO> getSAFSites(Long userId) throws Exception {
+		String sql = "select u.site_id as siteId, u.keyword as keyword, ucd.custom_field_2 as customField2,"
+				+ " u.user_id as userId, ucd.custom_field_1 as customField1,"
+				+ " saf.saf_message as customField3, saf.include_phone as customField4"
+				+ " from user u, keyword_application kw, liberty_closure lc,"
+				+ " user_customer_defined ucd"
+                + " left join send_a_friend_offices saf"
+                + " on ucd.custom_field_1 = saf.entity_id"
+                + " and ucd.custom_field_2 = saf.office_id"				
+				+ " where u.user_id = ucd.user_id"
+				+ " and kw.keyword = u.keyword"
+				+ " and kw.status = 'P'"
+				+ " and (ucd.custom_field_4 = 'LIB_S'"
+				+ " and ucd.custom_field_5 = 1"
+				+ " and ucd.custom_field_8 = 4)"	
+				+ " and u.user_id = lc.child_id and lc.parent_id = ?"
+				+ " and u.site_id = kw.site_id"
+				+ " and u.site_id = ?";
+		
+		try {
+			session = HibernateUtil.currentSession();
+			Query q = session.createSQLQuery(sql)
+					.addScalar("userId", new LongType())
+					.addScalar("keyword", new StringType())
+					.addScalar("customField1", new StringType())					
+					.addScalar("customField2", new StringType())	
+					.addScalar("customField3", new StringType())
+					.addScalar("customField4", new StringType())
+					.setResultTransformer(Transformers.aliasToBean(UserProfileVO.class));
+            
+			List<UserProfileVO> sites = q.setLong(0, userId)
+										.setInteger(1, siteId)
+										.list();			
+			
+			if (sites.isEmpty())
+				return null;
+			
+			return sites;
+		} finally {
+			close();
+		}
+	}
 
 	//get all the sites for this user based on the access level
 	//get only the storefront keywords - type = LIB_S
@@ -131,7 +209,8 @@ public class LibertyAdminDAOManager implements Serializable {
 				+ " and ucd.custom_field_5 = 1"
 				+ " and ucd.custom_field_8 = 4)"	
 				+ " or ucd.custom_field_4 = 'LIB_F')" //get the entity keyword as well
-				+ " and u.user_id = lc.child_id and lc.parent_id = ?";
+				+ " and u.user_id = lc.child_id and lc.parent_id = ?"
+				+ " and u.site_id = ?";
 		
 		if (sortColumn != null) {
 			orderBy = " order by " + sortColumn + " " + sortOrder;			
@@ -151,7 +230,8 @@ public class LibertyAdminDAOManager implements Serializable {
 					.addScalar("customField4", new StringType()) //LIB_F or LIB_S 								
 					.setResultTransformer(Transformers.aliasToBean(UserProfileVO.class));
             
-			List<UserProfileVO> sites = q.setLong(0, userId)		
+			List<UserProfileVO> sites = q.setLong(0, userId)	
+										.setInteger(1, siteId)
 										.list();			
 			
 			if (sites.isEmpty())
@@ -196,7 +276,9 @@ public class LibertyAdminDAOManager implements Serializable {
 				+ " and ucd.custom_field_5 = 1"
 				+ " and ucd.custom_field_8 = 4)"	
 				+ " or ucd.custom_field_4 = 'LIB_F')" //get the entity keyword as well
-				+ " and u.user_id = lc.child_id and lc.parent_id = ?";
+				+ " and u.user_id = lc.child_id and lc.parent_id = ?"
+				+ " and u.site_id = kw.site_id"
+				+ " and u.site_id = ?";
 
 		if (sortColumn != null) {
 			orderBy = " order by " + sortColumn + " " + sortOrder;
@@ -235,7 +317,8 @@ public class LibertyAdminDAOManager implements Serializable {
           */
             
 			List<UserProfileVO> sites = q.setString(0, letter+"%")
-						.setLong(1, userId)						
+						.setLong(1, userId)	
+						.setInteger(2, siteId)
 						.list();			
 			
 			if (sites.isEmpty())
@@ -260,6 +343,8 @@ public class LibertyAdminDAOManager implements Serializable {
 				+ " and ucd.custom_field_4 = 'LIB_AD'"
 				+ " and ucd.custom_field_8 = 4"	
 				+ " and u.user_id = lc.child_id and lc.parent_id = ?"
+				+ " and u.site_id = kw.site_id"
+				+ " and u.site_id = ?"				
 				+ " order by customField2 desc";
 		
 		List<UserProfileVO> sites = new ArrayList<UserProfileVO>();		
@@ -274,6 +359,7 @@ public class LibertyAdminDAOManager implements Serializable {
 					.setResultTransformer(Transformers.aliasToBean(UserProfileVO.class));
 			
 			sites = q.setLong(0, userId)
+						.setInteger(1, siteId)
 						.list();			
 			
 			if (sites.isEmpty())
@@ -297,6 +383,8 @@ public class LibertyAdminDAOManager implements Serializable {
 				+ " and ucd.custom_field_4 = 'LIB_AD'"
 				+ " and ucd.custom_field_8 = 4"	
 				+ " and u.user_id = lc.child_id and lc.parent_id = ?"
+				+ " and u.site_id = kw.site_id"
+				+ " and u.site_id = ?"
 				+ " order by customField2 desc";
 		
 		List<UserProfileVO> sites = new ArrayList<UserProfileVO>();		
@@ -311,6 +399,7 @@ public class LibertyAdminDAOManager implements Serializable {
 					.setResultTransformer(Transformers.aliasToBean(UserProfileVO.class));	
 			
 			sites = q.setLong(0, userId)
+						.setInteger(1, siteId)
 						.list();			
 			
 			if (sites.isEmpty())
@@ -334,6 +423,20 @@ public class LibertyAdminDAOManager implements Serializable {
 	public List<UserProfileVO> getSites(String sortColumn, String sortOrder) throws Exception {
 		String orderBy = " order by customField1, customField2";
 		
+		String sqlOld = "select u.keyword, u.user_id userId, ucd.custom_field_2 customField2," 
+				+ " ucd.custom_field_1 customField1, ucd.custom_field_2 customField2,"
+				+ " kw.status customField3, u.site_id siteId"		
+				+ " from user u, user_customer_defined ucd, keyword_application kw"
+				+ " where u.user_id = ucd.user_id"
+				+ " and u.keyword = kw.keyword"
+				+ " and kw.status = 'P'"
+				+ " and u.site_id = kw.site_id"
+				+ " and ucd.custom_field_4 = 'LIB_S'"
+				+ " and ucd.custom_field_5 = 1"
+				+ " and ucd.custom_field_8 = 4"
+				+ " and u.site_id = kw.site_id"
+				+ " and u.site_id = ?";
+	
 		String sql = "select u.keyword, u.user_id userId, ucd.custom_field_2 customField2," 
 				+ " ucd.custom_field_1 customField1, ucd.custom_field_2 customField2,"
 				+ " kw.status customField3, u.site_id siteId"		
@@ -344,7 +447,9 @@ public class LibertyAdminDAOManager implements Serializable {
 				+ " and u.site_id = kw.site_id"
 				+ " and ucd.custom_field_4 = 'LIB_S'"
 				+ " and ucd.custom_field_5 = 1"
-				+ " and ucd.custom_field_8 = 4";
+				+ " and ucd.custom_field_6 = 'LTCORP'"				
+				+ " and ucd.custom_field_8 = 4"
+				+ " and u.site_id = ?";	
 		
 		if (sortColumn != null) {
 			orderBy = " order by " + sortColumn + " " + sortOrder;
@@ -363,7 +468,8 @@ public class LibertyAdminDAOManager implements Serializable {
 					.addScalar("customField3", new StringType())					
 					.setResultTransformer(Transformers.aliasToBean(UserProfileVO.class));
 			
-			List<UserProfileVO> sites = q.list();			
+			List<UserProfileVO> sites = q.setInteger(0, siteId)
+											.list();			
 			
 			if (sites.isEmpty())
 				return null;
@@ -740,7 +846,7 @@ public class LibertyAdminDAOManager implements Serializable {
 				
 		try {		
 			session = HibernateUtil.currentSession();
-			Query q = session.createSQLQuery(sql);
+			Query q = session.createQuery(sql);
 			List<ApprovedMessage> msgList = q.setInteger("siteId", siteId)
 											.setString("lang", lang)
 											.setString("loc", "CA")
@@ -817,6 +923,14 @@ public class LibertyAdminDAOManager implements Serializable {
 					+ " where ap.site_id = :siteId"
 					+ " and ap.status = :status"				
 					+ " and ap.user_id = :userId";					
+		
+		/*
+		String osql = "select ap.* from approved_messages ap"
+				+ " where ap.site_id = :siteId"
+				+ " and ap.status = :status"				
+				+ " and (ap.user_id = :userId or entity_id = (select custom_field_1 from"
+				+ " user_customer_defined where user_id = " + userId + "))";
+		*/	
 		
 		String csql = "select ap.* from approved_messages ap"
 				+ " where ap.site_id = :siteId"
@@ -973,6 +1087,33 @@ public class LibertyAdminDAOManager implements Serializable {
 		} finally {
 			close();
 		}		
+	}
+	
+	public void deleteObject(Object obj) throws Exception {
+		try {
+			session = HibernateUtil.currentSession();
+			tx = session.beginTransaction();
+			session.delete(obj);
+			tx.commit();
+		} finally {
+			close();
+		}		
+	}
+	
+	public int deleteSAF(String officeId) throws Exception {
+		String sql = "delete SAF where officeId = :officeId";
+		int rows = 0;
+		
+		try {		
+			session = HibernateUtil.currentSession();
+			Query q = session.createQuery(sql);
+			q.setParameter("officeId", officeId);
+			rows = q.executeUpdate();
+		} catch (Exception e) {
+		} finally {
+			close();
+		}
+		return rows;
 	}
 	
 	//update msg status to A (for Approved)
@@ -1148,5 +1289,78 @@ public class LibertyAdminDAOManager implements Serializable {
 		} finally {
 			close();
 		}	
+	}
+	
+	//get the mobile numbers give a list of AD ids
+	public void createAccountingADList(String listId, Map<String, String> adMap) throws Exception {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+    	String sql = "insert into target_list_data(list_id, mobile_phone, address2)"
+    				+ " select ?, p.admin_mobile_phone, ? from profile p, user_customer_defined ucd"
+    				+ " where p.user_id = ucd.user_id"
+    				+ " and ucd.custom_field_1 = ?"
+    				+ " and (ucd.custom_field_4 = 'LIB_AD' or ucd.custom_field_4 = 'LIB_F')";
+    	
+		try {			
+			session = HibernateUtil.currentSession();
+			conn = session.connection();
+		    pstmt = conn.prepareStatement(sql);
+			
+			for (Map.Entry<String, String> entry : adMap.entrySet()) {
+				pstmt.setString(1, listId);
+				pstmt.setString(2, entry.getValue());				
+				pstmt.setString(3, entry.getKey());
+				
+				pstmt.addBatch();
+			}
+
+			int[] rows = pstmt.executeBatch();
+			logger.info(rows.length + " rows inserted");	
+		} catch (BatchUpdateException be) {
+			be.printStackTrace();
+			logger.error("Ignoring dup");
+			return;
+		} catch (Exception e) {
+			logger.error(e.toString());
+			e.printStackTrace();
+		} finally {
+			session.flush();
+		}
+	}
+	
+	//get the mobile numbers give a list of AD ids
+	public void createAccountingADListOld(String listId, List<String> adIds) throws Exception {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+    	String sql = "insert into target_list_data(list_id, mobile_phone)"
+    				+ " select ?, p.admin_mobile_phone from profile p, user_customer_defined ucd"
+    				+ " where p.user_id = ucd.user_id"
+    				+ " and ucd.custom_field_1 = ?"
+    				+ " and (ucd.custom_field_4 = 'LIB_AD' or ucd.custom_field_4 = 'LIB_F')";
+    	
+		try {			
+			session = HibernateUtil.currentSession();
+			conn = session.connection();
+		    pstmt = conn.prepareStatement(sql);
+			
+			for (String adId : adIds) {
+				pstmt.setString(1, listId);
+				pstmt.setString(2, adId);
+				
+				pstmt.addBatch();
+			}
+
+			int[] rows = pstmt.executeBatch();
+			logger.info(rows.length + " rows inserted");	
+		} catch (BatchUpdateException be) {
+			be.printStackTrace();
+			logger.error("Ignoring dup");
+			return;
+		} catch (Exception e) {
+			logger.error(e.toString());
+			e.printStackTrace();
+		} finally {
+			session.flush();
+		}
 	}
 }

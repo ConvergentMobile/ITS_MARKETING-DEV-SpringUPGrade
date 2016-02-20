@@ -6,6 +6,37 @@
 <%@ page import="user.User"%>
 
 <script language="JavaScript">
+	function popup(message, reload) {
+	    // get the screen height and width
+	    var maskHeight = $(document).height();
+	    var maskWidth = $(window).width();
+
+	    // calculate the values for center alignment
+	    var dialogTop = (maskHeight/3) - ($('#dialog-box').height());
+	    var dialogLeft = (maskWidth/2) - ($('#dialog-box').width()/2);
+
+	    // assign values to the overlay and dialog box
+	    $('#dialog-overlay').css({height:maskHeight, width:maskWidth}).show();
+	    $('#dialog-box').css({top:dialogTop, left:dialogLeft}).show();
+
+	    // display the message
+	    $('#dialog-message').html(message);
+	    //$( "#dialog-message" ).dialog('open');	    
+	    
+	    if (reload == "1") {
+	    	$('#reloadFlag').val("1");
+	    }
+
+	}
+
+	function closePopup() {
+		$('#dialog-overlay, #dialog-box').hide();  
+		
+		if ($('#reloadFlag').val() == "1") {
+			location.reload();
+		}
+	}
+	
 	function set(form, action) {
 		form.dispatch.value = action;		
 		form.submit();
@@ -24,9 +55,21 @@
 	
 	$(function() {
 		 if (${error != null}) {
-			$('#errwin').dialog();
+		    $( "#errwin" ).dialog({
+				title: 'Alerts & Notifications',
+				width: 400,
+				height: 200,		
+				dialogClass: 'no-close',
+			       buttons: {
+				  OK: function() {
+				  	$(this).dialog("close");
+				  	//location.reload();
+				  }
+			       },
+			    });					
 		}
 	});
+	
 </script>
 
 <style>
@@ -37,11 +80,20 @@
 <div class="wrapper">
 	<!-- header -->
   <div class="header">
-  	<a href="dashboard-office.html" class="logo_lts"></a>
-    <div class="logo_txt"><a href="dashboard-office.html">Liberty Tax Service</a></div>
-    <div class="logo_app"><a href="dashboard-office.html"></a></div>
+  <c:choose>
+	<c:when test = '${loc == "CA"}'>  	
+		<a href="#" class="logo_lts_01"></a>
+		<div class="logo_txt_01"><a href="#">Liberty Tax Service</a></div>
+    		<div class="logo_87411"><a href="#"></a></div>		
+	</c:when>
+	<c:otherwise>
+  		<a href="#" class="logo_lts"></a>
+    		<div class="logo_siempre"><a href="dashboard-corporate.html"></a></div>  		
+  	</c:otherwise>
+  </c:choose>
+
     <ul class="top_nav">
-      <li class="help"><a href="javascript:openwindow('US411_Help_Guide_2014_update3.pdf')">Help</a></li>
+      <li class="help"><a href="javascript:openwindow('US411_Help_Guide_2014.pdf')">Help</a></li>
 
 <form:form id="signin" method="post" action="logout" commandName="ltUser"> 		 	
       
@@ -51,6 +103,10 @@
      -->
 </form:form>
     </ul>
+	<c:if test = '${loc != "CA"}'>     
+        	<div class="logo_us411_r"><a href="dashboard-corporate.html"></a></div>
+        </c:if>
+
   </div>
    
 <div  class="err_msg" align="center">
@@ -64,3 +120,14 @@
 			*** <c:out value="${error}"/> ***
 		</c:if>
 </div>
+
+	<input type="hidden" id="reloadFlag"/>
+	
+    <div id="dialog-overlay"></div>
+    <div id="dialog-box">
+        <div class="dialog-content">
+            <div align="center" id="dialog-message"></div>
+            <br/>
+            <a href="#" onclick="closePopup()" class="button">Close</a>
+        </div>
+    </div>

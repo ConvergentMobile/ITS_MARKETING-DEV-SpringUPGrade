@@ -8,6 +8,7 @@
 	font: 13px/17px OpenSansSemibold, Arial, Helvetica, sans-serif;
 	border-top: #334685 2px solid;
 	color: #fff;
+	height: 680px;
 }
 
 .ul_left_nav li {
@@ -35,7 +36,8 @@
 
 .ul_left_nav li.selected {
 	background: url(../images/sidenav_item_bg_selected.png) 0 0 no-repeat;
-	z-index: 100000000;
+	/* z-index: 100000000; */
+	z-index: 1000;
 	position: relative;
 }
 

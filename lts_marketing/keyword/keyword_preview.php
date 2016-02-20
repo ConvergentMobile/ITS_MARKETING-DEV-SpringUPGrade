@@ -4,6 +4,7 @@ if($_REQUEST['mode'] == "FT") {
     $_SESSION['imageFile'] = "";
     $_SESSION['keyword'] = $_COOKIE['keyword'];
     $_SESSION['acnum'] = $_REQUEST['acnum'];
+    $_SESSION['loc'] = $_REQUEST['loc'];
 }
 ?>
  <html>
@@ -57,7 +58,17 @@ if($_REQUEST['mode'] == "FT") {
                                 params.wmode = "transparent";
                                 var attributes = {};
 
-                                swfobject.embedSWF("./logo_USP.swf?id="+Math.random(), "flashcontent", "200", "420", "10.0.0",null, flashvars, params, attributes);
+<?php
+                                if ($_SESSION['loc'] == "CA") {
+?>
+                                	swfobject.embedSWF("./logo_USP_CA.swf?id="+Math.random(), "flashcontent", "200", "420", "10.0.0",null, flashvars, params, attributes);
+<?php
+ 								} else {
+?>
+                                	swfobject.embedSWF("./logo_USP.swf?id="+Math.random(), "flashcontent", "200", "420", "10.0.0",null, flashvars, params, attributes);
+<?php
+                       			}
+?>
                         </script>
 
 			<form name="form1" id="form1" method="get">
@@ -77,7 +88,7 @@ if($_REQUEST['mode'] == "FT") {
         You can view it <a href='./view_hotspot.jsp?hotspot=../../outfiles/hotspot/liberty_tax/<?= $_SESSION['acnum'] . "_" . $_SESSION['keyword'] . "_" . $_SESSION['imageFile']?>'>here</a>
         </font>
 		<br/>
-		<input type="image" name="" src="../images/finish.png" onclick="gotoPage();" title="Finished" alt="Finished">
+		<input type="image" name="" src="../images/finished.gif" onclick="gotoPage();" title="Finished" alt="Finished">
 
 
 <?php

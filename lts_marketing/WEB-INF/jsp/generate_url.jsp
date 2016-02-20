@@ -33,6 +33,7 @@
 	Role: <select name="role" id="role"> 
   			<option value="Office" >Office</option>
   			<option value="Entity" >Entity</option>
+  			<option value="AD" >AD</option>
   			<option value="Corporate" >Corporate</option>
 		</select>
 	<p/>

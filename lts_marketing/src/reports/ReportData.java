@@ -11,6 +11,10 @@ public class ReportData implements Serializable {
 	private String column4;
 	private String column5;
 	private String column6;
+	private String column7;
+	private String column8;
+	private String column9;
+	private String column10;
 	private Object obj1;
 	
 	public ReportData() {
@@ -87,6 +91,38 @@ public class ReportData implements Serializable {
 		return obj1;
 	}
 
+	public String getColumn7() {
+		return column7;
+	}
+
+	public void setColumn7(String column7) {
+		this.column7 = column7;
+	}
+
+	public String getColumn8() {
+		return column8;
+	}
+
+	public void setColumn8(String column8) {
+		this.column8 = column8;
+	}
+
+	public String getColumn9() {
+		return column9;
+	}
+
+	public void setColumn9(String column9) {
+		this.column9 = column9;
+	}
+
+	public String getColumn10() {
+		return column10;
+	}
+
+	public void setColumn10(String column10) {
+		this.column10 = column10;
+	}
+
 	public void setObj1(Object obj1) {
 		this.obj1 = obj1;
 	}
@@ -105,6 +141,14 @@ public class ReportData implements Serializable {
 			return column5;
 		if (idx == 6)
 			return column6;
+		if (idx == 7)
+			return column7;
+		if (idx == 8)
+			return column8;
+		if (idx == 9)
+			return column9;
+		if (idx == 10)
+			return column10;
 		
 		return null;		
 	}

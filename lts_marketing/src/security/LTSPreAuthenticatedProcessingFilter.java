@@ -3,15 +3,20 @@ package security;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
+import dao.LTUserDAOManager;
+
 import service_impl.LTSMarketingServiceImpl;
+import user.RoleAction;
 import util.InputDecoder;
 
 public class LTSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticatedProcessingFilter {
@@ -51,6 +56,14 @@ public class LTSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticate
 				return null;
 			}
 			
+			//check if it is a valid role
+			List<RoleAction> roleActions = new LTUserDAOManager().getRoleActions(role);
+			if (roleActions == null || roleActions.isEmpty()) {
+				request.setAttribute("errorMsg", "Invalid role. Please make sure that you have a valid role to access US411.");
+				logger.error("Invalid role");				
+				return null;
+			}
+			
 			Collection<? extends GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(); 
 
 			/*
@@ -58,8 +71,9 @@ public class LTSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticate
 			myUser = new org.springframework.security.core.userdetails.User(user.getUserId().toString(), "password", true, true, true, true, 
 						authorities);	
 			*/
+
 			myUser = new org.springframework.security.core.userdetails.User(eId, "password", true, true, true, true, 
-					authorities);				
+					authorities);		
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

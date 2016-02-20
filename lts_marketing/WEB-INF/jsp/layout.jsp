@@ -5,15 +5,18 @@
 <head>
 		<meta charset="utf-8">
 		<meta content="width=device-width,initial-scale=1.0" name="viewport">
-		<link rel="stylesheet" type="text/css" href="css/common.css">
 		<link rel="shortcut icon" href="/favicon.ico">
 		<title>Liberty Tax Service</title>
-		<link rel="stylesheet" href="css/global.css">
-		<link rel="stylesheet" href="fonts/fonts.css">
-		<link rel="stylesheet" href="css/navigation.css">
-		<link rel="stylesheet" href="css/common.css">
-		<link rel="stylesheet" href="css/grids.css">
-		<link rel="stylesheet" href="css/sidebar.css">
+<link rel="stylesheet" href="css/global.css">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="css/navigation.css">
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/grids.css">
+<link rel="stylesheet" href="css/sidebar.css">
+<link rel="stylesheet" href="css/magnific-popup.css">
+<link rel="stylesheet" href="css/ex-01.css">
+
+<link rel="stylesheet" href="css/popup.css">
 
  		<link rel="stylesheet" href="css/jquery-ui.min.css">
 		<link href='./css/cupertino/jquery-ui.css' rel='stylesheet' />	
@@ -32,12 +35,17 @@
   <script src="js/jquery.timepicker.js"></script>
 
 
-		<script src="js/jquery.idTabs.min.js"></script>
-		<script src="js/jquery.slimscroll.min.js"></script>
-		<script src="js/jquery.screwdefaultbuttonsV2.js"></script>
-		<script src="js/jquery.cycle.all.js"></script>
-		<script src="js/functions.js"></script>
+<script src="js/jquery.idTabs.min.js"></script>
+<script src="js/jquery.slimscroll.min.js"></script>
+<script src="js/jquery.screwdefaultbuttonsV2.js"></script>
+<script src="js/jquery.cycle.all.js"></script>
+<script src="js/jquery.magnific-popup.js"></script>
+<script src="js/functions.js"></script>
+
+ 	<script type="text/javascript" src="js/jquery-picklist.js"></script>
  
+ 	<script src="https://cdn.jsdelivr.net/jquery.uploadfile/2.0.7/js/jquery.uploadfile.min.js"></script>
+	<link href="https://cdn.jsdelivr.net/jquery.uploadfile/2.0.7/css/uploadfile.css" rel="stylesheet" >     
 		
 		<script language="JavaScript">
 		function logout(){

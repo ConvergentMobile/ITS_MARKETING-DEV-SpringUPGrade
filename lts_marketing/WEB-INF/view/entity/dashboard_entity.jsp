@@ -16,6 +16,21 @@
 <script type="text/JavaScript">	
 	$(document).ready(function() {
 		resetForm();
+		/*
+		$( "#errwin" ).dialog({
+			title: 'Alerts & Notifications',
+			width: 400,
+			height: 200,		
+			dialogClass: 'no-close',
+			autoOpen: false, 
+			buttons: {
+			  OK: function() {
+				$(this).dialog("close");
+				location.reload();
+			  }
+		       },
+		});
+		*/
 	});
 
 	function resetForm() {
@@ -26,13 +41,20 @@
 	}
 	
 	function createHotspot() {
-		if (${sites == null}) {
+		if (${ltUser.sites == null}) {
 		 	$('#errwin').html("Please allocate a keyword for each of your offices");
 			$('#errwin').dialog();	
 			return false;
 		}
 		
+		var x = $('#currentPage').val();
+		if (x == "0") {
+			alert("No allocated keywords");
+			return;
+		}
+		
 		userId = $('#uid').val();
+
 		if (${userId == ''}) 
 			window.open('createHotspot',"mywindow","scrollbars=yes,menubar=1,resizable=1,width=450,height=550");		
 		else {
@@ -96,7 +118,7 @@
 	        });
 	}
 
-	function getProfile(userId) {
+	function getProfile(userId, officeId) {
 		var outstr = '';
 		var outstr2 = '';
 		
@@ -117,13 +139,24 @@
 					return;
 				}
 				outstr += category.businessName + '<br/>';
-				if (category.website != null) {
-					outstr += category.website + '<br/>';
+				//if (category.website != null && category.website != '') {
+				//	outstr += category.website + '<br/>';
+				//}
+				if (officeId != '') {
+					outstr += "http://libertytax.com/" + officeId + '<br/>';
+				} else {
+					outstr += "http://libertytax.com" + '<br/>';
 				}
-				outstr += category.address + '<br/>';
-				outstr += category.city + ',' + category.state + '&nbsp;'
+
+				
+				if (category.address != null && category.address != '') {				
+					outstr += category.address + '<br/>';
+					outstr += category.city + ',' + category.state + '&nbsp;'
 						+ category.zip + '<br/>';
-				outstr += category.phone;
+				}
+				if (category.phone != null && category.phone != '') {
+					outstr += '(' + category.phone.substring(0, 3) + ')' + category.phone.substring(3, 6) + '-' + category.phone.substring(6);
+				}
 				outstr += '<c:set var="userId" value="' + userId + '"/>';
 				
 				outstr2 = '<td class="td_02"><a href="#" onclick="getProfile1('
@@ -265,9 +298,12 @@
 		    url : 'createCustomMessage',
 		    data: $("#thisForm").serialize(),
 		    success : function(result) {
-				alert(result);
-				$('#sendSearchCityString').val('');
-				location.reload(); //to update the pending msg list				
+				//alert(result);
+				$('#sendSearchCityString').val('');				
+				//$('#errwin').html('<div align="center">' + result + '</div>');
+				//$( "#errwin" ).dialog('open');		
+				popup(result, 1);
+				//location.reload(); //to update the pending msg list				
 			},
 				error : function(e) {
 					alert('error: ' + e.text());
@@ -295,7 +331,35 @@
 		form.action = 'dashboardEntity';
 		form.method = 'GET';
 		form.submit();	
-	}	
+	}
+	
+	function directions() {
+		var outStr = '<h3>Steps to create your hotspot decal</h3><br/>'
+		outStr += '<ul>';
+		outStr += '<li>1. Click on KEYWORD in "LIST OF KEYWORDS" box (top middle of dashboard)</li><br/>';
+		outStr += '<li>2. Click the blue "GET MY HOTSPOT" button in the lower right hand box.</li><br/>';
+		outStr += '<li>3. Preview Decal - Pick your color and click PREVIEW</li><br/>';
+		outStr += '<li>4. Click "GET MY HOTSPOT" (This will take a moment).</li><br/>';
+		outStr += '<li>5. At the bottom of the pop-up you will see a hot link. Click on this to<p/>'
+			+ 'see your Hotspot Decal.  You should save this image to your desktop for all<p/>'
+			+ 'your marketing needs.</li><br/>';
+		outStr += '</ul>';
+		outStr += '<div align="center">'
+		    	  + '<a href="#" onclick="closeIt();" class="btn_dark_blue">Close</a>'
+			  + '</div>';
+		
+		$('#dialog1').dialog({
+			title : '',
+			height : 350,
+			width : 650,
+		});
+		$(".ui-dialog-titlebar").hide();
+		$('#dialog1').html(outStr);					
+	}
+
+	function closeIt() {
+		$('#dialog1').dialog('close');
+	}		
 </script>
 
   <!-- // header -->
@@ -313,6 +377,7 @@
 				<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
 				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>		
 				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>
+				<li class="si_sendafriend"><a href="sendAFriend">Send a Friend</a></li>	
 				<li class="si_reports"><a href="getReports">Reports</a></li>     		
 				<li class="si_mobile_profile"><a href="getProfile">My Mobile Profile</a></li>	
 			</c:if>
@@ -325,7 +390,8 @@
 			</c:if>   
 			<c:if test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
 				<li class="si_dashboard"><a href="dashboardCorp">Dashboard</a></li>	
-				<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>   
+				<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>  
+				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>					 
 				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>	      	
 				<li class="si_search"><a href="corpSearch">Search</a></li>	
 				<li class="si_reports"><a href="getReports">Reports</a></li>	      	
@@ -389,7 +455,10 @@
               <col width="20%" />
               <col width="12%" />              
             </colgroup>
-             <tbody>           							
+             <tbody>           			
+             	
+      	<c:set var="kwCnt" value="0"/>
+             	
 		<c:forEach var="site" items="${ltUser.sites}" varStatus="loopStatus"> 
 			<c:set var="keyword" value="${site.keyword}" />
 			<c:set var="status" value="${site.customField3}"/>	
@@ -398,6 +467,7 @@
 				<tr class="${loopStatus.index % 2 == 0 ? 'slighty_red' : 'slighty_red'}">
 			   </c:when>
 			<c:otherwise>
+			   	<c:set var="kwCnt" value="${kwCnt +1}"/>	
 				<tr class="${loopStatus.index % 2 == 0 ? 'even' : 'odd'}">
 			</c:otherwise>
 			</c:choose>				
@@ -405,9 +475,10 @@
 			   <c:if test = "${site.customField3 == 'R'}">
 				<td class="td_02"><div><a href="#" onclick="setKeyword('${site.userId}', '${site.customField1}', '${site.customField2}', '${site.customField3}')">
 						<c:out  value="${site.keyword}"/></a></div></td>								
+			   
 			   </c:if>
 			   <c:if test = "${site.customField3 != 'R'}">
-				<td class="td_02"><div><a href="#" onclick="getProfile('${site.userId}')">
+				<td class="td_02"><div><a href="#" onclick="getProfile('${site.userId}', '${site.customField2}')">
 						<c:out  value="${site.keyword}"/></a></div></td>								
 			   </c:if>			   
 				<td class="td_03"><div><c:out  value="${site.customField1}"/></div></td>
@@ -415,8 +486,13 @@
 				<c:if test = "${site.customField3 != 'R'}">				
 					<td class="td_04"><a href="#" onclick="changeKeyword('${site.keyword}', '${status}')" class="btn_select_01">Change</td>
 				</c:if>								
-			</tr>			   
+			</tr>	
+			
+			
 		</c:forEach>	
+		
+		<input type="hidden" id="currentPage" value="${kwCnt}"/>
+
             </tbody>
             </table>
           </div>
@@ -489,35 +565,35 @@
           	<div class="info_title">
             	<a href="#" class="prevnext info_prev" id="id_prev_info"></a>
               <a href="#" class="prevnext info_next get_next_info"></a>
-              <h3>Information</h3>
+              <h3>Key Points For This Page</h3>
             </div>
             <!-- slider -->
             <div class="infoslider" id="infoslider">
             	<!-- slide -->
               <div class="slide">
-              	<p>
-                	Now, you can instantly reach your customers with the latest deals, promos, discounts, and other general information about your business 
-                  using the power of text messaging&hellip; <b>any time of the day</b>!
-                </p>
-                <p class="p_small">
-                	Don't forget&hellip; it is important to <span class="sp_red">PROMOTE, PROMOTE, PROMOTE</span> your call to action. You can send the best offers to your subscribers, 
-                  but customers will only know you are there if you promote.
-                </p>
-              </div>
-              <!-- // slide -->
-            	<!-- slide -->
-              <div class="slide">
-              	<p>
-                	1 Now, you can instantly reach your customers with the latest deals, promos, discounts, and other general information about your business 
-                  using the power of text messaging&hellip; <b>any time of the day</b>!
-                </p>
+<ul>
+<li>1. <b>Manage your Keywords</b> - Change your KEYWORDS when needed. We DON'T suggest you do this.</li>
+<p/>
+<li>2. <b>Create A Custom Message</b> - From the dashboard, you can quickly create a new message and send it to corporate for approval.
+You can monitor the message's approval on the Create Custom Message tab.</li>
+<p/>
+</ul>
+</div>
+<div class="slide">
+<ul>
+<li>3. <b>Check Your Business Info</b> - Business info is pulled directly from the Liberty Admin System 
+and is directly fed to US411 everyday.</li>
+<p/>
+<li>4. <b>Get Your Hotspot</b> - See directions in the box below.</li>
+</ul>
               </div>
               <!-- // slide -->
 
             </div>
             <!-- // slider -->
-            <div class="infonext_wrapper"><a href="#" class="lnk_infonext get_next_info">Next</a></div>
           </div>
+            <div class="infonext_wrapper"><a href="#" class="lnk_infonext get_next_info">Next</a></div>
+          
           <!-- // information wrapper -->
           <!-- biz info wrapper -->
           <div class="biz_info_wrapper">
@@ -539,19 +615,37 @@
                   		<c:set var="userId" value="${ltUser.category.userId}"/>
 				<c:out value="${ltUser.category.businessName}"/>
 				<br/>
-				<c:out value="${ltUser.category.website}"/>						
-				<br/>
-				<c:out value="${ltUser.category.address}"/>
-				<br/>
-				<c:out value="${ltUser.category.city}"/>, 
-				<c:out value="${ltUser.category.state}"/> 
-				&nbsp;<c:out value="${ltUser.category.zip}"/>
-				<br/>
-				<c:set var="phone" value="${ltUser.category.phone}"/>
-				<c:out value="(${fn:substring(phone, 0, 3)}) ${fn:substring(phone, 3, 6)}-${fn:substring(phone, 6, fn:length(phone))}"/>				
+				<c:choose>
+				<c:when test = '${fn:length(ltUser.sites[0].customField2) > 0}'>	
+					<c:set var="website" value="http://libertytax.com/${ltUser.sites[0].customField2}"/>									
+				</c:when>
+				<c:otherwise>		
+					<c:set var="website" value="http://libertytax.com"/>														
+				</c:otherwise>
+				</c:choose>				
+				<c:if test="${fn:length(website) > 0}">
+					<c:out value="${website}"/>
+					<br/>
+				</c:if>
+				<c:if test="${fn:length(ltUser.category.address) > 0}">
+					<c:out value="${ltUser.category.address}"/>
+					<br/>
+				</c:if>
+				<c:if test="${fn:length(ltUser.category.city) > 0}">
+					<c:out value="${ltUser.category.city}"/>, 
+					<c:out value="${ltUser.category.state}"/> 
+					&nbsp;<c:out value="${ltUser.category.zip}"/>
+					<br/>
+				</c:if>
+				<c:if test="${fn:length(ltUser.category.phone) > 0}">
+					<c:set var="phone" value="${ltUser.category.phone}"/>
+					<c:out value="(${fn:substring(phone, 0, 3)}) ${fn:substring(phone, 3, 6)}-${fn:substring(phone, 6, fn:length(phone))}"/>				
+				</c:if>
 				</div>
 		  </td>
-		  <td class="td_02" id="biz_info_2"><a href="#" onclick="getProfile1('${userId}')">Expand</a></td>				  
+		  <c:if test="${ltUser.category.custStatus != 'R'}">
+		  	<td class="td_02" id="biz_info_2"><a href="#" onclick="getProfile1('${userId}')">Expand</a></td>				  
+		  </c:if>		
 		</tr>
 	      </tbody>
 	      </table>
@@ -569,7 +663,12 @@
           		<div class="hotspot_box">
               	<p class="p_left">Customize <br>your <br>Hotspot</p>
                 <p class="p_right">Select <br>your <br>design</p>
-                <div class="hotspot_seal"><img src="images/seal_hotspot_001.png" width="168" height="168"></div>
+                <c:if test='${ltUser.user.billingCountry == "CA"}'>                
+                	<div class="hotspot_seal"><img src="images/seal_hotspot_ca.png" width="168" height="168"></div>               
+                </c:if>
+                <c:if test='${ltUser.user.billingCountry == "US"}'>
+                	<div class="hotspot_seal"><img src="images/seal_hotspot_001.png" width="168" height="168"></div>
+              	</c:if>
               </div>
               <!-- // box -->
               <ul class="ul_hotspot">
@@ -584,6 +683,8 @@
               </ul>
               <div class="btn_hotspot_wrapper">
               	<a href="#" onclick="return createHotspot();" class="btn_dark_blue btn_hotspot">Get My Hotspot!</a>
+	        <br/>
+	        <a href="javascript:directions();" class="btn_dark_blue btn_hotspot">Directions</a>	                    
               </div>
             </div>
           </div>

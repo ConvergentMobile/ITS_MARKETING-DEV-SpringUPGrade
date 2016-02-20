@@ -13,6 +13,8 @@ public class ValueObject implements Serializable {
 	protected Object field6;
 	protected Object field7;
 	protected Object field8;
+	protected Object field9;
+	protected Object field10;
 	
 	public Object getField1() {
 		return field1;
@@ -62,5 +64,16 @@ public class ValueObject implements Serializable {
 	public void setField8(Object field8) {
 		this.field8 = field8;
 	}
-
+	public Object getField9() {
+		return field9;
+	}
+	public void setField9(Object field9) {
+		this.field9 = field9;
+	}
+	public Object getField10() {
+		return field10;
+	}
+	public void setField10(Object field10) {
+		this.field10 = field10;
+	}
 }

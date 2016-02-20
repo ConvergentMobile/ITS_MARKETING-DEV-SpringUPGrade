@@ -3,11 +3,32 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<style>
+.no-close .ui-dialog-titlebar-close {
+display: none;
+</style>
+
 <script type="text/JavaScript">	
+	$(document).ready(function() {		
+		$( "#errwin" ).dialog({
+			title: 'Alerts & Notifications',
+			width: 400,
+			height: 200,		
+			dialogClass: 'no-close',
+			autoOpen: false, 
+			buttons: {
+			  OK: function() {
+				$(this).dialog("close");
+				location.reload();
+			  }
+		       },
+		});		
+	});
+
 	function submitMsg() {
 		if (${sites == null}) {
 		 	$('#errwin').html("Please allocate a keyword for each of your offices");
-			$('#errwin').dialog();	
+			$('#errwin').dialog('open');	
 			return false;
 		}
 		
@@ -20,14 +41,24 @@
 			return false;
 		}
 		
+		var eoId = $('#searchOfficeIdString').val();
+
+		if (eoId == "") {
+			alert("Must select an Office or Entity");
+			return false;
+		}
+		
 		$.ajax({
 		    type : 'POST',
 		    url : 'createCustomMessage',
 		    data: $("#thisForm").serialize(),
 		    success : function(result) {
-				alert(result);
+				//alert(result);
 				$('#sendSearchCityString').val('');
-				location.reload(); //to update the pending msg list				
+        			//$('#errwin').html('<div align="center">' + result + '</div>');
+        			//$( "#errwin" ).dialog('open');  	
+        			popup(result, 1);
+				//location.reload(); //to update the pending msg list				
 			},
 				error : function(e) {
 					alert('error: ' + e.text());
@@ -53,6 +84,7 @@
 			<li class="si_custom_msg selected"><a href="customMessageEntity">Create Custom Message</a></li>
 		      	<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>		
 			<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>	
+			<li class="si_sendafriend"><a href="sendAFriend">Send a Friend</a></li>
 			<li class="si_reports"><a href="getReports">Reports</a></li>		
 			<li class="si_mobile_profile"><a href="getProfile">My Mobile Profile</a></li>				
 		</c:if>
@@ -65,7 +97,8 @@
 		</c:if>   
 	 	<c:if test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
 	    		<li class="si_dashboard"><a href="dashboardCorp">Dashboard</a></li>	
-	      		<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>   
+	      		<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li> 
+		      	<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>			      		  
 				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>
 				<li class="si_search"><a href="corpSearch">Search</a></li>			
 				<li class="si_reports"><a href="getReports">Reports</a></li>
@@ -116,7 +149,7 @@
             <div class="floatfix"></div>
             <label for="msg_content" class="lb_01">Message Content:</label>
             <div class="big_input_wrapper">
-		<form:textarea path="sendSearchCityString" class="input_big" rows="7"/>					            
+		<form:textarea path="sendSearchCityString" class="input_big" maxlength="140" rows="7"/>					            
             </div>
             <div class="button_wrapper_01 clearfix">
             	<input type="button" onclick="javascript:submitMsg()" class="btn_green btn_01" value="Create & Send for Approval">                        	
@@ -157,7 +190,7 @@
 			<c:set var="keyword" value="${site.keyword}" />
 			<tr>
 				<td class="td_01"><div><c:out  value="${pMsg.messageText}"/></div></td>								
-				<td class="td_02"><div><fmt:formatDate type="date" pattern="MM/dd/yyyy" value="${pMsg.lastUpdated}" /></div></td>
+				<td class="td_02"><div><fmt:formatDate type="date" pattern="MM/dd/yyyy" value="${pMsg.created}" /></div></td>
 			</tr>
 		</c:forEach>            
             </tbody>
@@ -186,7 +219,7 @@
 			<c:set var="keyword" value="${site.keyword}" />
 			<tr>
 				<td class="td_01"><div><c:out  value="${pMsg.messageText}"/></div></td>								
-				<td class="td_02"><div><fmt:formatDate type="both" pattern="MM/dd/yyyy hh:mm a z" value="${pMsg.lastUpdated}" /></div></td>
+				<td class="td_02"><div><fmt:formatDate type="both" pattern="MM/dd/yyyy hh:mm a z" value="${pMsg.updated}" /></div></td>
 			</tr>
 		</c:forEach>    
             </tbody>
@@ -215,7 +248,7 @@
 			<c:set var="keyword" value="${site.keyword}" />
 			<tr>
 				<td class="td_01"><div><c:out  value="${pMsg.messageText}"/></div></td>								
-				<td class="td_02"><div><fmt:formatDate type="both" pattern="MM/dd/yyyy hh:mm a z" value="${pMsg.lastUpdated}" /></div></td>
+				<td class="td_02"><div><fmt:formatDate type="both" pattern="MM/dd/yyyy hh:mm a z" value="${pMsg.updated}" /></div></td>
 			</tr>
 		</c:forEach>  
             </tbody>
@@ -224,7 +257,29 @@
         </div>
         <!-- // sidebar box type 1 -->
       </div>
-      
+ 
+     	<div class="inner">
+
+         <!-- sidebar box type 1 -->
+         <div class="sb_box_01">
+           <h3>Key Points For This Page</h3>
+           <div class="grid_wrapper_01">
+           <div class="infoslider">
+           <p class="slide">
+           <ul>
+ 		<li>1. <b>Select Your Office</b> you want to create your message for.<br/>
+		<li>2. <b>Create a Custom Message</b> and send it directly to corporate for approval.  This is a direct line between you and corporate.  
+ 			No other Entity will see the messages you create.<br/>
+ 		<li>3. <b>Check the Status</b> of where your custom message is in the approval process.  
+ 			This should only take a few days at the most.
+ 	  </ul>
+ 	</p>
+ 	</div>
+           </div>
+         </div>
+         <!-- // sidebar box type 1 -->
+	</div>
+ 
     </div>
     <!-- // sidebar -->    
     <div class="floatfix"></div>

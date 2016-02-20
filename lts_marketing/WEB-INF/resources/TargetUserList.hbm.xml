@@ -29,6 +29,12 @@ column="list_path"
 />
 
 <property
+name="listType"
+type="java.lang.String"
+column="list_type"
+/>
+
+<property
 name="listDisplayPath"
 type="java.lang.String"
 column="list_display_path"

@@ -31,6 +31,7 @@
             data: $("#thisForm").serialize(),
             success : function(result) {
         		$('#content').html(result);
+        		popup("Timezone info saved", 0);        		
 			},
 			error : function(e) {
 				alert('error: ' + e.text());
@@ -59,6 +60,7 @@
 				<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
 				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>		
 				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>
+				<li class="si_sendafriend"><a href="sendAFriend">Send a Friend</a></li>
 				<li class="si_reports"><a href="getReports">Reports</a></li>     		
 				<li class="si_mobile_profile selected"><a href="getProfile">My Mobile Profile</a></li>	
 			</c:if>
@@ -72,14 +74,16 @@
 			<c:if test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
 				<li class="si_dashboard"><a href="dashboardCorp">Dashboard</a></li>	
 				<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>   
+				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>					
 				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>	      	
 				<li class="si_search"><a href="corpSearch">Search</a></li>	
 				<li class="si_reports"><a href="getReports">Reports</a></li>	      	
 			</c:if> 
 			<c:if test = '${ltUser.user.roleActions[0].roleType == "AD"}'>  	
 				<li class="si_dashboard"><a href="dashboardAD">Dashboard</a></li>
-				<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
+				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>		
 				<li class="si_reports"><a href="getReports">Reports</a></li>		
+				<li class="si_mobile_profile"><a href="getProfile">My Mobile Profile</a></li>
 			</c:if>	
       	
       		<li class="si_toolbox"><a href="cmtoolbox">Convergent Toolbox</a></li>
@@ -125,12 +129,14 @@
 						</td>						
 						<td class="td_02"><c:out value="${ltUser.category.businessName}"/></td>
 					</tr>
+				<%--
 					<tr>
 						<td class="td_01">
 							<form:label path="category.adminMobilePhone"><spring:message code="label.adminMobilePhone" /></form:label>
 						</td>
 						<td class="td_02"><c:out value="${ltUser.category.adminMobilePhone}"/></td>
-					</tr>							
+					</tr>
+				--%>							
 					<tr>
 						<td class="td_01">
 							<form:label path="category.address"><spring:message code="label.address" /></form:label>
@@ -150,9 +156,21 @@
 						<td class="td_02"><c:out value="${ltUser.category.zip}" /></td>
 					</tr>
 					<tr>
+						<c:choose>
+						<c:when test = '${ltUser.user.roleActions[0].roleType == "AD"}'>	
+							<c:set var="phone" value="${ltUser.category.adminMobilePhone}"/>									
+						</c:when>
+						<c:otherwise>		
+							<c:set var="phone" value="${ltUser.category.phone}"/>														
+						</c:otherwise>
+						</c:choose>						
 						<td class="td_01"><form:label path="category.phone"><spring:message code="label.phone" /></form:label></td>
 						<td class="td_02">
-						<c:set var="phone" value="${ltUser.category.phone}"/>
+					<%--
+						<c:if test = '${ltUser.user.roleActions[0].roleType == "Entity"}'>  
+							<c:set var="phone" value="${ltUser.category.adminMobilePhone}"/>
+						</c:if>	
+					--%>					
 						<c:if test="${fn:length(phone) > 0 }">
 							<c:out value="(${fn:substring(phone, 0, 3)}) ${fn:substring(phone, 3, 6)}-${fn:substring(phone, 6, fn:length(phone))}"/>	
 					    </c:if>
@@ -174,7 +192,8 @@
 	                  		<form:option value="US/Pacific">Pacific</form:option>
 	                  	</form:select>
 	                  </td>
-	                </tr> 									
+	                </tr> 
+				<%--	            									
 					<tr>
 						<td class="td_01"><form:label path="category.facebookLink"><spring:message code="label.facebookLink" /></form:label></td>
 						<td class="td_02"><c:out value="${ltUser.category.facebookLink}" /></td>
@@ -184,18 +203,19 @@
 						<td class="td_02"><c:out value="${ltUser.category.twitterLink}" /></td>
 					</tr>
 					<tr>
+						<td class="td_01"><form:label path="category.areaServed"><spring:message code="label.areaServed" /></form:label></td>
+						<td class="td_02"><c:out value="${ltUser.category.areaServed}" /></td>
+					</tr>					
+					<tr>
 						<td class="td_01"><form:label path="category.busHours"><spring:message code="label.hours" /></form:label>
 						</td>
 						<td class="td_02"><form:textarea path="category.busHours" style="border: 0px solid #000000;" rows="2" readonly="true"/></td>
 					</tr>
 					<tr>
-						<td class="td_01"><form:label path="category.areaServed"><spring:message code="label.areaServed" /></form:label></td>
-						<td class="td_02"><c:out value="${ltUser.category.areaServed}" /></td>
-					</tr>
-					<tr>
 						<td class="td_01"><form:label path="category.description"><spring:message code="label.description" /></form:label></td>
 						<td class="td_02"><form:textarea styleClass="text" path="category.description" style="border: 0px solid #000000;" rows="2" readonly="true"/></td>
 					</tr>
+				--%>					
 		              <tr>
 		              	<td class="td_01"></td>
 		                <td class="td_02">
@@ -241,27 +261,16 @@
             	<!-- slide -->
               <div class="slide">
               	<p>
-                	Now, you can instantly reach your customers with the latest deals, promos, discounts, and other general information about your business 
-                  using the power of text messaging&hellip; <b>any time of the day</b>!
-                </p>
-                <p class="p_small">
-                	Don't forget&hellip; it is important to <span class="sp_red">PROMOTE, PROMOTE, PROMOTE</span> your call to action. You can send the best offers to your subscribers, 
-                  but customers will only know you are there if you promote.
-                </p>
-              </div>
-              <!-- // slide -->
-            	<!-- slide -->
-              <div class="slide">
-              	<p>
-                	1 Now, you can instantly reach your customers with the latest deals, promos, discounts, and other general information about your business 
-                  using the power of text messaging&hellip; <b>any time of the day</b>!
+              	<ul>
+<li><b>1. Select Your Office</b> you want to claim the correct Timezone.</li><br/>
+<li>2. Please make sure your office info is correct. This info comes directly from 
+the Liberty Admin system.</li>
+		</ul>
                 </p>
               </div>
-              <!-- // slide -->
 
             </div>
             <!-- // slider -->
-            <div class="infonext_wrapper"><a href="#" class="lnk_infonext get_next_info">Next</a></div>
           </div>
           <!-- // information wrapper -->
           <!-- biz info wrapper -->
@@ -283,7 +292,8 @@
                   	<div>
 				<c:out value="${ltUser.category.businessName}"/>
 				<br/>
-				<c:out value="${ltUser.category.website}"/>						
+                <c:set var="website" value="http://libertytax.com/${ltUser.searchDMAString}"/>                                            
+                <c:out value="${website}"/>									
 				<br/>
 				<c:out value="${ltUser.category.address}"/>
 				<br/>
@@ -291,7 +301,19 @@
 				<c:out value="${ltUser.category.state}"/> 
 				&nbsp;<c:out value="${ltUser.category.zip}"/>
 				<br/>
-				<c:set var="phone" value="${ltUser.category.phone}"/>
+				<c:choose>
+				<c:when test = '${ltUser.user.roleActions[0].roleType == "AD"}'>	
+					<c:set var="phone" value="${ltUser.category.adminMobilePhone}"/>									
+				</c:when>
+				<c:otherwise>		
+					<c:set var="phone" value="${ltUser.category.phone}"/>														
+				</c:otherwise>
+				</c:choose>								
+			<%--
+				<c:if test = '${ltUser.user.roleActions[0].roleType == "Entity"}'>  
+					<c:set var="phone" value="${ltUser.category.adminMobilePhone}"/>
+				</c:if>			
+			--%>		
 				<c:if test="${fn:length(phone) > 0 }">				
 					<c:out value="(${fn:substring(phone, 0, 3)}) ${fn:substring(phone, 3, 6)}-${fn:substring(phone, 6, fn:length(phone))}"/>	
 				</c:if>
@@ -317,7 +339,12 @@
           		<div class="hotspot_box">
               	<p class="p_left">Customize <br>your <br>Hotspot</p>
                 <p class="p_right">Select <br>your <br>design</p>
-                <div class="hotspot_seal"><img src="images/seal_hotspot_001.png" width="168" height="168"></div>
+                <c:if test='${loc == "CA"}'>                
+                	<div class="hotspot_seal"><img src="images/seal_hotspot_ca.png" width="168" height="168"></div>               
+                </c:if>
+                <c:if test='${loc == "US"}'>
+                	<div class="hotspot_seal"><img src="images/seal_hotspot_001.png" width="168" height="168"></div>
+              	</c:if>                
               </div>
               <!-- // box -->
               <ul class="ul_hotspot">
@@ -331,7 +358,10 @@
                 <li><img src="images/hotspot_thumb_008.png" width="44" height="44"></li>
               </ul>
               <div class="btn_hotspot_wrapper">
+              <%--
               	<a href="javascript:createHotspot('${keyword}');" class="btn_dark_blue btn_hotspot">Get My Hotspot!</a>
+              --%>
+				<h3>Please go to the Dashboard page to get your hotspot</h3>                
               </div>
             </div>
           </div>

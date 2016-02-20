@@ -3,6 +3,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+ <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <script type="text/JavaScript" SRC="scripts/CalendarPopup.js"></script>
 <script type="text/JavaScript">	
@@ -85,7 +86,8 @@
 			</c:if>   
 			<c:if test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
 				<li class="si_dashboard"><a href="dashboardCorp">Dashboard</a></li>	
-				<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>   
+				<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>  
+				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>						 
 				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>	      	
 				<li class="si_search selected"><a href="corpSearch">Search</a></li>	
 				<li class="si_reports"><a href="getReports">Reports</a></li>	      	
@@ -217,6 +219,9 @@
           </div>
           <!-- // title -->
           <div class="search_results">
+          	<c:if test="{fn:length(ltUser.profiles) == 0}">
+          		No keywords found
+          	</c:if>
           	<div id="results_scroll">
 		   <table>      	
 			  <tr>          

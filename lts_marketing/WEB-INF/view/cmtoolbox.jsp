@@ -28,6 +28,7 @@
 	 	<c:if test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
 	    		<li class="si_dashboard"><a href="dashboardCorp">Dashboard</a></li>	
 	      		<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>   
+		      	<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>			      		
 				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>
 				<li class="si_search"><a href="corpSearch">Search</a></li>			
 				<li class="si_reports"><a href="getReports">Reports</a></li>
@@ -47,7 +48,7 @@
     	<div class="nav_pointer pos_01"></div>
       <!-- subheader -->
       <div class="subheader clearfix">
-      	<h1>Mobile Profile</h1>
+      	<h1>CM Toolbox</h1>
       </div>
       <!-- // subheader -->
     	<div class="inner_box">

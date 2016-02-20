@@ -157,7 +157,8 @@ public class LTSMarketingServiceImpl {
 	}
 	
 	public List<ApprovedMessage> getCustomMessages(Integer siteId, String eid) throws Exception {
-		return adminDao.getCustomMsgs(siteId, eid);
+		List<ApprovedMessage> mlist = adminDao.getCustomMsgs(siteId, eid);
+		return mlist;
 	}
 
 	public List<ApprovedMessage> getCorporateMessagesCA(Integer siteId) throws Exception {
@@ -190,11 +191,21 @@ public class LTSMarketingServiceImpl {
 	
 	//get approved messages from the last x days
 	public List<ApprovedMessage> approvedMsgsFromDate(Long userId, String entType, String status, Integer days) throws Exception {		
-		return adminDao.getCustomMsgs(siteId, userId, entType, status, days);
+		List<ApprovedMessage> mlist = adminDao.getCustomMsgs(siteId, userId, entType, status, days); 
+		if (mlist == null || mlist.isEmpty())
+		for (ApprovedMessage amsg : mlist) {
+			 String s = amsg.getMessageText().replaceAll("\n", "<LF>");
+			 s = s.replaceAll("\\p{Cntrl}", "<LF>"); //to get rid of any ^Ms
+		     s = s.replaceAll("'", "\\\\'");
+		     s = s.replaceAll("\"", "\\\\\"");
+			 amsg.setMessageText(s);
+			 logger.debug("msg: " + amsg.getMessageText());
+		 }
+		return mlist;
 	}
 	
 	public List<ApprovedMessage> approvedMsgsFromDate(Long userId, String entType, String status) throws Exception {		
-		return adminDao.getCustomMsgs(siteId, userId, entType, status, null);
+		return this.approvedMsgsFromDate(userId, entType, status, null);
 	}
 	
 	public List<LTReport> getReports() throws Exception {
@@ -219,5 +230,29 @@ public class LTSMarketingServiceImpl {
 	
 	public CustomFields getCustomFields(Long userId) throws Exception {
 		return dao.getCustomFields(userId);
+	}
+	
+	public void deleteObject(Object obj) throws Exception {
+		adminDao.deleteObject(obj);
+	}
+
+	public ApprovedMessage getCustomMsgById(Integer msgId) throws Exception {
+		return adminDao.getCustomMsgById(msgId);
+	}
+	
+	public List<UserProfileVO> getSAFSites(Long userId) throws Exception {
+		return adminDao.getSAFSites(userId);
+	}
+	
+	public List<ValueObject> getSAFOffices(Long userId) throws Exception {
+		return adminDao.getSAFOffices(userId);
+	}
+	
+	public void saveDetails(Object obj) throws Exception {
+		dao.saveDetails(obj);
+	}
+	
+	public int deleteSAF(String officeId) throws Exception {
+		return adminDao.deleteSAF(officeId);
 	}
 }

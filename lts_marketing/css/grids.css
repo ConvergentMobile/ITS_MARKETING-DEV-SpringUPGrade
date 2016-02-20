@@ -16,7 +16,7 @@
 
 .grid_keyword tbody tr:hover td {
 	border-bottom: #a0bdd2 1px solid;
-	background-color: #d3f2fa; 
+	background-color: #fffbc9; 
 }
 
 .grid_keyword tbody tr:hover .td_01 {
@@ -76,6 +76,12 @@
 	border-right: #f9f9f9 1px solid;
 }
 
+.grid_keyword th.th_05 div {
+	padding-left:  15px;
+	padding-right: 10px;
+	background: url(../images/arr_down_01.png) right 15px no-repeat;
+}
+
 .grid_keyword td.td_01 div {
 	padding-right: 9px;
 	text-align: right;
@@ -95,6 +101,10 @@
 .grid_keyword td.td_04 div {
 	padding-left:  15px;
 	padding-right: 10px;
+}
+
+.grid_keyword td.td_05 div {
+	padding-left:  0;
 }
 
 .btn_select_01, .btn_select_01:visited {
@@ -134,3 +144,96 @@
 
 /* ///////////////////////////////////////////////////////////////////////////////////// */
 
+.grid_search td { border-bottom: #e3e5e9 1px solid; }
+
+.grid_search tbody tr:hover td {
+/*	border-bottom: #a0bdd2 1px solid;
+	background-color: #d3f2fa; */
+	border-bottom: #cecfd1 1px solid;
+	background-color: #ffffdf; 
+	
+}
+
+.grid_search tfoot td {
+	height: 22px;
+	border-top: #fff 1px solid;
+	border-bottom: none;
+	background: url(../images/tfoot_grid_keyword.png) 0 0 repeat-x;
+}
+
+.grid_search {
+	font: 14px/18px Arial, Helvetica, sans-serif;
+	color: #4a555b;
+}
+
+.grid_search th {
+	font-weight: bold;
+	text-transform: uppercase;
+	text-align: left;
+	vertical-align: top;
+	text-shadow: #f6f7f8 0 1px 0;
+	color: #4a555b;
+	border-bottom: #b4babd 1px solid;
+	background: #edeeef url(../images/th_grid_keyword.png) 0 0 repeat-x;
+}
+
+.grid_search th div {
+	padding-top:    8px;
+	padding-bottom: 7px;
+}
+
+.grid_search td div {
+	padding-top:    5px;
+	padding-bottom: 6px;
+}
+
+.grid_search th.th_01 div {
+	padding-left: 35px;
+	padding-right: 9px;
+	text-align: left;
+	border-left:  #f9f9f9 1px solid;
+	border-right: #c8c8c8 1px solid;
+}
+
+.grid_search th.th_02 div {
+	padding-left:  15px;
+	padding-right: 10px;
+	border-right: #c8c8c8 1px solid;
+	background: url(../images/arr_down_01.png) right 15px no-repeat;
+}
+
+.grid_search th.th_03 div {
+	border-right: #f9f9f9 1px solid;
+}
+
+.grid_search th.th_05 div {
+	padding-left:  15px;
+	padding-right: 10px;
+	background: url(../images/arr_down_01.png) right 15px no-repeat;
+}
+
+.grid_search td.td_01 div {
+	padding-left: 35px;
+	text-align: left;
+	color: #242c30;
+}
+
+.grid_search td.td_02 div {
+	padding-left:  15px;
+	padding-right: 10px;
+	color: #242c30;
+}
+
+.grid_search td.td_03 div {
+	padding-left:  15px;
+	padding-right: 10px;
+}
+
+.grid_search td.td_04 div {
+	padding-left:  15px;
+	padding-right: 10px;
+}
+
+.grid_search td.td_05 div {
+	padding-left:  0;
+}

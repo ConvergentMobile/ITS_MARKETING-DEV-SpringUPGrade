@@ -59,4 +59,11 @@ public interface LTSMarketingService {
 	public KeywordApplication getKeywordByUserId(Long userId) throws Exception;
 
 	public CustomFields getCustomFields(Long userId) throws Exception;
+	
+	public void deleteObject(Object obj) throws Exception;
+	
+	public ApprovedMessage getCustomMsgById(Integer msgId) throws Exception;
+	public List<UserProfileVO> getSAFSites(Long userId) throws Exception;
+	
+	public void saveDetails(Object obj) throws Exception;
 }

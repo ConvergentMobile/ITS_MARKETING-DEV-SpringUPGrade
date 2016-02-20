@@ -4,6 +4,22 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <script type="text/JavaScript">	
+	$(document).ready(function() {		
+		$( "#errwin" ).dialog({
+			title: 'Alerts & Notifications',
+			width: 400,
+			height: 200,		
+			dialogClass: 'no-close',
+			autoOpen: false, 
+			buttons: {
+			  OK: function() {
+				$(this).dialog("close");
+				location.reload();
+			  }
+		       },
+		});		
+	});
+
 	function getMsg(msgId) {
         $.ajax({
             type : 'GET',
@@ -33,8 +49,11 @@
 		    url : 'createCustomMessage',
 		    data: $("#thisForm").serialize(),
 		    success : function(result) {
-				alert(result);
+				//alert(result);
 				$('#sendSearchCityString').val('');
+				//$('#errwin').html('<div align="center">' + result + '</div>');
+				//$( "#errwin" ).dialog('open');	
+				popup(result, 1);
 			},
 				error : function(e) {
 					alert('error: ' + e.text());
@@ -73,6 +92,7 @@
 			<c:if test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
 				<li class="si_dashboard"><a href="dashboardCorp">Dashboard</a></li>	
 				<li class="si_custom_msg_approve selected"><a href="customMessageCorp">Approve Custom Messages</a></li>   
+				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>						
 				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>	      	
 				<li class="si_search"><a href="corpSearch">Search</a></li>	
 				<li class="si_reports"><a href="getReports">Reports</a></li>	      	

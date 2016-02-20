@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import reports.LTReport;
 import reports.ReportData;
 import subclass.LTCategory_3;
+import user.TargetListData;
 import user.TargetUserList;
 import user.User;
 import admin_user.UserProfileVO;
@@ -28,6 +29,7 @@ public class LTUserForm {
 	private String secRole;
 	private List<TargetUserList> tuLists; // = new HashMap<String, List<TargetUserList>>();
 	private List<SendMessageList> keywordLists1 = new ArrayList<SendMessageList>();
+	private List<TargetListData> listData;
 	
 	//Keyword Search related
 	private String searchKeywordString;
@@ -85,6 +87,7 @@ public class LTUserForm {
 	protected List<ValueObject> reportData = null;
 	protected List<String> reportColumnHeaders;
 	protected List<ReportData> reportRows = null;
+	protected Map<String, String> summaryRow;
 	
 	//to keep track of the sorting
 	protected String sortColumn;
@@ -296,6 +299,14 @@ public class LTUserForm {
 
 	public void setKeywordLists1(List<SendMessageList> keywordLists1) {
 		this.keywordLists1 = keywordLists1;
+	}
+
+	public List<TargetListData> getListData() {
+		return listData;
+	}
+
+	public void setListData(List<TargetListData> listData) {
+		this.listData = listData;
 	}
 
 	public List<ApprovedMessage> getApprovedMsgs() {
@@ -520,6 +531,14 @@ public class LTUserForm {
 
 	public void setNowSched(String nowSched) {
 		this.nowSched = nowSched;
+	}
+
+	public Map<String, String> getSummaryRow() {
+		return summaryRow;
+	}
+
+	public void setSummaryRow(Map<String, String> summaryRow) {
+		this.summaryRow = summaryRow;
 	}
 
 	public void init() {		

@@ -14,6 +14,22 @@
 	
 	 $(document).ready(function() {
 		resetForm();
+		
+		/*
+		$( "#errwin" ).dialog({
+			title: 'Alerts & Notifications',
+			width: 400,
+			height: 200,		
+			dialogClass: 'no-close',
+			autoOpen: false,
+			buttons: {
+			  OK: function() {
+				$(this).dialog("close");
+				location.reload();
+			  }
+		       },
+		});	
+		*/
 	});
 
   	$(function() {
@@ -32,45 +48,57 @@
 		'maxTime': new Date(0,0,0,20,0,0)
 	    });
 	});
-
-	function viewList1(listId) {
-		var outstr = '';
+	
+	function viewList(listId) {
 	        $.ajax({
 	            type : 'GET',
 	            url : 'viewListData',
-	            contentType: "application/html",
 	            data: 'listId='+ listId,
 	            success : function(result) {
-					newwin = window.open('',"mywindow","scrollbars=yes,menubar=1,resizable=1,width=450,height=550");		
-	            	
-	                if (result.length == 0) {
-                        	outstr = "<span class='name'><font size='-0.5'>Empty list</font></span>";
-                	}  else {
-                        	$.each(result, function(index, value) {
-					outstr += '<br/>' + value;
-					outstr += ' <a href="#" onclick="deleteNumber(\''+listId+'\' , \''+value+'\')"><img src="images/delete.png" title="Delete"/></a>';
-            			});
-           		}	
-           		//$(newwin.document,body).html(outstr);
-           		newwin.document.write(outstr);
+			$('#dialog1').dialog({
+				title : '',
+				height : 500,
+				width : 1000,
+			});
+			$(".ui-dialog-titlebar").hide();
+			$('#dialog1').html(result);				
 	            },
+			error : function(e) {
+				alert('error: ' + e.toString());
+			}                        
+	        });		
+	}
+
+	function listMgmt() {
+		$.ajax({
+		    type : 'GET',
+		    url : 'listMgmt',
+		    success : function(result) {
+					$('#dialog1').dialog({
+						title : '',
+						height : 600,
+						width : 675,
+
+					});
+					$(".ui-dialog-titlebar").hide();
+					$('#dialog1').html(result);				
+		    },
 				error : function(e) {
 					alert('error: ' + e.toString());
 				}                        
-	        });		
-	}
+		});		
+	}	
 	
-	function viewList(listId) {
-		window.open('viewListData?listId=' + listId,"mywindow","scrollbars=yes,menubar=1,resizable=1,width=450,height=550");			
-	}
-
 	function deleteNumber(listId, number) {
 	        $.ajax({
 	            type : 'POST',
 	            url : 'deleteNumber',
             	    data: 'listId=' + listId + '&number=' + number,
 	            success : function(result) {
-            		alert(result);
+            		//alert(result);
+					//$('#errwin').html('<div align="center">' + result + '</div>');
+					//$( "#errwin" ).dialog('open');	 
+					popup(result, 1);
 				},
 				error : function(e) {
 					alert('error: ' + e);
@@ -93,6 +121,25 @@
 			//alert('msgText: ' + msgText);
 		$('#sendSearchCityString').val(msgText);
 	}
+
+	function deleteMsg(msgId) {
+		var ans = confirm("Are you sure you want to delete this message?");
+		if (! ans) {
+			return;
+		}
+		
+	        $.ajax({
+	            type : 'POST',
+	            url : 'deleteCustomMessage',
+            	    data: 'msgId=' + msgId,
+	            success : function(result) {          
+	            	popup(result, 1);
+				},
+				error : function(e) {
+					alert('error: ' + e);
+				}                        
+	        });	
+	}	
 	
 	function getProfile(userId) {
 	        $.ajax({
@@ -169,8 +216,11 @@
 	            url : 'sendMessage',
             	data: $("#thisForm").serialize(),
 	            success : function(result) {
-            			alert(result);
+            			//alert(result);
             			$('#sendNow').show();
+        				//$('#errwin').html('<div align="center">' + result + '</div>');
+        				//$( "#errwin" ).dialog('open');	
+        				popup(result, 1);
 				$('#scheduleIt').show();
             		resetForm();
 				},
@@ -216,24 +266,24 @@
 	}
 	
 	function getJobs() {
-		if ($('[name="officeIds"]:checked').length <= 0) {
-			alert("Must select atleast one office");
-			return;
-		}
-			
 	        $.ajax({
 	            type : 'GET',
 	            url : 'getScheduledJobs',
             	    data: $("#thisForm").serialize(),
 	            success : function(result) {
-					var newwin = window.open('',"mywindow","scrollbars=yes,menubar=1,resizable=1,width=450,height=550");					
-	            	newwin.document.write(result);
-				},
-				error : function(e) {
-					alert('error: ' + e);
-				}                        
-	        });	
-	}	
+			$('#dialog1').dialog({
+				title : '',
+				height : 300,
+				width : 1000,
+			});
+			$(".ui-dialog-titlebar").hide();
+			$('#dialog1').html(result);				
+	            },
+			error : function(e) {
+				alert('error: ' + e.toString());
+			}                        
+	        });		
+	}		
 	
 	function setKeyword(userId, entId, offId, status) {
 		if (status == 'R') {
@@ -278,7 +328,34 @@
 			}
 		});
 	}
-	
+
+	function directions() {
+		var outStr = '<h3>Steps to create your hotspot decal</h3><br/>'
+		outStr += '<ul>';
+		outStr += '<li>1. Click on KEYWORD in "LIST OF KEYWORDS" box (top middle of dashboard)</li><br/>';
+		outStr += '<li>2. Click the blue "GET MY HOTSPOT" button in the lower right hand box.</li><br/>';
+		outStr += '<li>3. Preview Decal - Pick your color and click PREVIEW</li><br/>';
+		outStr += '<li>4. Click "GET MY HOTSPOT" (This will take a moment).</li><br/>';
+		outStr += '<li>5. At the bottom of the pop-up you will see a hot link. Click on this to<p/>'
+			+ 'see your Hotspot Decal.  You should save this image to your desktop for all<p/>'
+			+ 'your marketing needs.</li><br/>';
+		outStr += '</ul>';
+		outStr += '<div align="center">'
+		    	  + '<a href="#" onclick="closeIt();" class="btn_dark_blue">Close</a>'
+			  + '</div>';
+		
+		$('#dialog1').dialog({
+			title : '',
+			height : 350,
+			width : 650,
+		});
+		$(".ui-dialog-titlebar").hide();
+		$('#dialog1').html(outStr);					
+	}
+
+	function closeIt() {
+		$('#dialog1').dialog('close');
+	}		
 </script>
 
 <style>
@@ -329,8 +406,9 @@ display: none;
 			</c:if> 
 			<c:if test = '${ltUser.user.roleActions[0].roleType == "AD"}'>  	
 				<li class="si_dashboard selected"><a href="dashboardAD">Dashboard</a></li>
-				<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
-				<li class="si_reports"><a href="getReports">Reports</a></li>		
+				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>		
+				<li class="si_reports"><a href="getReports">Reports</a></li>	
+				<li class="si_mobile_profile"><a href="getProfile">My Mobile Profile</a></li>	
 			</c:if>	
       	
       		<li class="si_toolbox"><a href="cmtoolbox">Convergent Toolbox</a></li>
@@ -414,95 +492,77 @@ display: none;
         	<!-- title -->
         	<div class="box_title mb9">
            	<h2>Send Message</h2>                						
-		<div class="campaign clearfix">
-			<form:input path="sendSearchKeywordString"/>
-            		<label for="campaign">Campaign:</label>           		
-            	</div>
+			<div class="campaign clearfix">
+				<form:input path="sendSearchKeywordString"/>
+	            <label for="campaign">Campaign:</label> 
+		        <a href="#" onclick="listMgmt()" class="btn_dark_blue">Create List</a> 		   	                      		
+	        </div>
+           <%--           	
             	<div>
             		<a href="#" class="h3_sub" onclick="uploadList()">Upload List</a>
-		</div>
+				</div>
+		   --%>
           </div>
-          <br/><br/>
+              <div class="floatfix"></div>
           
-          <!-- // title -->
-          <!-- two columns -->
-          <div class="two_cols_wrapper_01 clearfix">
-          	<!-- left column -->
-            <div class="left">
-            	<h3 class="h3_sub ico_select">Select a Message to Send:</h3>
-              <!-- tabs ///////////////////////////////////////////////////////////////////  -->
-              <div class="tabs_01 tabs_height_01" id="tabs_01">
-                <ul class="ul_tabs_select">
-                  <li class="tab_01"><a href="#tabs_01_1" class="selected">Corporate</a></li>
-                  <li class="tab_02"><a href="#tabs_01_2">Custom</a></li>
-                </ul>
-                <!-- tab 01 -->
-                <div class="tabs_01_content" id="tabs_01_1">
-		<c:if test = "${fn:length(ltUser.approvedMsgs) > 0}">                    
-                  <ul class="ul_scroll_list scroll_list_001">
-                  	<form:radiobuttons element="li" path="sendSearchStateString" onchange="showSelectedMsg(this, 'Corp')" items="${ltUser.approvedMsgs}" itemValue="messageId" itemLabel="messageText"/>  
-	          </ul>
-	        </c:if>
-                </div>
-                      <!-- // tab 01 -->
-                <!-- tab 02 -->
-                <div class="tabs_01_content" id="tabs_01_2">
-                <c:if test = "${fn:length(ltUser.customMsgs) > 0}">                
-                  <ul class="ul_scroll_list scroll_list_001">          
-                  	<form:radiobuttons element="li" path="sendSearchDMAString" onchange="showSelectedMsg(this, 'Cust')" items="${ltUser.customMsgs}" itemValue="messageId" itemLabel="messageText"/>  
-                  </ul>
-                </c:if>
-                </div>         
-                <!-- // tab 02 -->
+          <!-- horizontel checkboxes wrapper -->
+          <div class="horizontal_checkboxes">
+            <h3 class="h3_sub ico_select">Select List of Mobile Numbers:</h3>
+                          <div class="grey_box_title_01">
+                <input type="checkbox" class="chk_dark" name="all_numbers" id="all_numbers">
+                <label for="all_numbers">Check All</label>
               </div>
-              <!-- // tabs ////////////////////////////////////////////////////////////////  -->
-            </div>
-            <!-- // left column -->
-
-          	<!-- right column -->
-            <div class="right">
-            	<div class="msg_content_box mcb_height_01">
-              	<h4>Message to Send:</h4>
-					<form:textarea path="sendSearchCityString" rows="4" class="ta_text_msg" readonly="true"/>				                
-                <div class="chk_wrapper clearfix">
-                	<input type="checkbox" value="" name="include_phone" id="include_phone" class="chk_light mr5">
-                	<label for="include_phone">Include default phone number</label>
-                </div>
-	          	<form:hidden path="nowSched" />
-                <center>
-                	<input type="button" id="sendNow" onclick="sendIt('Y')" value="Send Now" class="btn_send_now">               	
-                </center>	        
-              </div>
-            </div>
-            <!-- // right column -->
-          </div>
-          <!-- // two columns -->
-
-          <!-- two columns -->
-          <div class="two_cols_wrapper_01 clearfix">
-          	<!-- left column -->
-            <div class="left">
-            	<h3 class="h3_sub ico_select">Select List of Mobile Numbers:</h3>
-              <div class="grey_box_01 mobile_numbers_wrapper">
-              	<div class="grey_box_title_01">
-                	<input type="checkbox" class="chk_dark" name="all_numbers" id="all_numbers">
-                  <label for="all_numbers">Check All</label>
-                </div>
-              	<ul class="ul_phone_numbers">
+            <div class="hc_wrapper">
+              	<ul class="ul_mn_scrollbox">
                  	<c:forEach var="item" items="${ltUser.user.targetUserLists}">
                  		<li>
 				<a href="#" class="lnk_chk_001" onclick="viewList('${item.listId}')"><c:out value="${item.listName}"/></a>                 		
 				<form:checkbox path="listIds" value="${item.listId}" class="chk_light"/> 
+				<a href="#" class="lnk_chk_001" onclick="deleteList('${item.listId}', '${item.listName}')"><img src="images/delete.png" title="Delete"/></a>                 						
 				</li>
                  	</c:forEach>
                  </ul>
                 <div class="floatfix"></div>
               </div>
-            </div>               
-             <!-- // left column -->
+            </div>   
+          
+          <!-- // title -->
+          <!-- two columns -->
+          
+          <!-- // title -->
+          <!-- two columns -->
+          <div class="two_cols_wrapper_01 clearfix">
+          	<!-- left column -->
+            	<h3 class="h3_sub ico_select">Message to Send:</h3>
+             	<div style="padding:0 0 0 15px;"">
+             	<form:textarea path="sendSearchCityString" rows="3" cols="70"/>
+             	</div>
+            </div>
+            <!-- // left column -->
+
           	<!-- right column -->
-            <div class="right">
+            	<div class="btn_message_box bmb">
+                <div class="chk_container">
+                	<input type="checkbox" value="" name="include_phone" id="include_phone" class="chk_light mr5">
+                	<label for="include_phone">Include default phone number</label>
+                	<br/>
+                	<form:checkbox path="includeLink" id="includeLink" class="chk_light mr5"/>
+                </div>            	
+	          <form:hidden path="nowSched" />
+                <center>
+                  <c:if test="${ltUser.sites[0].customField3 != 'R'}">                
+                	<input type="button" id="sendNow" onclick="sendIt('Y')" value="Send Now" class="btn_send_now">               	
+                  </c:if>
+                </center>	        
+            <!-- // right column -->
+          </div>
+          <!-- // two columns -->
+
+          <!-- two columns -->            
+          <div class="two_cols_wrapper_01 clearfix" style="padding:0 0 0 15px;">
 	            <h3 class="h3_sub ico_schedule">Schedule for Later:</h3>
+	    <a href="#" onclick="getJobs()" class="lnk_scheduled"><font size="+0.5">See Scheduled Messages</font></a>	    
+	            
               <div class="grey_box_01">
               	<!-- date picker -->
                 <div class="date_picker">
@@ -578,7 +638,6 @@ display: none;
           <!-- // two columns -->
         </div>
       </div>
-    </div>
      <!-- // content area -->
     <!-- sidebar -->
     <div class="sidebar" id="id_sidebar">
@@ -602,20 +661,21 @@ display: none;
             	<!-- slide -->
               <div class="slide">
               	<p>
-                	Now, you can instantly reach your customers with the latest deals, promos, discounts, and other general information about your business 
-                  using the power of text messaging&hellip; <b>any time of the day</b>!
-                </p>
-                <p class="p_small">
-                	Don't forget&hellip; it is important to <span class="sp_red">PROMOTE, PROMOTE, PROMOTE</span> your call to action. You can send the best offers to your subscribers, 
-                  but customers will only know you are there if you promote.
-                </p>
-              </div>
-              <!-- // slide -->
-            	<!-- slide -->
-              <div class="slide">
-              	<p>
-                	1 Now, you can instantly reach your customers with the latest deals, promos, discounts, and other general information about your business 
-                  using the power of text messaging&hellip; <b>any time of the day</b>!
+<ul>
+<li>1. <b>Manage your Keywords</b> - Change your KEYWORDS when needed. We DON'T suggest you do this.</li>
+<p/>
+<li>2. <b>Create A Custom Message</b> - From the dashboard, you can quickly create a new message and send it to corporate for approval.
+You can monitor the message's approval on the Create Custom Message tab.</li>
+<p/>
+</ul>
+</div>
+<div class="slide">
+<ul>
+<li>3. <b>Check Your Business Info</b> - Business info is pulled directly from the Liberty Admin System 
+and is directly fed to US411 everyday.</li>
+<p/>
+<li>4. <b>Get Your Hotspot</b> - See directions in the box below.</li>
+</ul>
                 </p>
               </div>
               <!-- // slide -->
@@ -652,7 +712,17 @@ display: none;
 				<c:out value="${ltUser.category.state}"/> 
 				&nbsp;<c:out value="${ltUser.category.zip}"/>
 				<br/>
-				<c:out value="${ltUser.category.phone}"/>
+				<c:choose>
+				<c:when test = '${ltUser.user.roleActions[0].roleType == "AD"}'>	
+					<c:set var="phone" value="${ltUser.category.adminMobilePhone}"/>									
+				</c:when>
+				<c:otherwise>		
+					<c:set var="phone" value="${ltUser.category.phone}"/>														
+				</c:otherwise>
+				</c:choose>
+				
+				<c:out value="(${fn:substring(phone, 0, 3)}) ${fn:substring(phone, 3, 6)}-${fn:substring(phone, 6, fn:length(phone))}"/>							
+		   
 		    </div>
 		  </td>
 		  <td class="td_02"><a href="#" onclick="getProfile(${ltUser.category.userId})">Expand</a></td>		
@@ -690,6 +760,8 @@ display: none;
               </ul>
               <div class="btn_hotspot_wrapper">
               	<a href="javascript:createHotspot('${keyword}');" class="btn_dark_blue btn_hotspot">Get My Hotspot!</a>
+	        <br/>
+	        <a href="javascript:directions();" class="btn_dark_blue btn_hotspot">Directions</a>	                 
               </div>
             </div>
           </div>

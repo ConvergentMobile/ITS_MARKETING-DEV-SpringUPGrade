@@ -82,13 +82,7 @@
         <delete file="${deploy.dir}/${war.file.name}" />
     </target>
 
-	<target name="warsetup">
-		<concat destfile = "./WEB-INF/resources/MessageResources.properties">
-			<fileset dir = "./WEB-INF/resources">
-				<include name="MessageResources_base.properties"/>
-				<include name="MessageResources_common.properties"/>
-		    </fileset>
-		</concat>			
+	<target name="warsetup">			
         <copy todir="${build.dir}">
             <fileset dir="${us411.dir}">
             	<exclude name="**/*.properties"/>
@@ -103,7 +97,7 @@
             <fileset dir="./WEB-INF/resources">
             	<include name="*.xml"/>  
             	<include name="quartz.properties"/>
-            	<include name="MessageResources.properties"/>
+            	<include name="MessageResources.properties"/>              	
         	</fileset>   
             <fileset dir="./WEB-INF">
             	<include name="*.xml"/> 

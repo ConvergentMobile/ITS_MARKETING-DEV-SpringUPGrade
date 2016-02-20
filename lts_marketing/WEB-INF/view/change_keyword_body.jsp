@@ -18,21 +18,49 @@
  <link rel="stylesheet" href="css/sidebar.css">
 </head>
 
+
 <script LANGUAGE="JavaScript">
+	$(document).ready(function() {
+		$( "#errwin" ).dialog({
+			title: 'Alerts & Notifications',
+			width: 400,
+			height: 200,		
+			dialogClass: 'no-close',
+			autoOpen: false,
+			buttons: {
+			  OK: function() {
+				$(this).dialog("close");
+				location.reload();
+			  }
+		       },
+		});		
+	});
+	
 	function changeKeyword() {
-        $.ajax({
-            type : 'POST',
-            url : 'changeKeyword',
-        	data: $("#thisForm1").serialize(),
-            success : function(result) {
-        		alert(result);
-     			location.reload();
-     			$('#dialog1').dialog('close');
-     		},
-			error : function(e) {
-				alert('error: ' + e);
-			}                        
-        });
+		var kw = $('#sendSearchKeywordString').val();
+		if (kw.indexOf(" ") > 0) {
+			alert("Keyword must be a single word without any spaces");
+			return;
+		}			
+		
+		$.ajax({
+		    type : 'POST',
+		    url : 'changeKeyword',
+			data: $("#thisForm1").serialize(),
+		    success : function(result) {
+				//alert(result);
+				//$('#errwin').html('<div align="center">' + result + '</div>');
+				//$( "#errwin" ).dialog('open');		
+				popup(result, 1);
+				//location.reload();
+				$('#dialog1').dialog('close');
+		    },
+		    error : function(e) {
+				//alert('error: ' + e);
+				$('#errwin').html('<div align="center">Error:' + error + '</div>');
+				$( "#errwin" ).dialog();					
+		    }                        
+		});
 	}
 </script>
 
@@ -58,7 +86,7 @@
               </tr>            
             	<tr>
               		<td class="td_01"><form:label path="sendSearchKeywordString">New <spring:message code="label.keyword" /></form:label></strong></td>
-                	<td class="td_02"><form:input path="sendSearchKeywordString" /></td>
+                	<td class="td_02"><form:input path="sendSearchKeywordString" maxlength="15"/></td>
               </tr>
             </tbody>
             </table>

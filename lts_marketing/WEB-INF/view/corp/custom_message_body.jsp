@@ -9,7 +9,7 @@
 		$.ajax({
 		    type : 'POST',
 		    url : 'approveMessage',
-		    data: 'msgId=' + msgId,
+		    data: $('#thisForm1').serialize(),
 		    success : function(result) {
 			$('#office').html(result)
 				},
@@ -21,11 +21,16 @@
 	
 	function rejectMsg(msgId) {
 		var comment = $('#aMsg\\.comments').val();
-		alert('cmt: ' + comment);
+		if (comment == '') {
+			popup("Must provide a comment in case of rejection");
+			return;
+		}
+		$('#aMsg\\.status').val('R');
+		//alert('cmt: ' + comment);
 		$.ajax({
 		    type : 'POST',
 		    url : 'approveMessage',
-		    data: 'msgId=' + msgId + '&reject=R&comment=' + comment,
+		    data: $('#thisForm1').serialize(),
 		    success : function(result) {
 			$('#office').html(result)
 				},
@@ -40,7 +45,7 @@
 
 </script>
 	
-   <form:form id="thisForm" method="post" action="dashboard" commandName="ltUser">
+   <form:form id="thisForm1" method="post" action="dashboard" commandName="ltUser">
 	
       	<!-- box -->
         <div class="box box_grey_bg box_grey_title box_message" id="box">
@@ -55,6 +60,15 @@
             <colgroup>
             </colgroup>
             <tbody>
+            	<form:hidden path="aMsg.messageId"/>
+            	<form:hidden path="aMsg.userId"/>
+            	<form:hidden path="aMsg.siteId"/>
+            	<form:hidden path="aMsg.officeId"/>
+            	<form:hidden path="aMsg.location"/>
+            	<form:hidden path="aMsg.entityId"/>
+            	<form:hidden path="aMsg.created"/>
+				<form:hidden path="aMsg.language"/>
+          		<form:hidden path="aMsg.status"/>				
             	<tr>
 		<c:if test = '${fn:length(ltUser.aMsg.entityId) > 0}' >
 			<td class="td_01" align="left">ENTITY ID: <c:out value="${ltUser.aMsg.entityId}"/></td>
@@ -74,14 +88,14 @@
           <!-- msg details -->
           <div class="msg_details">
             <p class="p_detail_name"><form:label path="aMsg.messageText"><spring:message code="label.message" /></form:label></p>
-            <p class="p_detail"><c:out value="${ltUser.aMsg.messageText}" /></p>
+            <p class="p_detail"><form:textarea path="aMsg.messageText" rows="3" cols="80" /></p>
           </div>
           <!-- // msg details -->   
           <!-- comment wrapper -->
           <div class="comment_wrapper">
 	          <label for="comments" class="lb_01">Comments:</label>
   	        <form:textarea path="aMsg.comments" class="input_comment" rows="3"></form:textarea>
-          </div>          
+          </div>   
           <!-- buttons wrapper -->
           <div class="button_wrapper_03 clearfix">
          	<input type="button" value="Approve" class="btn_approve" onclick="return approveMsg('${ltUser.aMsg.messageId}')">

@@ -4,21 +4,45 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <script LANGUAGE="JavaScript">
-	
+	$(document).ready(function() {		
+		$( "#errwin" ).dialog({
+			title: 'Alerts & Notifications',
+			width: 400,
+			height: 200,		
+			dialogClass: 'no-close',
+			autoOpen: false, 
+			buttons: {
+			  OK: function() {
+				$(this).dialog("close");
+				location.reload();
+			  }
+		       },
+		});		
+	});
+
 	function reserve() {
-		//alert('here 1: ' + $('#searchKeywordString').val());
-	        $.ajax({
-	            type : 'POST',
-	            url : 'allocateKeyword',
-            	    data: $("#thisForm_dialog").serialize(),
-	            success : function(result) {
-            		//$('#office').html(result);
-            		alert(result);
-				},
-				error : function(e) {
-					alert('error: ' + e);
-				}                        
-	        });
+		//alert('here 1: ' + $('#searchKeywordString').val());	
+		var kw = $('#searchKeywordString').val();
+		if (kw.indexOf(" ") > 0) {
+			alert("Keyword must be a single word without any spaces");
+			return;
+		}		
+		
+        $.ajax({
+            type : 'POST',
+            url : 'allocateKeyword',
+           	    data: $("#thisForm_dialog").serialize(),
+            success : function(result) {
+           		//$('#office').html(result);
+           		//alert(result);
+    			//$('#errwin').html('<div align="center">' + result + '</div>');
+    			//$( "#errwin" ).dialog('open'); 
+            	popup(result, 1);
+			},
+			error : function(e) {
+				alert('error: ' + e);
+			}                        
+        });
 	}	
 </script>
 
@@ -35,11 +59,13 @@
 			return false;
 		}	
 
+		/*
 		if (form['category_3.adminMobilePhone'].value == null 
 				|| form['category_3.adminMobilePhone'].value.length <= 0) {
 			alert("Please enter a valid Business Mobile Phone");
 			return false;
-		}			
+		}	
+		*/
 
 		if (form['category_3.description'].value == null 
 				|| form['category_3.description'].value.length <= 0) {
@@ -80,6 +106,7 @@
 								</form:label></strong>
 							<td>&nbsp;</td>
 						</tr>
+					<%--
 						<tr>
 							<td><font color="red">*</font></td>						
 							<td colspan="2" valign="top">
@@ -88,13 +115,14 @@
 							<td><form:input path="searchCityString" size="15" />									
 							</td>
 							<td>&nbsp;</td>
-						</tr>							
+						</tr>	
+					--%>						
 						<tr>
 							<td><font color="red">*</font></td>	
 							<td colspan="2" valign="top">
 								<strong><form:label path="searchKeywordString"><spring:message code="label.keyword" /></form:label></strong>
 							</td>
-							<td><form:input path="searchKeywordString" size="20" /></td>
+							<td><form:input path="searchKeywordString" maxlength="15" /></td>
 							<td>&nbsp;</td>
 						</tr>
 			</table>

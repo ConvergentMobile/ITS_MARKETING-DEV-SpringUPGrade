@@ -1,7 +1,9 @@
 package controller;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
@@ -34,6 +36,11 @@ import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.MessageSource;
@@ -46,6 +53,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -63,6 +71,7 @@ import user.Campaign;
 import user.CategoryBase;
 import user.JobScheduler;
 import user.RoleAction;
+import user.SendMessageForm;
 import user.TargetListData;
 import user.TargetUserList;
 import user.TargetUserListDao;
@@ -74,10 +83,12 @@ import util.PropertyUtil;
 import util.US411Exception;
 import util.Utility;
 import admin_user.UserProfileVO;
+import dao.LTReportDAOManager;
 import dao.LTUserDAOManager;
 import dao.LibertyAdminDAOManager;
 import data.ApprovedMessage;
 import data.LTUserForm;
+import data.SAF;
 import data.ValueObject;
 
 @Controller
@@ -162,6 +173,10 @@ public class MarketingController {
 			return mktgService.getSitesAD(userId);
 		}
 		
+		if (user.getRoleActions().get(0).getRoleType().equals("Corporate")) {	
+			return corpService.getAllSites();
+		}
+		
 		//return mktgService.getAllSites(userId);
 		return mktgService.getSites(userId);
 	 }
@@ -222,26 +237,35 @@ public class MarketingController {
 			
 			if (sites == null) {
 				logger.error("No sites found");
-				errorMV.addObject("error", "No sites found");
+				errorMV.addObject("error", "No keywords found");
 				return errorMV;			
 			}			
+			
+			if (sites.get(0).getCustomField3().equals("R")) {
+				logger.error("No purchased keywords found");
+				errorMV.addObject("error", "You need to contact your Entity to get a keyword before you can continue.");
+				return errorMV;	
+			}
 			
 			ltUser.setSites(sites);
 			
 			user = dao.login(user.getUserId(), 1);
 			ltUser.getUser().setTargetUserLists(user.getTargetUserLists());
-						
+			logger.debug("userId: " + user.getUserId());
+			
 			CustomFields cfields = dao.getCustomFields(user.getUserId());
 			String loc = cfields.getLocation() != null ? cfields.getLocation() : "US";
 			user.setBillingCountry(loc);
+			request.getSession().setAttribute("loc", loc);
 			
 			//set CA states for CA zees/offices
 			if (user != null && user.getBillingCountry().equals("CA")) {
-				List<ValueObject> state_codes = dao.getCAStatesLT();
-				request.getSession().setAttribute("state_codes", state_codes);
+				//List<ValueObject> state_codes = dao.getCAStatesLT();
+				//request.getSession().setAttribute("state_codes", state_codes);
 				ltUser.setApprovedMsgs(mktgService.getCorporateMessagesCA(siteId));
 			} else {			
 				ltUser.setApprovedMsgs(mktgService.getCorporateMessages(siteId));
+				ltUser.setApprovedMsgsSP(mktgService.getCorporateMessages(siteId, "SP"));
 			}
 			
 			ltUser.setCustomMsgs(mktgService.approvedMsgsFromDate(user.getUserId(), "Off", "A"));	
@@ -291,6 +315,7 @@ public class MarketingController {
 			CustomFields cfields = dao.getCustomFields(user.getUserId());
 			String loc = cfields.getLocation() != null ? cfields.getLocation() : "US";
 			user.setBillingCountry(loc);
+			request.getSession().setAttribute("loc", loc);
 			logger.debug("dashboardEntity end 2: " + Calendar.getInstance().getTimeInMillis());
 
 			logger.debug("dashboardEntity start 3: " + Calendar.getInstance().getTimeInMillis());
@@ -314,10 +339,12 @@ public class MarketingController {
 			LTCategory_3 catg = mktgService.getProfile(ltUser.getSites().get(0).getUserId());
 			if (catg == null) {
 				logger.error("No profile found for userId: " + user.getUserId());
+			} else {
+				//set the keyword status to be used in the jsp
+				catg.setCustStatus(ltUser.getSites().get(0).getCustomField3());
+				ltUser.setCategory(catg);
 			}
 			logger.debug("dashboardEntity end 4: " + Calendar.getInstance().getTimeInMillis());
-
-			ltUser.setCategory(catg);
 			
 			//request.getSession().setAttribute("keyword", ltUser.getSites().get(0).getKeyword());
 			
@@ -362,6 +389,7 @@ public class MarketingController {
 				ltUser.setApprovedMsgs(mktgService.getCorporateMessagesCA(siteId));
 			} else {			
 				ltUser.setApprovedMsgs(mktgService.getCorporateMessages(siteId));
+				ltUser.setApprovedMsgsSP(mktgService.getCorporateMessages(siteId, "SP"));
 			}
 			
 			ltUser.setCustomMsgs(mktgService.approvedMsgsFromDate(user.getUserId(), "Off", "A"));	
@@ -380,6 +408,11 @@ public class MarketingController {
 		}
 
 		return mv;
+	}
+	
+	@RequestMapping(value = "/dashboardCorpP", method = RequestMethod.POST)
+	public ModelAndView dashboardCorpP(@ModelAttribute("ltUser") LTUserForm ltUser, HttpServletRequest request) {
+		return this.dashboardCorp(ltUser, request);
 	}
 	
 	@RequestMapping(value = "/dashboardCorp", method = RequestMethod.GET)
@@ -416,6 +449,12 @@ public class MarketingController {
 
 			//List<ApprovedMessage> msgsPending = mktgService.approvedMsgsFromDate(null, "Corp", "P"); //show all the Pending msgs
 			//ltUser.setPendingMsgs(msgsPending);
+			
+			List<ApprovedMessage> corpMsgs = mktgService.getCorporateMessages(siteId);
+			List<ApprovedMessage> corpMsgsSP = mktgService.getCorporateMessages(siteId, "SP");
+			ltUser.setApprovedMsgs(corpMsgs);
+			ltUser.getApprovedMsgs().addAll(corpMsgsSP);
+			
 			logger.debug("dashboardCorp end 3: " + Calendar.getInstance().getTimeInMillis());
 
 		} catch (Exception e) {
@@ -473,6 +512,18 @@ public class MarketingController {
 			return null;
 		}
 		
+		//if this userId is an entity, set the phone to adminMobilePhone value
+		for (UserProfileVO site : ltUser.getSites()) {
+			if (! site.getUserId().equals(userId))
+				continue;
+			if (site.getCustomField2().equals("Entity")) {
+				String pnum = catg.getAdminMobilePhone().length() > 10 ? catg.getAdminMobilePhone().substring(1)
+										: catg.getAdminMobilePhone();
+				catg.setPhone(pnum);
+				break;
+			}
+		}	
+		
 		ltUser.setCategory(catg);
 		
 		return catg;
@@ -487,8 +538,9 @@ public class MarketingController {
 		ltUser.setUser(user);
 
 		List<UserProfileVO> sites = null;
-
-		if (user.getRoleActions().get(0).getRoleType().equals("Corporate"))
+		if (user.getRoleActions().get(0).getRoleType().equals("AD"))
+			sites = mktgService.getSitesAD(user.getUserId());
+		else if (user.getRoleActions().get(0).getRoleType().equals("Corporate"))
 			sites = corpService.getAllSites();
 		else
 			sites = mktgService.getSites(user.getUserId());
@@ -506,8 +558,9 @@ public class MarketingController {
 		if (request.getParameter("userId") == null || request.getParameter("userId").length() <= 0)  {
 			//return mv;
 			userId = sites.get(0).getUserId(); //use the first one
-		} else
-			userId = Long.valueOf(request.getParameter("userId"));
+		} else {
+			userId = Long.valueOf(request.getParameter("userId"));		
+		}
 		
 		ltUser.setSearchOfficeIdString(userId.toString());
 
@@ -517,6 +570,21 @@ public class MarketingController {
 			mv.addObject("error", message.getMessage("error.noprofile", new Object[] {userId.toString()}, locale));
 			return mv;
 		}
+		
+		//if this userId is an entity, set the phone to adminMobilePhone value
+		for (UserProfileVO site : sites) {
+			if (! site.getUserId().equals(userId))
+				continue;
+			if (site.getCustomField2().equals("Entity")) {
+				//catg.setPhone(catg.getAdminMobilePhone().substring(1)); //these start with 1 unlike the others
+				String pnum = catg.getAdminMobilePhone().length() > 10 ? catg.getAdminMobilePhone().substring(1)
+						: catg.getAdminMobilePhone();
+				catg.setPhone(pnum);
+				break;
+			} else { //set the officeId
+				ltUser.setSearchDMAString(site.getCustomField2());
+			}
+		}	
 		
 		ltUser.setCategory(catg);
 		
@@ -597,7 +665,39 @@ public class MarketingController {
 			userId = Long.valueOf(uid);
 		}
 		
+		String loc = null;
+		
 		try {
+			/*
+			String officeId = this.getOfficeId(userId);
+			if (officeId == null) {
+				logger.error("No keyword found");
+				
+				ModelAndView mv = null;				
+				String backTo = null;
+				List<RoleAction> roleActions = user.getRoleActions();
+				
+				if (roleActions.get(0).getRoleType().equals("Office")) {
+					mv = new ModelAndView("dashboard_office", "ltUser", ltUser);
+					backTo = "dashboardOffice";
+				}
+				if (roleActions.get(0).getRoleType().equals("Entity")) {
+					mv = new ModelAndView("dashboard_entity", "ltUser", ltUser);
+					backTo = "dashboardEntity";
+				}		
+				if (roleActions.get(0).getRoleType().equals("AD")) {
+					mv = new ModelAndView("dashboard_ad", "ltUser", ltUser);
+					backTo = "dashboardAD";
+				}				
+				if (roleActions.get(0).getRoleType().equals("Corporate")) {
+					mv = new ModelAndView("dashboard_corp", "ltUser", ltUser);
+					backTo = "dashboardCorp";
+				}				
+				mv.addObject("error", message.getMessage("error.keywordNotFound", new Object[] {}, locale));								
+				return backTo;
+			}
+			*/
+			
 			//check if this userId belongs to this user
 			Boolean belongs = false;
 			for (UserProfileVO site : this.getSites())
@@ -612,6 +712,10 @@ public class MarketingController {
 			}
 			
 			kw = mktgService.getKeywordByUserId(userId);
+			
+			//determine the location
+			CustomFields cfields = dao.getCustomFields(user.getUserId());
+			loc = cfields.getLocation() != null ? cfields.getLocation() : "US";	
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -625,11 +729,43 @@ public class MarketingController {
 		//return "redirect:./keyword/keyword_preview.php?mode=FT&keyword=" + request.getParameter("keyword");
 		Cookie cookie = new Cookie("keyword", kw.getKeyword());
 		response.addCookie(cookie);
-		return "redirect:./keyword/keyword_preview.php?mode=FT";
+		return "redirect:./keyword/keyword_preview.php?mode=FT&loc=" + loc;
 
 		//return "redirect:./keyword/keyword_preview.php?mode=FT&keyword=" + kw.getKeyword();
 		
 		//return new ModelAndView("/keyword/keyword_preview.jsp", "ltUser", ltUser);
+	}
+	
+	//create hotspot given a keyword
+	@RequestMapping(value = "/createHotspotKW", method = RequestMethod.GET)
+	public String createHotspotKW(@ModelAttribute("ltUser") LTUserForm ltUser, HttpServletRequest request, HttpServletResponse response) {
+		User user = new Utility().getUserFromSecurityContext();
+		
+		String kw = request.getParameter("kw");
+	
+		if (kw == null) {
+			logger.error("No keyword found");
+		}
+		
+		String loc = null;
+		try {
+			if (kw.equals("Entity")) {
+				kw = this.getKeyword(user.getUserId(), null);
+			}
+			
+			//determine the location
+			CustomFields cfields = dao.getCustomFields(user.getUserId());
+			loc = cfields.getLocation() != null ? cfields.getLocation() : "US";			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		ltUser.setSearchKeywordString(kw);
+		
+		Cookie cookie = new Cookie("keyword", kw);
+		response.addCookie(cookie);
+		return "redirect:./keyword/keyword_preview.php?mode=FT&loc=" + loc;
 	}
 	
 	@RequestMapping(value = "/customMessage", method = RequestMethod.GET)
@@ -769,11 +905,14 @@ public class MarketingController {
 		Integer daysBack = Integer.parseInt(PropertyUtil.load().getProperty("daysBack"));
 
 		try {
-			Integer msgId = Integer.valueOf(request.getParameter("msgId"));		
-			ApprovedMessage aMsg = corpService.getCustomMsgById(msgId);
+			//Integer msgId = Integer.valueOf(request.getParameter("msgId"));		
+			//ApprovedMessage aMsg = corpService.getCustomMsgById(msgId);
+			Integer msgId = ltUser.getaMsg().getMessageId();
+			ApprovedMessage aMsg = ltUser.getaMsg();
+			reject = aMsg.getStatus();
+
 			if (reject != null && reject.equals("R")) {
 				aMsg.setStatus("R");
-				aMsg.setComments(request.getParameter("comment"));
 			} else
 				aMsg.setStatus("A");
 			
@@ -795,7 +934,14 @@ public class MarketingController {
 					emailText += " rejected with the following comments: ";
 					emailText += aMsg.getComments();
 				}				
-				new SMSMain().sendEmail(adUser.getFirstName() + " " + adUser.getLastName(), adUser.getEmail(),
+				
+				//use the email from the profile
+				String emailId = adUser.getEmail();
+				LTCategory_3 catg = mktgService.getProfile(aMsg.getUserId());
+				if (catg != null && catg.getEmail() != null && catg.getEmail().length() > 0) 
+					emailId = catg.getEmail();
+
+				new SMSMain().sendEmail(adUser.getFirstName() + " " + adUser.getLastName(), emailId,
 					"support@convergentmobile.com", "Msg Approval ", emailText, "HTML", null);
 			}
 			
@@ -886,29 +1032,25 @@ public class MarketingController {
 			//ltUser.setPendingMsgs(mktgService.getPendingMessages(this.getOfficeId(userId)));	
 			
 			ltUser.setPendingMsgs(mktgService.approvedMsgsFromDate(user.getUserId(), type, "P"));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		String approverEmail = PropertyUtil.load().getProperty("textApproverEmail");
-		if (approverEmail == null) {
-			logger.error("No email found for text approver");
-			return bundle.getString("error.null.approver");
-		}
-		
-		//String emailBody = "You have a custom message created by " + user.getUserAccountNumber() + " for approval\n" + ltUser.getSendSearchCityString();
-		String emailBody = "You have a custom message for approval:<br/>" + ltUser.getSendSearchCityString();
-		emailBody += "<br/>https://www.libertytax.net/_layouts/uribuilder/urihandler.ashx?Application=US411Connect";
-
-		try {
+			
+			String approverEmail = PropertyUtil.load().getProperty("textApproverEmail");
+			if (approverEmail == null) {
+				logger.error("No email found for text approver");
+				return bundle.getString("error.null.approver");
+			}
+			
+			//String emailBody = "You have a custom message created by " + user.getUserAccountNumber() + " for approval\n" + ltUser.getSendSearchCityString();
+			String emailBody = "You have a custom message for approval:<br/>" + ltUser.getSendSearchCityString();
+			emailBody += "<br/>https://www.libertytax.net/_layouts/uribuilder/urihandler.ashx?Application=US411Connect";	
+			
 			new SMSMain().sendEmail(user.getUserAccountNumber(), approverEmail,
 					"support@convergentmobile.com", "Custom Msg Approval ",
 					emailBody, "HTML", null);
 		} catch (Exception e) {
-			// TODO: handle exception
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
+
 		return bundle.getString("error.admsg.approval");
 	}
 
@@ -939,6 +1081,32 @@ public class MarketingController {
 			else //set the officeId
 				ltUser.setSearchOfficeIdString(userId.toString());
 			
+			List<UserProfileVO> sites = null;
+
+			if (user.getRoleActions().get(0).getRoleType().equals("Corporate"))
+				sites = corpService.getAllSites();
+			else if (user.getRoleActions().get(0).getRoleType().equals("AD"))
+				sites = mktgService.getSitesAD(user.getUserId());
+			else 
+				sites = mktgService.getSites(user.getUserId());
+
+			ltUser.setSites(sites);
+
+			if (ltUser.getSites() == null) { //No sites or none with status = 'P'
+				logger.error("No sites found");
+				mv.addObject("error", message.getMessage("error.nosites", new Object[] {}, locale));
+				return mv;
+			}
+			
+			/*
+			String officeIdForCheck = this.getOfficeId(userId);
+			if (officeIdForCheck == null) {
+				logger.error("No keyword found");
+				mv.addObject("error", message.getMessage("error.keywordNotFound", new Object[] {}, locale));								
+				//return mv;
+			}	
+			*/
+			
 			LTCategory_3 catg = new LTSMarketingServiceImpl().getProfile(userId);
 			
 			/*
@@ -950,7 +1118,8 @@ public class MarketingController {
 			}
 			*/
 			ltUser.setCategory(catg);
-			
+						
+			/*	This is all in getSites() now - 11/20/2014
 			List<UserProfileVO> sites = null;
 			
 			if (user.getRoleActions().get(0).getRoleType().equals("Corporate")) {
@@ -958,19 +1127,46 @@ public class MarketingController {
 			} else {
 				//sites = this.getSites(); //This is populated via model attribute. Use ${sites} in jsp instead of ${ltUser.sites}
 			}
+			*/
 			
 			//ltUser.setSites(sites);
 			
 			ltUser.setApprovedMsgs(mktgService.getCorporateMessages(siteId));
-			
+			ltUser.setApprovedMsgsSP(mktgService.getCorporateMessages(siteId, "SP"));
+
 			//get the custom approved msgs based on office or entity
+			String entType = "Off";
+
+			/*
+			String entType = null;
 			if (officeId != null) { //will be null when called from the dashboard menu as no Office would have been selected
-				String entType = "Off";
+				entType = "Off";
 				if (officeId.equals("Entity"))
 					entType = "Ent";
 				
 				ltUser.setCustomMsgs(mktgService.approvedMsgsFromDate(userId, entType, "A"));
+			} else {
+				if (user.getRoleActions().get(0).getRoleType().equals("Office")) 
+					entType = "Off";
+				else if (user.getRoleActions().get(0).getRoleType().equals("Entity")) 
+					entType = "Ent";
+				
+				ltUser.setCustomMsgs(mktgService.approvedMsgsFromDate(userId, entType, "A"));				
 			}
+			*/
+			
+			if (user.getRoleActions().get(0).getRoleType().equals("Corporate"))
+				entType = "Corp";
+			if (user.getRoleActions().get(0).getRoleType().equals("Entity"))
+				entType = "Ent";
+			if (user.getRoleActions().get(0).getRoleType().equals("AD")) {
+				mv = new ModelAndView("confirmationMessageAD", "ltUser", ltUser);
+				//set the office to AD
+				ltUser.setSearchOfficeIdString(sites.get(0).getUserId().toString());
+			}
+
+			
+			ltUser.setCustomMsgs(mktgService.approvedMsgsFromDate(userId, entType, "A"));				
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1152,7 +1348,7 @@ public class MarketingController {
 		ModelAndView mv = new ModelAndView("/WEB-INF/view/change_keyword_body.jsp", "ltUser", ltUser);
 		
 		String currKeyword = ltUser.getSearchKeywordString();
-		String keyword = ltUser.getSendSearchKeywordString();
+		String keyword = ltUser.getSendSearchKeywordString().toUpperCase();
 		
 		try {
 				List<KeywordApplication> kwlist = new KeywordDAOManager().checkKWAvail(keyword, PropertyUtil.load().getProperty("shortcode"));
@@ -1215,7 +1411,7 @@ public class MarketingController {
 		KeywordApplication kwApp = null;
 		
 		String shortcode = PropertyUtil.load().getProperty("shortcode");
-		String mobilePhone = new SMSDelivery().normalizePhoneNumber(ltUser.getSearchCityString());
+		//String mobilePhone = new SMSDelivery().normalizePhoneNumber(ltUser.getSearchCityString());
 		String keyword = ltUser.getSearchKeywordString().toUpperCase();
 		String entOffId = null;
 		String mode = "Off";
@@ -1227,7 +1423,7 @@ public class MarketingController {
 		if (tmpkw != null) {
 			mv.addObject("error", message.getMessage("error.keyword.unavail", new Object[] {keyword}, locale));
 			logger.error("Keyword " + keyword + " is not available");
-			return "Error";
+			return message.getMessage("error.keyword.unavail", new Object[] {keyword}, locale);
 		}
 		
 		mv.addObject("message", message.getMessage("error.keyword.avail", new Object[] {keyword}, locale));
@@ -1253,21 +1449,336 @@ public class MarketingController {
 									
 		kwApp = kwDAO.getKeywordById(entOffId, mode);
 		
-		kwApp.setMobilePhone(mobilePhone);
+		//kwApp.setMobilePhone(mobilePhone);
 		kwApp.setKeyword(keyword);
 		kwApp.setCustomerField1(entOffId);
 		kwApp.setStatus("P");
 		kwApp.setSiteId(siteId);
 		kwApp.setShortcode(shortcode);
-		kwDAO.save(kwApp);	
 		
-		thisUser.setKeyword(keyword);					
-		new LTUserDAOManager().saveUser(thisUser);
-		
-		ltUser.setSites(getSites());
+		try {
+			kwDAO.save(kwApp);	
+			
+			thisUser.setKeyword(keyword);					
+			new LTUserDAOManager().saveUser(thisUser);
+			
+			ltUser.setSites(getSites());
+			
+			return message.getMessage("ok.allocateKeyword", new Object[] {}, locale);		
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return message.getMessage("error.allocateKeyword", new Object[] {e.getMessage()}, locale);
+		}
 
 		//return this.dashboardEntity(ltUser, request);
-		return "OK";
+	}
+	
+	@RequestMapping(value = "/sendAFriend", method = RequestMethod.GET)
+	public ModelAndView sendAFriend(@ModelAttribute("ltUser") LTUserForm ltUser, HttpServletRequest request) throws Exception {
+		ModelAndView mv = new ModelAndView("send_a_friend", "ltUser", ltUser);
+		ModelAndView errorMV = new ModelAndView("error", "ltUser", ltUser);
+
+		User user = new Utility().getUserFromSecurityContext();
+		List<UserProfileVO> sites = mktgService.getSAFSites(user.getUserId());
+		
+		try {
+			/*
+			if (user.getRoleActions().get(0).getRoleType().equals("Corporate"))
+				sites = corpService.getAllSites();
+			else {
+				sites = mktgService.getSites(user.getUserId());
+				
+				CustomFields cfields = dao.getCustomFields(user.getUserId());
+				String loc = cfields.getLocation() != null ? cfields.getLocation() : "US";
+				user.setBillingCountry(loc);				
+			}
+			*/
+	
+			if (! user.getRoleActions().get(0).getRoleType().equals("Corporate")) {				
+				CustomFields cfields = dao.getCustomFields(user.getUserId());
+				String loc = cfields.getLocation() != null ? cfields.getLocation() : "US";
+				user.setBillingCountry(loc);				
+			}
+			
+			if (sites == null) {
+				logger.error("No sites found");
+				if (user.getRoleActions().get(0).getRoleType().equals("Corporate"))
+					errorMV = new ModelAndView("dashboardCorp", "ltUser", ltUser);
+				if (user.getRoleActions().get(0).getRoleType().equals("Entity"))
+					errorMV = new ModelAndView("dashboardEntity", "ltUser", ltUser);
+				if (user.getRoleActions().get(0).getRoleType().equals("AD"))
+					errorMV = new ModelAndView("dashboardAD", "ltUser", ltUser);
+				
+				errorMV.addObject("error", message.getMessage("error.nosites", new Object[] {}, locale));
+
+				return errorMV;				
+			}			
+			
+			ltUser.setSites(sites);
+			ltUser.setUser(user);		
+			
+			String entType = "Off";
+			if (user.getRoleActions().get(0).getRoleType().equals("Corporate"))
+				entType = "Corp";
+			if (user.getRoleActions().get(0).getRoleType().equals("Entity"))
+				entType = "Ent";
+			
+			List<ApprovedMessage> safMsgs = new ArrayList<ApprovedMessage>();
+			ApprovedMessage saf1 = new ApprovedMessage();
+			saf1.setMessageId(1);
+			saf1.setMessageText("Get $50 for every new customer you refer to Liberty Tax Service!");
+			safMsgs.add(saf1);
+	
+			ApprovedMessage saf2 = new ApprovedMessage();
+			saf2.setMessageId(2);
+			saf2.setMessageText("Get $100 for every new customer you refer to Liberty Tax Service!");
+			safMsgs.add(saf2);
+
+			ApprovedMessage saf3 = new ApprovedMessage();
+			saf3.setMessageId(3);
+			saf3.setMessageText("¡Reciba $50 en efectivo por cada cliente nuevo que usted refiera a Liberty Tax Service!");
+			safMsgs.add(saf3);
+
+			ApprovedMessage saf4 = new ApprovedMessage();
+			saf4.setMessageId(4);
+			saf4.setMessageText("¡Reciba $100 en efectivo por cada cliente nuevo que usted refiera a Liberty Tax Service!");
+			safMsgs.add(saf4);
+			
+			ApprovedMessage saf5 = new ApprovedMessage();
+			saf5.setMessageId(5);
+			saf5.setMessageText("Get $50 for every new customer you refer to SiempreTax+!");
+			safMsgs.add(saf5);
+	
+			ApprovedMessage saf6 = new ApprovedMessage();
+			saf6.setMessageId(6);
+			saf6.setMessageText("Get $100 for every new customer you refer to SiempreTax+!");
+			safMsgs.add(saf6);
+
+			ApprovedMessage saf7 = new ApprovedMessage();
+			saf7.setMessageId(7);
+			saf7.setMessageText("¡Reciba $50 en efectivo por cada cliente nuevo que usted refiera a SiempreTax+!");
+			safMsgs.add(saf7);
+
+			ApprovedMessage saf8 = new ApprovedMessage();
+			saf8.setMessageId(8);
+			saf8.setMessageText("¡Reciba $100 en efectivo por cada cliente nuevo que usted refiera a SiempreTax+!");
+			safMsgs.add(saf8);
+			
+			ApprovedMessage saf9 = new ApprovedMessage();
+			saf9.setMessageId(9);
+			saf9.setMessageText("Get $20 for every new customer you refer to Liberty Tax!");
+			safMsgs.add(saf9);
+			
+			ApprovedMessage saf10 = new ApprovedMessage();
+			saf10.setMessageId(10);
+			saf10.setMessageText("¡Reciba $20 en efectivo con cada preparacion de impuestos pagada en Liberty Tax!");
+			safMsgs.add(saf10);
+			
+			ApprovedMessage saf11 = new ApprovedMessage();
+			saf11.setMessageId(11);
+			saf11.setMessageText("¡Reciba $20 en efectivo con cada preparacion de impuestos pagada en SiempreTax+!");
+			safMsgs.add(saf11);
+		
+			ltUser.setCustomMsgs(safMsgs);				
+			
+			//get the info for the first office
+			LTCategory_3 catg = mktgService.getProfile(ltUser.getSites().get(0).getUserId());
+			if (catg == null) {
+				logger.error("No profile found for userId: " + user.getUserId());
+			}
+			ltUser.setSearchOfficeIdString(ltUser.getSites().get(0).getCustomField2());
+			
+			ltUser.setCategory(catg);
+			//ltUser.setIncludePhone(true); //default to true
+			
+			List<String> officeIds = new ArrayList<String>();
+			for (UserProfileVO site : sites) {
+				officeIds.add(site.getCustomField2());
+			}
+			ltUser.setOfficeIds(officeIds);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return mv;
+	}
+	
+	@RequestMapping(value = "/sendAFriend2", method = RequestMethod.POST)
+	public @ResponseBody String sendAFriend2(@ModelAttribute("ltUser") LTUserForm ltUser, BindingResult bindingResult, HttpServletRequest request) {
+		ModelAndView mv = new ModelAndView("send_a_friend", "ltUser", ltUser);
+
+		User user = new Utility().getUserFromSecurityContext();
+		Long userId = user.getUserId();
+		
+		List<String> listIds = ltUser.getListIds(); //contains the message
+		String msg = listIds.get(0);
+		
+		try {
+			List<UserProfileVO> sites = mktgService.getSAFSites(userId);
+			String keyword = null;
+
+			for (String officeId : ltUser.getOfficeIds()) {
+				for (UserProfileVO site : sites) {
+					if (officeId.equals(site.getCustomField2())) {
+						SAF saf = new SAF();
+						saf.setOfficeId(site.getCustomField2());
+
+						saf.setEntityId(sites.get(0).getCustomField1());
+						saf.setSafMessage(msg);
+						//saf.setIncludePhone(ltUser.isIncludePhone());	
+						saf.setKeyword(site.getKeyword());
+						saf.setUserId(site.getUserId());
+
+						mktgService.saveDetails(saf);							
+					}
+				}
+			}
+			
+			//check if any office was unselected
+			for (UserProfileVO site : sites) {
+				if (! ltUser.getOfficeIds().contains(site.getCustomField2())) {
+ 					SAF saf = new SAF();
+					saf.setOfficeId(site.getCustomField2());
+					mktgService.deleteObject(saf);
+				}
+			}
+		
+			return message.getMessage("ok.save", new Object[] {}, locale);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return message.getMessage("error.save", new Object[] {e.getMessage()}, locale);
+		}
+	}	
+	
+	@RequestMapping(value = "/sendAFriend", method = RequestMethod.POST)
+	public @ResponseBody String sendAFriend(@ModelAttribute("ltUser") LTUserForm ltUser, BindingResult bindingResult, HttpServletRequest request) {
+		ModelAndView mv = new ModelAndView("send_a_friend", "ltUser", ltUser);
+
+		User user = new Utility().getUserFromSecurityContext();
+		Long userId = user.getUserId();
+		
+		
+		try {
+			List<UserProfileVO> vol = ltUser.getSites();
+			String keyword = null;
+
+			for (UserProfileVO vo : ltUser.getSites()) {
+				SAF saf = new SAF();
+				saf.setOfficeId(vo.getCustomField2());
+				if (vo.getCustomField3().equals("")) {
+					mktgService.deleteObject(saf);
+					continue;
+				}
+				saf.setEntityId(vo.getCustomField1());
+				saf.setSafMessage(vo.getCustomField3());
+				saf.setIncludePhone(vo.getCustomField4());	
+				saf.setKeyword(vo.getKeyword());
+				saf.setUserId(vo.getUserId());
+
+				mktgService.saveDetails(saf);					
+			}
+			
+			return message.getMessage("ok.save", new Object[] {}, locale);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return message.getMessage("error.save", new Object[] {e.getMessage()}, locale);
+		}
+	}
+	
+	@RequestMapping(value = "/sendAFriendOld", method = RequestMethod.POST)
+	public @ResponseBody String sendAFriendOld(@ModelAttribute("ltUser") LTUserForm ltUser, BindingResult bindingResult, HttpServletRequest request) {
+		ModelAndView mv = new ModelAndView("send_a_friend", "ltUser", ltUser);
+
+		User user = new Utility().getUserFromSecurityContext();
+		Long userId = user.getUserId();
+		
+		List<String> listIds = ltUser.getListIds();
+		String msg = null;
+		if (! ltUser.isIncludeLink())
+			msg = listIds.get(0);
+		
+		String officeId = ltUser.getSearchOfficeIdString();
+		
+		try {
+			List<UserProfileVO> sites = mktgService.getSAFSites(userId);
+			String keyword = null;
+			
+			/*
+			//for office role
+			if (user.getRoleActions().get(0).getRoleType().equals("Office")) {
+				keyword = sites.get(0).getKeyword();
+			}
+			
+			if (user.getRoleActions().get(0).getRoleType().equals("Entity")) {
+				//If only one office is selected, use the keyword for that office
+				//Else, use the entity keyword
+				if (officeIds.size() > 1) {
+					keyword = this.getKeyword(userId, null);
+				} else {
+					keyword = this.getKeyword(userId, officeIds.get(0));
+				}
+			}
+			*/
+			
+			if (officeId.equals("All")) {//all offices		
+				for (UserProfileVO site : sites) {
+ 					SAF saf = new SAF();
+					saf.setOfficeId(site.getCustomField2());
+					//if (msg.equals("Opt Out")) {
+					if (ltUser.isIncludeLink()) { //opt this office out
+						mktgService.deleteObject(saf);
+						continue;
+					}
+					saf.setEntityId(sites.get(0).getCustomField1());
+					saf.setSafMessage(msg);
+					//saf.setIncludePhone(ltUser.isIncludePhone());	
+					saf.setKeyword(site.getKeyword());
+					saf.setUserId(site.getUserId());
+					
+					mktgService.saveDetails(saf);
+				}
+			} else {
+				for (UserProfileVO site : sites) {
+					if (officeId.equals(site.getCustomField2())) {
+						SAF saf = new SAF();
+						saf.setOfficeId(site.getCustomField2());
+						//if (msg.equals("Opt Out")) {
+						if (ltUser.isIncludeLink()) { //opt this office out
+							mktgService.deleteObject(saf);
+							continue;
+						}
+						saf.setEntityId(sites.get(0).getCustomField1());
+						saf.setSafMessage(msg);
+						//saf.setIncludePhone(ltUser.isIncludePhone());	
+						saf.setKeyword(site.getKeyword());
+						saf.setUserId(site.getUserId());
+
+						mktgService.saveDetails(saf);		
+						break;
+					}
+				}
+			}
+			
+			return message.getMessage("ok.save", new Object[] {}, locale);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return message.getMessage("error.save", new Object[] {e.getMessage()}, locale);
+		}
+	}
+	
+	@RequestMapping(value = "/deleteCustomMessage", method = RequestMethod.POST)
+	public @ResponseBody String deleteCustomMessage(@ModelAttribute("ltUser") LTUserForm ltUser, BindingResult bindingResult, 
+														@RequestParam(required = true) Integer msgId, HttpServletRequest request) {
+		
+		try {
+			ApprovedMessage amsg = mktgService.getCustomMsgById(msgId);
+			mktgService.deleteObject(amsg);
+			return message.getMessage("ok.message.delete", new Object[] {}, locale);
+		} catch (Exception e) {
+			return message.getMessage("error.message.delete", new Object[] {e.getMessage()}, locale);
+		}
 	}
 	
 	@RequestMapping(value = "/sendMessage", method = RequestMethod.GET)
@@ -1291,8 +1802,16 @@ public class MarketingController {
 			
 			if (sites == null) {
 				logger.error("No sites found");
-				errorMV.addObject("error", "No sites found");
-				return errorMV;			
+				if (user.getRoleActions().get(0).getRoleType().equals("Corporate"))
+					errorMV = new ModelAndView("dashboardCorp", "ltUser", ltUser);
+				if (user.getRoleActions().get(0).getRoleType().equals("Entity"))
+					errorMV = new ModelAndView("dashboardEntity", "ltUser", ltUser);
+				if (user.getRoleActions().get(0).getRoleType().equals("AD"))
+					errorMV = new ModelAndView("dashboardAD", "ltUser", ltUser);
+				
+				errorMV.addObject("error", message.getMessage("error.nosites", new Object[] {}, locale));
+
+				return errorMV;				
 			}			
 			
 			ltUser.setSites(sites);
@@ -1300,13 +1819,12 @@ public class MarketingController {
 			
 			//set CA states for CA zees/offices
 			if (user != null && user.getBillingCountry() != null && user.getBillingCountry().equals("CA")) {
-				List<ValueObject> state_codes = dao.getCAStatesLT();
-				request.getSession().setAttribute("state_codes", state_codes);
+				//List<ValueObject> state_codes = dao.getCAStatesLT();
+				//request.getSession().setAttribute("state_codes", state_codes);
 				ltUser.setApprovedMsgs(mktgService.getCorporateMessagesCA(siteId));
 			} else {			
 				ltUser.setApprovedMsgs(mktgService.getCorporateMessages(siteId));
 				ltUser.setApprovedMsgsSP(mktgService.getCorporateMessages(siteId, "SP"));
-				ltUser.getApprovedMsgs().addAll(ltUser.getApprovedMsgsSP()); //just add it for now
 			}
 			
 			String entType = "Off";
@@ -1366,12 +1884,14 @@ public class MarketingController {
 			}
 
 			//check the msg count quota
-			if (! new LTSMessageServiceImpl().checkQuota(listIds, userId, msg.length())) {
-				logger.error("Msg quota exceeded for user: " + userId);
-				mv.addObject("error1", message.getMessage("schedule.error", 
-							new Object[] {"\nYou have exceeded your message quota. Please contact customer service."}, locale));
-				return message.getMessage("schedule.error", 
-						new Object[] {"\nYou have exceeded your message quota. Please contact customer service."}, locale);
+			if (! user.getRoleActions().get(0).getRoleType().equals("Corporate")) {
+				if (! new LTSMessageServiceImpl().checkQuota(listIds, userId, msg.length())) {
+					logger.error("Msg quota exceeded for user: " + userId);
+					mv.addObject("error1", message.getMessage("schedule.error", 
+								new Object[] {"\nYou have exceeded your message quota. Please contact customer service."}, locale));
+					return message.getMessage("schedule.error", 
+							new Object[] {"\nYou have exceeded your message quota. Please contact customer service."}, locale);
+				}
 			}
 			
 			// create a campaign
@@ -1417,12 +1937,20 @@ public class MarketingController {
 			
 			// get the link if checked
 			if (ltUser.isIncludeLink()) {
+				/*
 				String burl = PropertyUtil.load().getProperty("baseURL");
 				burl = burl.substring(0, burl.lastIndexOf("/"));
 				String linkUrl = burl + "/mwp/" + userId;
 				msgText += "\n" + linkUrl;
+				*/
+				String linkUrl = "http://www.libertytax.com";
+				if (user.getRoleActions().get(0).getRoleType().equals("Office"))
+					linkUrl += "/" + sites.get(0).getCustomField2();	
+				
+				msgText += "\n" + linkUrl;
 			}
 			
+			/*
 			if (ltUser.isIncludeLink()) { //do this only if link is to be included
 				//Include the default link for this store
 				String storeLink = PropertyUtil.load().getProperty("corpMobileURL");
@@ -1440,11 +1968,16 @@ public class MarketingController {
 				
 				msgText += "\n" + storeLink;
 			}
+			*/
 			
 			campaign.setMessageText(msgText);
 			campaign.setRawMessageText(ltUser.getSendSearchCityString());
 			
-			new LTSMessageServiceImpl().sendMessageLT(campaign, ltUser);
+			if (ltUser.getCurrentPage() != null && ltUser.getCurrentPage().equals("accountingSend")) {
+				campaign.setKeyword("LTSACCOUNTING");
+				new LTSMessageServiceImpl().sendMessageNewAcctg(campaign);
+			} else
+				new LTSMessageServiceImpl().sendMessageLT(campaign, ltUser);
 			
 			if (ltUser.isSendNow())
 				return message.getMessage("success.msg.send", new Object[] {}, locale);
@@ -1459,6 +1992,29 @@ public class MarketingController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return message.getMessage("error.msg.send", new Object[] {e.getMessage()}, locale);
+		}
+	}
+	
+	//delete a list
+	@RequestMapping(value = "/deleteList", method = RequestMethod.POST)
+	public @ResponseBody String deleteList(@ModelAttribute("ltUser") LTUserForm ltUser, HttpServletRequest request) throws Exception {
+		String listId = request.getParameter("listId");
+		String listName = request.getParameter("listName");
+		
+		try {		
+			//check if it is the default list as you cannot delete that
+			for (UserProfileVO site : this.getSites()) {
+				if (site.getKeyword().equals(listName.toUpperCase())) {
+					return "You cannot delete a default list";
+				}
+			}
+			
+			int numDeleted = dao.deleteList(listId);
+			logger.debug(numDeleted + " deleted");
+
+			return "List '" + listName + "' deleted";
+		} catch (Exception e) {
+			return "Error deleting list: " + e.getMessage();
 		}
 	}
 	
@@ -1495,8 +2051,8 @@ public class MarketingController {
 		return listData;
 	}
 	
-	@RequestMapping(value = "/viewListData", method = RequestMethod.GET)
-	public ModelAndView viewListData(@ModelAttribute("ltUser") LTUserForm ltUser, HttpServletRequest request) throws Exception {
+	@RequestMapping(value = "/viewListDataOld", method = RequestMethod.GET)
+	public ModelAndView viewListDataOld(@ModelAttribute("ltUser") LTUserForm ltUser, HttpServletRequest request) throws Exception {
 		ModelAndView mv = new ModelAndView("/WEB-INF/view/view_list_data.jsp", "ltUser", ltUser);
 
 		String listId = request.getParameter("listId");
@@ -1505,6 +2061,101 @@ public class MarketingController {
 		try {
 			listData = new LTSMessageServiceImpl().getListData(listId);
 			ltUser.setListIds(listData);
+			ltUser.setSearchDMAString(listId); //save the listId
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return mv;
+	}
+	
+	@RequestMapping(value = "/accountingSend", method = RequestMethod.GET)
+	public ModelAndView accountingSend(@ModelAttribute("ltUser") LTUserForm ltUser, HttpServletRequest request) throws Exception {
+		ModelAndView mv = new ModelAndView("accounting_send_message", "ltUser", ltUser);
+
+		User user = new Utility().getUserFromSecurityContext();
+		ltUser.setUser(user);
+		
+		try {
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return mv;
+	}	
+	
+	@RequestMapping(value = "/listMgmt", method = RequestMethod.GET)
+	public ModelAndView listMgmtG(@ModelAttribute("ltUser") LTUserForm ltUser, HttpServletRequest request) throws Exception {
+		ModelAndView mv = new ModelAndView("/WEB-INF/view/list_mgmt.jsp", "ltUser", ltUser);
+
+		User user = new Utility().getUserFromSecurityContext();
+		Long userId = user.getUserId();
+		
+		List<TargetListData> listData = null;
+		
+		try {
+			//get the keyword list
+			
+			listData = new LTSMessageServiceImpl().getDefaultList(userId);
+			ltUser.setListData(listData);
+			ltUser.setSearchDMAString(listData.get(0).getListId()); //save the listId
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return mv;
+	}
+	
+	@RequestMapping(value = "/listMgmt", method = RequestMethod.POST)
+	public @ResponseBody String listMgmt(@ModelAttribute("ltUser") LTUserForm ltUser, HttpServletRequest request) throws Exception {
+		ModelAndView mv = new ModelAndView("send_message", "ltUser", ltUser);
+
+		User user = new Utility().getUserFromSecurityContext();
+		Long userId = user.getUserId();
+		
+		List<TargetListData> listData = new ArrayList<TargetListData>();
+		
+		String listName = ltUser.getSendSearchKeywordString();
+		TargetUserList tul = new TargetUserList();
+		String listId = UUID.randomUUID().toString();
+		
+		tul.setListId(listId);
+		tul.setListName(listName);
+		tul.setUserId(userId);
+		
+		for (String listRow : ltUser.getListIds()) {
+			String[] fields = listRow.split(":");
+			TargetListData tld = new TargetListData();
+			tld.setListId(listId);
+			tld.setMobilePhone(fields[0]);
+			if (fields.length > 1 && fields[1] != null && fields[1].length() > 0)
+				tld.setFirstName(fields[1]);
+			if (fields.length > 2 && fields[2] != null && fields[2].length() > 0)
+				tld.setLastName(fields[2]);			
+			listData.add(tld);
+		}
+		new LTSMessageServiceImpl().saveList(tul, listData);		
+		try {
+		} catch (Exception e) {
+			return message.getMessage("error.createList", new Object[] {e.getMessage()}, locale);
+		}
+		return message.getMessage("ok.createList", new Object[] {listName}, locale);
+	}
+	
+	//return TargetListData
+	@RequestMapping(value = "/viewListData", method = RequestMethod.GET)
+	public ModelAndView viewListData(@ModelAttribute("ltUser") LTUserForm ltUser, HttpServletRequest request) throws Exception {
+		ModelAndView mv = new ModelAndView("/WEB-INF/view/view_list_data.jsp", "ltUser", ltUser);
+
+		String listId = request.getParameter("listId");
+		List<TargetListData> listData = null;
+		
+		try {
+			listData = new LTSMessageServiceImpl().getList(listId);
+			ltUser.setListData(listData);
 			ltUser.setSearchDMAString(listId); //save the listId
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -1558,6 +2209,14 @@ public class MarketingController {
 		return keywordLists;
 	}
 	
+	@RequestMapping(value = "/createCorpMessageG", method = RequestMethod.GET)
+	public ModelAndView createCorpMessageG(@ModelAttribute("ltUser") LTUserForm ltUser) {
+		User user = new Utility().getUserFromSecurityContext();
+		ModelAndView mv = new ModelAndView("/WEB-INF/view/corp/create_message_body.jsp", "ltUser", ltUser);
+
+		return mv;
+	}
+	
 	@RequestMapping(value = "/createCorpMessage", method = RequestMethod.POST)
 	public @ResponseBody String createCorpMessage(@ModelAttribute("ltUser") LTUserForm ltUser) throws Exception {
 		Date now = Calendar.getInstance().getTime();
@@ -1565,14 +2224,53 @@ public class MarketingController {
 		newMsg.setSiteId(siteId);
 		newMsg.setMessageText(ltUser.getAdNewMsg());
 		newMsg.setStatus("A");
-		newMsg.setLanguage("EN");
+		newMsg.setLanguage(ltUser.getSearchStateString());
 		newMsg.setLocation("US");
 		newMsg.setCreated(now);
 		newMsg.setUpdated(now);
 		
 		try {
 			corpService.createCorpMessage(newMsg);	
+			List<ApprovedMessage> corpMsgs = mktgService.getCorporateMessages(siteId);
+			ltUser.setApprovedMsgs(corpMsgs);
+			
 			return "Message created";
+		} catch (Exception e) {		
+			return e.getMessage();
+		}
+	}
+	
+	@RequestMapping(value = "/deleteCorpMessage", method = RequestMethod.POST)
+	public @ResponseBody String deleteCorpMessage(@ModelAttribute("ltUser") LTUserForm ltUser, @RequestParam Integer msgId) throws Exception {
+		Date now = Calendar.getInstance().getTime();
+		ApprovedMessage newMsg = corpService.getCustomMsgById(msgId);
+		
+		try {
+			mktgService.deleteObject(newMsg);	
+			List<ApprovedMessage> corpMsgs = mktgService.getCorporateMessages(siteId);
+			ltUser.setApprovedMsgs(corpMsgs);
+			
+			return "Message deleted";
+		} catch (Exception e) {		
+			return e.getMessage();
+		}
+	}
+	
+	@RequestMapping(value = "/editCorpMessage", method = RequestMethod.POST)
+	public @ResponseBody String editCorpMessage(@ModelAttribute("ltUser") LTUserForm ltUser,
+						@RequestParam(value = "msgId") Integer msgId,
+						@RequestParam(value = "msgText") String msgText) throws Exception {
+		Date now = Calendar.getInstance().getTime();
+		ApprovedMessage newMsg = corpService.getCustomMsgById(msgId);
+		newMsg.setMessageText(msgText);
+		newMsg.setUpdated(now);
+		
+		try {
+			corpService.createCorpMessage(newMsg);	
+			List<ApprovedMessage> corpMsgs = mktgService.getCorporateMessages(siteId);
+			ltUser.setApprovedMsgs(corpMsgs);
+			
+			return "Message saved";
 		} catch (Exception e) {		
 			return e.getMessage();
 		}
@@ -1616,6 +2314,10 @@ public class MarketingController {
 
 		logger.debug("kwstr: " + ltUser.getSearchKeywordString());
 		
+		//get list of campaigns to be used as lov for detail report
+		List<ValueObject> clist = new LTReportDAOManager().getCampaignList(user.getUserId());
+		ltUser.setReportData(clist);
+		
 		return mv;
 	}
 	
@@ -1639,6 +2341,7 @@ public class MarketingController {
 		Date fromDate = null;
 		Date toDate = null;
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
 
 		//check if we have dates
 		if (ltUser.getSearchCityString() != null && ltUser.getSearchCityString().length() > 0) {
@@ -1654,13 +2357,14 @@ public class MarketingController {
 				mv.addObject("error", "Start Date cannot be later than End Date");
 				return mv;
 	 		} else {
-	 			params.put("fromDate", sdf.format(fromDate));
-	 			params.put("toDate", sdf.format(toDate));
+	 			params.put("fromDate", sdf1.format(fromDate));
+	 			params.put("toDate", sdf1.format(toDate));
+	 			logger.debug("from, to: " + sdf1.format(fromDate) + ", " + sdf1.format(toDate));
 	 		}
 		}
 		
 		if (fromDate != null) {			
-	 		params.put("fromDate", sdf.format(fromDate));
+	 		params.put("fromDate", sdf1.format(fromDate));
 		}
 		
 		if (fromDate != null && toDate == null) { //if no toDate specified, use today
@@ -1668,7 +2372,7 @@ public class MarketingController {
 		}
 		
 		if (toDate != null) {			
-	 		params.put("toDate", sdf.format(toDate));
+	 		params.put("toDate", sdf1.format(toDate));
 		}
 		
 		Integer reportType = null;
@@ -1723,6 +2427,9 @@ public class MarketingController {
         
         ltUser.setReportColumnHeaders(grd.getReportColumnHeaders());
         ltUser.setReportRows(reportRows);
+        
+        if (grd.getSummaryRow() != null)
+        	ltUser.setSummaryRow(grd.getSummaryRow());
  		
  		logger.debug("colHeaders: " + grd.getReportColumnHeaders().size());
 
@@ -1757,6 +2464,10 @@ public class MarketingController {
 			sites = mktgService.getSites(user.getUserId());
 
 		ltUser.setSites(sites);
+	
+		//get list of campaigns to be used as lov for detail report
+		List<ValueObject> clist = new LTReportDAOManager().getCampaignList(user.getUserId());
+		ltUser.setReportData(clist);
 		
 		return mv;
 	}
@@ -1783,35 +2494,112 @@ public class MarketingController {
 		//For Corp user, since we could have a multi-office campaign, we will show all scheduled msgs - userId = 0
 		if (user.getRoleActions().get(0).getRoleType().equals("Corporate")) {
 			uIds = "0";
+		} else if (user.getRoleActions().get(0).getRoleType().equals("Office")
+					|| user.getRoleActions().get(0).getRoleType().equals("AD")) {
+			uIds = user.getUserId().toString();
 		} else {
-			for (String offId : officeIds) {
-				if (offId.equals("Entity")) { //if Entity is selected, use the entity's userId		
-					uIds += (uIds.length() > 0) ? "," + user.getUserId() : user.getUserId();				
-				} else {
-					for (UserProfileVO site : sites) {
-						if (site.getCustomField2() != null && site.getCustomField2().equals(offId)) {
-							uIds += (uIds.length() > 0) ? "," + site.getUserId() : site.getUserId();
-							break;
+			if (officeIds == null || officeIds.isEmpty()) {
+				//use Entity userId as well since the sched job is tied to this - 12/4/14 - KP
+				uIds = user.getUserId().toString();
+			} else {
+				for (String offId : officeIds) {
+					if (offId.equals("Entity")) { //if Entity is selected, use the entity's userId		
+						uIds += (uIds.length() > 0) ? "," + user.getUserId() : user.getUserId();				
+					} else {
+						for (UserProfileVO site : sites) {
+							if (site.getCustomField2() != null && site.getCustomField2().equals(offId)) {
+								uIds += (uIds.length() > 0) ? "," + site.getUserId() : site.getUserId();
+								break;
+							}
 						}
 					}
 				}
-			}
+				//add the Entity userId as well since the sched job is tied to this - 12/4/14 - KP
+				uIds += ", " + user.getUserId();					
+			}		
 		}
 		
 		params.put("userIds", uIds);
 		List<ReportData> reportRows = mktgService.getScheduledTriggers(params, 0, 0, null, null);
+        if (! reportRows.isEmpty()) {
+        	reportRows.remove(reportRows.size() - 1);
+        }
         ltUser.setReportRows(reportRows);
 		
 		return new ModelAndView("/WEB-INF/view/scheduled_jobs.jsp", "ltUser", ltUser);
 	}
 	
 	@RequestMapping(value = "/deleteJob", method = RequestMethod.POST)
-	public ModelAndView deleteJob(@ModelAttribute("ltUser") LTUserForm ltUser,
+	public @ResponseBody String deleteJob(@ModelAttribute("ltUser") LTUserForm ltUser,
 									@RequestParam String triggerName, @RequestParam String triggerGroup,
 									HttpServletRequest request) throws Exception {
 		new JobScheduler().unScheduleJob(triggerName, triggerGroup);
 
-		return this.getScheduledJobs(ltUser);
+		//return this.getScheduledJobs(ltUser);
+		return "Job deleted";
+	}
+	
+	@RequestMapping(value = "/uploadFileOneClick", method = RequestMethod.POST)
+	public @ResponseBody String uploadFileOneClick(@ModelAttribute("ltUser") LTUserForm ltUser, MultipartHttpServletRequest request) {
+		User user = new Utility().getUserFromSecurityContext();
+
+		Iterator<String> iterator = request.getFileNames();
+		
+		String displayName = "";		
+		
+		// Creating the directory to store file
+		String fpath = PropertyUtil.load().getProperty("targetFilePath") + user.getUserId();
+
+		int fcnt = 0;
+		String name = request.getParameter("name");
+		String type = request.getParameter("type");
+			
+		try {
+			while (iterator.hasNext()) {
+				String fname = iterator.next();
+				MultipartFile multipartFile = request.getFile(fname);
+				byte[] file = multipartFile.getBytes();
+				
+				String fType = multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().lastIndexOf(".") + 1);				
+				if (! fType.equals("xls") && ! fType.equals("xlsx") && !fType.equals("txt")) {
+					logger.error("Invalid file type: " + fType);
+					return message.getMessage("error.invalidFileType", new Object[] {fType}, locale);
+				}
+				
+			      if (file == null || file.length <= 0) {
+						logger.debug("Null targetUserFile");
+						return message.getMessage("error.null.targetUserFile", new Object[] {}, locale);
+			      }
+
+			      fcnt++;			
+
+			      if (type.equals("accounting")) {
+			    	  User tmpUser = dao.login("LTSACCOUNTING", siteId); //lookup by keyword
+			    	  if (tmpUser == null) {
+			    		  tmpUser = new User();
+			    		  tmpUser.setSiteId(siteId);
+			    		  tmpUser.setCategoryId(3);
+			    		  tmpUser.setUserAccountNumber("Accounting");
+			    		  tmpUser.setKeyword("LTSACCOUNTING");
+			    	  }
+				      try {   	  
+				    	  String listId = this.saveADListToDB(tmpUser, multipartFile, multipartFile.getOriginalFilename());					      
+				    	  //return message.getMessage("ok.save.targetUserFile", new Object[] {}, locale);	  
+						  return listId;
+				      } catch (Exception e) {
+				    	 logger.error("Error saving list: " + e.getMessage());
+				    	 return message.getMessage("error.save.targetUserFile", new Object[] {e.getMessage()}, locale);
+				      }		
+			      }
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return message.getMessage("error.fileUpload", new Object[] {name, e.getMessage()}, locale);	
+		}
+
+		return message.getMessage("ok.fileUpload", new Object[] {displayName}, locale);													
+
 	}
 	
     @RequestMapping(value = "/uploadFile", method = RequestMethod.GET)
@@ -1861,6 +2649,71 @@ public class MarketingController {
 		return mv;
     }
 	
+    //save the accounting list of ADs
+    //format of file is ADId, Message
+	private String saveADListToDB(User user, MultipartFile fFile, String listName) throws Exception {
+		   if (fFile == null || fFile.isEmpty()) {
+			   throw new Exception("Null form file");
+		   }
+		   
+		   TargetUserListDao tulDao = new TargetUserListDao();
+		   
+		   BufferedReader br = null;
+		   try {
+			   //create the list
+			   TargetUserList tuList = new TargetUserList();
+			   String listId = UUID.randomUUID().toString();
+			   tuList.setListId(listId);
+			   tuList.setUserId(user.getUserId());
+			   tuList.setListName(listName);
+			   tuList.setListType("Accounting");
+		   
+			   List<TargetListData> tListData = new ArrayList<TargetListData>();
+
+			   String fName = fFile.getOriginalFilename();
+
+			   int listCount = 0;
+			   String msg = null;
+			   List<String> adIds = new ArrayList<String>();
+			   List<String> msgs = new ArrayList<String>();
+
+			   Map<String, String>adIdsMap;
+			   if (fName.indexOf(".xls") > 0 || fName.indexOf(".xlsx") > 0) {
+				   adIdsMap = this.getADIdFromXLS(fFile);
+			   } else {				   
+				  br = new BufferedReader(new InputStreamReader(fFile.getInputStream()));
+				  String line = null;
+				  String[] fields = null;
+				  int i = 0;
+				  adIdsMap = new HashMap<String, String>();
+				  while ((line = br.readLine()) != null) {
+					  if (i == 0) { //skip the header row
+						  i++;
+						  continue;
+					  }
+					  fields = line.split(",");
+					  String adId = fields[0];
+					  msg = fields[1];
+					  if (adId == null || adId.length() <= 0)
+						  continue;
+					  
+					  adIdsMap.put(adId, msg);
+				  }
+			   }		   
+			   		
+			   new LibertyAdminDAOManager().createAccountingADList(listId, adIdsMap);
+
+			   //Since tul is now a part of the User, save the user
+			   user.getTargetUserLists().add(tuList);
+			   new UserDAOManager().saveUser(user);
+			   			   
+			  return listId;
+		   } finally {
+			  if (br != null)
+				  br.close();
+		  }		   
+	}
+
 	private String saveListToDB(User user, MultipartFile fFile, String listName, String listType) throws Exception {
 		   if (fFile == null || fFile.isEmpty()) {
 			   throw new Exception("Null form file");
@@ -1970,6 +2823,74 @@ public class MarketingController {
 		  }		   
 	}
 
+	//read the AD id from the Accounting list
+	//format is ADId, Message
+	private Map<String, String> getADIdFromXLS(MultipartFile infile) {
+		Map<String, String> adMap = new HashMap<String, String>();
+		
+		String msg = null;
+		
+		try {
+			Sheet sheet = (Sheet) WorkbookFactory.create(infile.getInputStream()).getSheetAt(0);
+
+			DataFormatter df = new DataFormatter();
+			Iterator<Row> rowIterator = sheet.rowIterator();
+			
+			int rowCount = 0;
+			while (rowIterator.hasNext()) {
+				Row row = (Row)rowIterator.next();
+				if (rowCount == 0) { //skip the header row
+					rowCount++;
+					continue;
+				}
+				if (df.formatCellValue(row.getCell(0)).startsWith("#"))  //comment row - skip it
+					continue;
+
+				adMap.put(df.formatCellValue(row.getCell(0)), df.formatCellValue(row.getCell(1)));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return adMap;
+	}
+	
+	//read the AD id from the Accounting list
+	//format is ADId, Message
+	private Map<String, List<String>> getADIdFromXLS1(MultipartFile infile) {
+		Map<String, List<String>> adIdsMap = new HashMap<String, List<String>>();
+		List<String> adIds = new ArrayList<String>();
+		
+		String msg = null;
+		
+		try {
+			Sheet sheet = (Sheet) WorkbookFactory.create(infile.getInputStream()).getSheetAt(0);
+
+			DataFormatter df = new DataFormatter();
+			Iterator<Row> rowIterator = sheet.rowIterator();
+			
+			int rowCount = 0;
+			while (rowIterator.hasNext()) {
+				Row row = (Row)rowIterator.next();
+				if (rowCount == 0) { //skip the header row
+					rowCount++;
+					continue;
+				}
+				if (df.formatCellValue(row.getCell(0)).startsWith("#"))  //comment row - skip it
+					continue;
+
+				adIds.add(df.formatCellValue(row.getCell(0)));
+				if (rowCount <= 1)
+					msg = df.formatCellValue(row.getCell(1));
+					
+				rowCount++;					
+			}
+			adIdsMap.put(msg, adIds);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return adIdsMap;
+	}
+	
 	//read the data from a xls & xlsx file using POI
 	private List<TargetListData> getListDataFromXLS(String listId, MultipartFile infile) {
 		List<TargetListData> tListData = new ArrayList<TargetListData>();
@@ -2016,6 +2937,23 @@ public class MarketingController {
 			e.printStackTrace();
 		}
 		return tListData;
+	}
+	
+	//Opt out on Corp ui
+	@RequestMapping(value = "/optout", method = RequestMethod.POST)
+	public @ResponseBody String optout(@ModelAttribute("ltUser") LTUserForm ltUser, @RequestParam(required=true) String mobilePhone,
+									HttpServletRequest request) throws Exception {
+
+		try {				
+			int ret = new LTSMessageServiceImpl().optout(mobilePhone);
+			if (ret > 0) {
+				return message.getMessage("optout.ok", new Object[] {mobilePhone}, locale);
+			} else {
+				return message.getMessage("optout.notExist", new Object[] {mobilePhone}, locale);				
+			}
+		} catch (Exception e) {
+			return message.getMessage("error.optout", new Object[] {mobilePhone, e.getMessage()}, locale);
+		}
 	}
 	
 	@RequestMapping(value = "/logout", method = RequestMethod.POST)

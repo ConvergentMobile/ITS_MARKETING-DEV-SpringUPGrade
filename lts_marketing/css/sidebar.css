@@ -347,6 +347,10 @@
 	float: right;
 }
 
+.select_wrapper_n01 {
+	height: 53px;
+}
+
 .select_send_notification {
 	width: 235px;
 	padding: 5px;
@@ -356,6 +360,61 @@
 	border: #b7b7b7 1px solid;
 	color: #4a555b;
 	background: #fff;
+}
+
+.select_send_notification_01 {
+	box-sizing: border-box;
+	width: 100%;
+	margin-top: 10px;
+	padding: 5px;
+	clear: both;
+	font-family: OpenSansRegular, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	line-height: normal;
+	border: #b7b7b7 1px solid;
+	color: #4a555b;
+	background: #fff;
+}
+
+.form_wrapper_sn {
+	padding: 20px 0 37px 0;
+}
+
+.fwsn_field {
+	width: 215px;
+	margin: 0 auto;
+	margin-bottom: 15px;
+}
+
+.fwsn_field label {
+	margin-bottom: 7px;
+	display: block;
+}
+
+.fwsn_field select {
+	padding: 7px; 
+	width: 210px;
+	border-color: #b7b7b7; 
+	background-color: #f5f6f7;
+	background-image: none;
+}
+
+.fwsn_field select:hover, .fwsn_field select:focus {
+	border-color: #50515c;
+	background-color: #fff;
+	background-image: none;
+}
+
+.fwsn_field .input_date_01 {
+	padding: 7px 37px 7px 7px; 
+	width: 164px;
+	border-color: #b7b7b7; 
+	background: #f5f6f7 url(../images/ico_date.png) right 50% no-repeat;
+}
+
+.fwsn_field .input_date_01:hover, .fwsn_field .input_date_01:focus {
+	border-color: #50515c;
+	background: #f5f6f7 url(../images/ico_date_o.png) right 50% no-repeat;
 }
 
 .form_wrapper_01 {
@@ -429,9 +488,7 @@
 	margin: 0 auto;
 }
 
-
 .corp_msg_wrapper {
-	padding: 11px 20px 12px 20px;
 }
 
 .corp_msg_box {
@@ -515,7 +572,7 @@ a.btn_04_lnk {
 }
 
 .grid_04 td {
-	padding: 3px 0;
+	padding: 5px 0 5px 20px;
 	text-align: left;
 	vertical-align: top;
 	border-bottom: #d0d5da 1px solid;
@@ -540,10 +597,30 @@ table.grid_04 tr.odd td {
 }
 
 table.grid_04 tr.even td {
-	background-color: #ebeef3;
+	background-color: #fff;
 }
 
 table.grid_04 tr:hover td {
-	background-color: #d3f2fa;
+	background-color: #fffbc9;
 }
 
+.grid_04 .td_02,
+.grid_04 .td_03 {
+	padding-left: 0;
+}
+
+.grid_04 .edit td {
+	background: #fffbc9!important;
+	vertical-align: middle;
+}
+
+.grid_04 textarea {
+	width: 82%;
+	padding: 5px;
+	height: 46px;
+}
+
+.grid_04 select {
+	margin: 0 0 0 10px;
+	padding: 6px 6px 6px 4px
+}

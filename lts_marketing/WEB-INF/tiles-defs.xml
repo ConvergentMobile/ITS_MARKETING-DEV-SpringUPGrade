@@ -61,7 +61,11 @@
 	<definition name="dashboard_ad" extends="baseDef_1">
 		<put-attribute name="body" value="/WEB-INF/view/ad/dashboard_ad.jsp" />
 	</definition>
-		
+
+	<definition name="confirmationMessageAD" extends="baseDef_1">
+		<put-attribute name="body" value="/WEB-INF/view/ad/confirmation_message_ad.jsp" />
+	</definition>
+				
 	<definition name="customMessage" extends="baseDef_1">
 		<put-attribute name="body" value="/WEB-INF/view/custom_message.jsp" />
 	</definition>
@@ -90,7 +94,11 @@
 	<definition name="send_message" extends="baseDef_1">
 		<put-attribute name="body" value="/WEB-INF/view/entity/send_message.jsp" />
 	</definition>	
-	
+
+	<definition name="send_a_friend" extends="baseDef_1">
+		<put-attribute name="body" value="/WEB-INF/view/entity/send_a_friend.jsp" />
+	</definition>	
+		
 <!-- Corporate -->		
 	<definition name="dashboard_corp" extends="baseDef_1">
 		<put-attribute name="body" value="/WEB-INF/view/corp/dashboard_corp.jsp" />
@@ -103,7 +111,11 @@
 	<definition name="customMessageCorp" extends="baseDef_1">
 		<put-attribute name="body" value="/WEB-INF/view/corp/custom_message_corp.jsp" />
 	</definition>	
-	
+
+	<definition name="accounting_send_message" extends="baseDef_1">
+		<put-attribute name="body" value="/WEB-INF/view/corp/accounting_send_message.jsp" />
+	</definition>
+		
 	<definition name="cmtoolbox" extends="baseDef_1">
 		<put-attribute name="body" value="/WEB-INF/view/cmtoolbox.jsp" />
 	</definition>

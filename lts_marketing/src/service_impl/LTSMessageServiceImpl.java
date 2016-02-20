@@ -4,21 +4,31 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.jms.Queue;
 
 import jms.JMSProducer;
+import service_impl.SMSExecutorImpl;
 
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import sms.US411Handler;
 import subclass.LTCategory_3;
 import user.Campaign;
 import user.CategoryBase;
 import user.JobScheduler;
+import user.TargetListData;
 import user.TargetUserList;
 import user.TargetUserListDao;
+import user.User;
+import user.UserDAOManager;
 import util.LTException;
 import util.PropertyUtil;
 import dao.LTUserDAOManager;
@@ -30,6 +40,8 @@ public class LTSMessageServiceImpl {
 	private static final String APPLICATION_CONTEXT_FILE = "classpath:application_context.xml";
 	private Integer siteId = Integer.parseInt(PropertyUtil.load().getProperty("siteId"));
 
+    private static final int NTHREDS = 5;
+    
 	//check that the entity message quota is not being exceeded. True => not exceeded
 	public Boolean checkQuota(List<String> listIds, Long userId, Integer msgLength) throws Exception {
 		Object[] pNums = null;
@@ -130,6 +142,16 @@ public class LTSMessageServiceImpl {
 				//this.scheduleJob(ltUser.getSchedDate(), ltUser.getSchedTime(), ltUser.getRepeatDayCount(), ltUser.getRepeatMonthCount(), 
 				//					ltUser.getNumberOccurrencesDays(), ltUser.getNumberOccurrencesMonths(), campaign, cbase.getTimezone());
         		
+    			//set the Multi list as well for the SendMsgJob for scheduled msgs
+        		List<TargetUserList> tuList = new ArrayList<TargetUserList>();
+        		for (String listId : campaign.getListIds()) {
+        			TargetUserList tul = new TargetUserList();
+        			tul.setListId(listId);
+        			tuList.add(tul);
+        		}
+        		
+    			campaign.setMultiList(tuList);
+    			
 				this.scheduleJob(ltUser.getSchedDate(), ltUser.getSchedTime(), repeatDayCount, repeatMonthCount, 
 						numberOccurrencesDays, numberOccurrencesMonths, campaign, tzone);        		
 			} catch (Exception e) {
@@ -150,6 +172,59 @@ public class LTSMessageServiceImpl {
 		// save this campaign only if scheduling is successful
 		LTUserDAOManager ltdao = new LTUserDAOManager();		
 		ltdao.saveCampaign(campaign);
+	}
+	
+	private void sendMessageNew(Campaign campaign) throws Exception {
+		logger.debug("sendMessage New - keyword: " + campaign.getKeyword());
+		Map<String, Long> pList = new HashMap<String, Long>();
+		
+        ExecutorService executor = Executors.newFixedThreadPool(NTHREDS);
+
+		for (final String listId : campaign.getListIds()) {
+			List<ValueObject> listData = new LTUserDAOManager().getListData(listId);
+			for (ValueObject vo : listData) {
+				if (! pList.containsValue(vo.getField1())) { //add the number only if does not exist
+					pList.put((String)vo.getField1(), (Long)vo.getField2());
+					Runnable worker = new SMSExecutorImpl((String)vo.getField1(), campaign.getMessageText(), campaign.getCampaignId(), null, null);
+					executor.execute(worker);
+				}
+			}
+		}
+		
+		if (pList.isEmpty()) {
+			throw new Exception("No phone numbers found");
+		}
+		
+        executor.shutdown();
+        executor.awaitTermination(60, TimeUnit.MINUTES);
+	}
+	
+	//this is for the Accounting send from Corp.
+	public void sendMessageNewAcctg(Campaign campaign) throws Exception {
+		logger.debug("sendMessageNewAcctg - keyword: " + campaign.getKeyword());
+		Map<String, Long> pList = new HashMap<String, Long>();
+		
+		new LTUserDAOManager().saveCampaign(campaign);
+		
+        ExecutorService executor = Executors.newFixedThreadPool(NTHREDS);
+
+		for (final String listId : campaign.getListIds()) {
+			List<ValueObject> listData = new LTUserDAOManager().getListData(listId);
+			for (ValueObject vo : listData) {
+				if (! pList.containsValue(vo.getField1())) { //add the number only if does not exist
+					pList.put((String)vo.getField1(), (Long)vo.getField2());
+					Runnable worker = new SMSExecutorImpl(this.normalizePhoneNumber((String)vo.getField1()), (String)vo.getField3(), campaign.getCampaignId(), campaign.getKeyword(), null);
+					executor.execute(worker);
+				}
+			}
+		}
+		
+		if (pList.isEmpty()) {
+			throw new Exception("No phone numbers found");
+		}
+		
+        executor.shutdown();
+        executor.awaitTermination(60, TimeUnit.MINUTES);
 	}
 	
 	private void sendMessage(Campaign campaign) throws Exception {
@@ -198,11 +273,77 @@ public class LTSMessageServiceImpl {
 	    producer.sendMessage(campaign, pList);
 	}
 	
+	private void sendMessage1(Campaign campaign, Long userId) throws Exception {
+		logger.debug("sendMessage of categoryBase - keyword: " + campaign.getKeyword());
+		Map<String, Long> pList = new HashMap<String, Long>();
+		
+        ExecutorService executor = Executors.newFixedThreadPool(NTHREDS);
+		
+		for (final String listId : campaign.getListIds()) {
+			List<String> pNums = new TargetUserListDao().getListData(listId);
+			if (pNums.isEmpty()) {
+				throw new Exception("No phone numbers found");
+			}
+			for (String pNum : pNums) {
+				if (! pList.containsValue(pNum)) { //add the number only if does not exist
+					pList.put(pNum, userId);
+					Runnable worker = new SMSExecutorImpl(pNum, campaign.getMessageText(), campaign.getCampaignId(), null, null);
+					executor.execute(worker);
+				}
+			}
+		}
+		
+        executor.shutdown();
+        executor.awaitTermination(60, TimeUnit.MINUTES);
+	}
+	
 	public List<TargetUserList> getList(List<String> officeIds) throws Exception {
 		return new LTUserDAOManager().getList(officeIds);
 	}
 	
 	public List<String> getListData(String listId) throws Exception {
 		return new TargetUserListDao().getListData(listId);
+	}
+	
+	public List<TargetListData> getList(String listId) throws Exception {
+		return new TargetUserListDao().getTargetListData(listId);
+	}
+	
+	public List<TargetListData> getDefaultList(Long userId) throws Exception {
+		return new TargetUserListDao().getDefaultTargetListData(userId);
+	}
+	
+	public int optout(String mobilePhone) throws Exception {
+		String shortcode = PropertyUtil.load().getProperty("shortcode");
+		String keyword = null;
+		
+		US411Handler ush = new US411Handler(mobilePhone, "US", shortcode);
+		mobilePhone = ush.normalize(mobilePhone);
+		//keyword = ush.getLastKeyword(normalizedPhone);
+		
+		return new LTUserDAOManager().optout(mobilePhone, shortcode, keyword);
+	}
+	
+	public void saveList(TargetUserList tul, List<TargetListData> tListData) throws Exception {
+		TargetUserListDao dao = new TargetUserListDao();
+		dao.saveListData(tListData);
+		
+		User user = new LTUserDAOManager().getUser(tul.getUserId());
+		user.getTargetUserLists().add(tul);
+		new UserDAOManager().saveUser(user);
+	}
+	
+	public String normalizePhoneNumber(String phoneNumber) {
+		if (phoneNumber == null)
+			return null;
+		
+		Pattern p = Pattern.compile("\\s+|\\.|-| |\\(|\\)");
+
+		Matcher matcher = p.matcher(phoneNumber);
+		String tmp = matcher.replaceAll("");
+		if (tmp.length() < 11)
+			tmp = "1" + tmp;
+
+		return tmp;
 	}
 }

@@ -37,6 +37,6 @@
 	<mapping resource="/TargetUserList.hbm.xml"/>
 	<mapping resource="/ApprovedMessage.hbm.xml"/>
 	<mapping resource="/LTReport.hbm.xml"/>
-	
+	<mapping resource="/SAF.hbm.xml"/>
     </session-factory>	
 </hibernate-configuration>

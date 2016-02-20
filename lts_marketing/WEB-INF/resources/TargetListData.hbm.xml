@@ -10,5 +10,23 @@
       <key-property name="mobilePhone" column="mobile_phone" type="java.lang.String"/>
     </composite-id>
 
+<property
+name="firstName"
+type="java.lang.String"
+column="first_name"
+/>
+
+<property
+name="lastName"
+type="java.lang.String"
+column="last_name"
+/>
+
+<property
+name="lastUpdated"
+type="java.util.Date"
+column="last_updated"
+/>
+
 </class>
 </hibernate-mapping>

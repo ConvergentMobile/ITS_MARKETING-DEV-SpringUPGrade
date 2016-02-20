@@ -6,7 +6,23 @@
 
 <script type="text/JavaScript">	
 	$(document).ready(function() {
-		resetForm($('#thisForm'));		
+		resetForm($('#thisForm'));
+		
+		/*
+		$( "#errwin" ).dialog({
+			title: 'Alerts & Notifications',
+			width: 400,
+			height: 200,		
+			dialogClass: 'no-close',
+			autoOpen: false, 
+			buttons: {
+			  OK: function() {
+				$(this).dialog("close");
+				location.reload();
+			  }
+		       },
+		});		
+		*/
 	});
 
 	function resetForm(form) {
@@ -25,7 +41,7 @@
 	
 	    $('#lists li').remove();
 	}
-
+	
  	$(function() {
 	    $( "#schedDate" ).datepicker({
 		'format': 'm/d/yyyy',
@@ -61,23 +77,42 @@
 		window.open('uploadFile',"mywindow","scrollbars=yes,menubar=1,resizable=1,width=450,height=550");		
 	}
 	
-	function createHotspot(keyword){		
-		window.open('createHotspot?keyword=' + keyword,"mywindow","scrollbars=yes,menubar=1,resizable=1,width=450,height=550");		
+	function createHotspot() {
+		if ($('[name="officeIds"]:checked').length <= 0) {
+			alert("Please select an Office");
+			return;
+		}
+		
+		if ($('[name="officeIds"]:checked').length > 1) {
+			alert('Please select only one office');
+			return;
+		}	
+		
+		var kw = $('[name="officeIds"]:checked').val();
+		window.open('createHotspotKW?kw=' + kw,"mywindow","scrollbars=yes,menubar=1,resizable=1,width=450,height=550");		
 	}
 	
-	function showSelectedMsg(elem, msgType) {
+	function showSelectedMsg(elem, msgType, msg) {
 		elemId = $(elem).attr("id");	
-		var msgText = $("label[for='"+elemId+"']").text();					
+		var msgText = $("label[for='"+elemId+"']").text();
+		if (msgType == 'Cust') {
+			msgText = msg;
+		}
 		$('#sendSearchCityString').val(msgText);
 	}
 
-	function deleteNumber(listId, number) {
+	function deleteMsg(msgId) {
+		var ans = confirm("Are you sure you want to delete this message?");
+		if (! ans) {
+			return;
+		}
+		
 	        $.ajax({
 	            type : 'POST',
-	            url : 'deleteNumber',
-            	    data: 'listId=' + listId + '&number=' + number,
-	            success : function(result) {
-            		alert(result);
+	            url : 'deleteCustomMessage',
+            	    data: 'msgId=' + msgId,
+	            success : function(result) {          
+	            	popup(result, 1);
 				},
 				error : function(e) {
 					alert('error: ' + e);
@@ -85,37 +120,50 @@
 	        });	
 	}
 	
-	function viewList(listId) {
+	function viewList1(listId) {
 		window.open('viewListData?listId=' + listId,"mywindow","scrollbars=yes,menubar=1,resizable=1,width=450,height=550");			
 	}
 	
-	function viewList1(listId) {
-		var outstr = '';
+	function viewList(listId) {
 	        $.ajax({
 	            type : 'GET',
 	            url : 'viewListData',
-	            contentType: "application/html",
 	            data: 'listId='+ listId,
 	            success : function(result) {
-					newwin = window.open('',"mywindow","scrollbars=yes,menubar=1,resizable=1,width=450,height=550");		
-	            	
-	                if (result.length == 0) {
-                        	outstr = "<span class='name'><font size='-0.5'>Empty list</font></span>";
-                	}  else {
-                        	$.each(result, function(index, value) {
-					outstr += '<br/>' + value;
-					outstr += ' <a href="javascript:deleteNumber(\'' + listId + '\', \'' + value + '\');"><img src="images/delete.png" title="Delete"/></a>';
-            			});
-           		}	
-           		//$(newwin.document,body).html(outstr);
-           		newwin.document.write(outstr);
+			$('#dialog1').dialog({
+				title : '',
+				height : 500,
+				width : 1000,
+			});
+			$(".ui-dialog-titlebar").hide();
+			$('#dialog1').html(result);				
 	            },
-				error : function(e) {
-					alert('error: ' + e.toString());
-				}                        
+			error : function(e) {
+				alert('error: ' + e.toString());
+			}                        
 	        });		
 	}
 
+	function listMgmt() {
+        $.ajax({
+            type : 'GET',
+            url : 'listMgmt',
+            success : function(result) {
+				$('#dialog1').dialog({
+					title : '',
+					height : 600,
+					width : 675,
+					
+				});
+				$(".ui-dialog-titlebar").hide();
+				$('#dialog1').html(result);				
+            },
+			error : function(e) {
+				alert('error: ' + e.toString());
+			}                        
+        });		
+	}
+	
 	function addCheckbox(name, val) {
 		   var container = $('#lists');
 		   var inputs = container.find('input');
@@ -125,10 +173,11 @@
 		astr += '<input id="listIds' + id + '" type="checkbox" class="chk_light" name="listIds" value="' + val + '"/></li>';
 		astr += '&nbsp;<a href="#" onclick="viewList(\''+val+'\')">View</a>';
 				
-		astr2 = '&nbsp;<a href="#" class="lnk_chk_001" onclick="viewList(\''+val+'\')">' + name + '</a>';
+		astr2 = '&nbsp;<a href="#"  onclick="viewList(\''+val+'\')">' + name + '</a>';
 		var astr1 = '<li>' + astr2;
-		astr1 += '<input id="listIds' + id + '"type="checkbox" class="chk_light" name="listIds" value="' + val + '"/></li>';
-		
+		astr1 += '&nbsp;<input id="listIds' + id + '"type="checkbox" class="chk_light" name="listIds" value="' + val + '"/>';
+		astr1 += '&nbsp;<a href="#" onclick="deleteList(\''+val+'\', \''+name+'\')"><img src="images/delete.png" title="Delete"/></a></li>';
+
 		//alert(astr);
 		
 		container.append(astr1);
@@ -169,14 +218,20 @@
 					$('#biz_info_2').html(outstr2);						
 					return;
 				}
-				outstr += category.businessName + '<br/>';
+				if (category.businessName != null) {
+					outstr += category.businessName + '<br/>';
+				}
 				if (category.website != null) {
 					outstr += category.website + '<br/>';
 				}
-				outstr += category.address + '<br/>';
-				outstr += category.city + ',' + category.state + '&nbsp;'
-						+ category.zip + '<br/>';
-				outstr += category.phone;
+				if (category.address != null) {
+					outstr += category.address + '<br/>';
+					outstr += category.city + ',' + category.state + '&nbsp;'
+						+ category.zip + '<br/>';					
+				}
+				if (category.phone != null && category.phone != '') {
+					outstr += '(' + category.phone.substring(0, 3) + ') ' + category.phone.substring(3, 6) + '-' + category.phone.substring(6);
+				}				
 				outstr += '<c:set var="userId" value="' + userId + '"/>';
 				outstr2 = '<td class="td_02"><a href="#" onclick="getProfile1('
 						+ userId + ')">Expand</a></td>';
@@ -210,7 +265,7 @@
                 	}  else {
                 	$('#lists').empty();
                         $.each(result, function(index, value) {
-							addCheckbox(value.listName, value.listId);
+					addCheckbox(value.listName, value.listId);
             			});
            			}			
 	            },
@@ -262,7 +317,10 @@
 	            url : 'sendMessage',
             	    data: $("#thisForm").serialize(),
 	            success : function(result) {
-            		alert(result);
+            		//alert(result);
+					//$('#errwin').html('<div align="center">' + result + '</div>');
+					//$( "#errwin" ).dialog('open');   
+					popup(result, 1);					
             		resetForm($('#thisForm'));
 				$('#sendNow').show();
 				$('#scheduleIt').show();	            		
@@ -275,7 +333,8 @@
 	        });		
 	}
 	
-	function getJobs() {
+	function getJobs1() {
+		/*
 		//check only if it is not Corporate
 		if ('${ltUser.user.roleActions[0].roleType}' != "Corporate") {
 			if ($('[name="officeIds"]:checked').length <= 0) {
@@ -283,6 +342,7 @@
 				return;
 			}
 		}
+		*/
 		
 	        $.ajax({
 	            type : 'GET',
@@ -298,17 +358,62 @@
 	        });	
 	}
 	
+	function getJobs() {
+	        $.ajax({
+	            type : 'GET',
+	            url : 'getScheduledJobs',
+            	    data: $("#thisForm").serialize(),
+	            success : function(result) {
+			$('#dialog1').dialog({
+				title : '',
+				height : 300,
+				width : 1000,
+			});
+			$(".ui-dialog-titlebar").hide();
+			$('#dialog1').html(result);				
+	            },
+			error : function(e) {
+				alert('error: ' + e.toString());
+			}                        
+	        });		
+	}	
+	
 	function checkAll() {	
 		var cblist = $("input[name='listIds']");				
 		cblist.prop("checked", ! cblist.prop("checked"));
 	}
+	
+	function deleteList(listId, listName) {	
+		var ok = confirm("Are you sure you want to delete list '" + listName + "' ?"); 
+		if (! ok)
+			return;
+		
+	        $.ajax({
+	            type : 'POST',
+	            url : 'deleteList',
+            	    data: 'listId=' + listId + '&listName=' + listName,
+	            success : function(result) {     
+	            	popup(result, 1);
+				},
+				error : function(e) {
+					alert('error: ' + e);
+				}                        
+	        });	
+	}	
 </script>
 
 <style>
-           .chkbox {
-                padding-left: 50px;
-                width: 15%;
-            }
+   .chkbox {
+	padding-left: 50px;
+	width: 15%;
+    }
+	
+    .ui-dialog { z-index: 20000001 !important ;}
+
+	.lispan {
+	float: left;
+	}       
+          
 </style>
 
   <!-- // header -->
@@ -316,9 +421,9 @@
   <div class="content_wrapper" id="content_wrapper">
    <form:form id="thisForm" method="post" action="dashboard" commandName="ltUser">
 
-		<div id="dialog1" title="Alert" style="display:none">
+		<div id="dialog1" style="display:none">
 		</div>
-		
+	
   	<!-- left side navigation -->
   	<ul class="ul_left_nav">
 			<c:if test = '${ltUser.user.roleActions[0].roleType == "Entity"}'>  	
@@ -326,6 +431,7 @@
 				<li class="si_custom_msg"><a href="customMessageEntity">Create Custom Message</a></li>
 				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>		
 				<li class="si_send_msg selected"><a href="sendMessage">Send Message</a></li>
+				<li class="si_sendafriend"><a href="sendAFriend">Send a Friend</a></li>
 				<li class="si_reports"><a href="getReports">Reports</a></li>     		
 				<li class="si_mobile_profile"><a href="getProfile">My Mobile Profile</a></li>	
 			</c:if>
@@ -339,6 +445,7 @@
 			<c:if test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
 				<li class="si_dashboard"><a href="dashboardCorp">Dashboard</a></li>	
 				<li class="si_custom_msg_approve"><a href="customMessageCorp">Approve Custom Messages</a></li>   
+				<li class="si_confirmation"><a href="confirmationMessage">Confirmation Message</a></li>					
 				<li class="si_send_msg"><a href="sendMessage">Send Message</a></li>	      	
 				<li class="si_search"><a href="corpSearch">Search</a></li>	
 				<li class="si_reports"><a href="getReports">Reports</a></li>	      	
@@ -358,7 +465,14 @@
       <!-- subheader -->
       <div class="subheader clearfix">
       	<h1>SEND MESSAGE</h1>
-        <p>Entity Id: <c:out value="${sites[0].customField1}"/></p>
+      	<c:choose>
+      		<c:when test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
+      			<p>Corporate</p>
+      		</c:when>
+      		<c:when test = '${ltUser.user.roleActions[0].roleType != "Corporate"}'>    		
+        		<p>Entity Id: <c:out value="${sites[0].customField1}"/></p>
+        	</c:when>
+		</c:choose>        	
       </div>
       <!-- // subheader -->
     	<div class="inner_box">
@@ -366,14 +480,25 @@
         <div class="box box_red_title box_send_msg">
         	<!-- title -->
         	<div class="box_title">
-          	<h2>Send Mesage</h2>
+          	<h2>Send Message</h2>
           </div>
           
-        <div  class="grid grid_06">
-			<label class="h3_sub" for="campaign">Campaign Name: </label>    
-			<form:input path="sendSearchKeywordString"/>
-			<a href="#" class="h3_sub" onclick="uploadList()">Upload List</a>			
-	    </div>
+          <div class="campaign">
+            <label for="campaign">Campaign Name:</label>
+            <form:input path="sendSearchKeywordString"/>
+                <c:choose>
+                        <c:when test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
+                                <a href="accountingSend" class="btn_dark_blue">OPERATIONS</a>
+                </c:when>
+                <c:otherwise>
+         <%--
+            <a href="#" onclick="uploadList()" class="btn_dark_blue">Upload List</a>
+         --%>
+           <a href="#" onclick="listMgmt()" class="btn_dark_blue">Create List</a>
+                </c:otherwise>
+            </c:choose>
+
+          </div>	    
 	              
           <!-- // title -->
           <!-- horizontal checkboxes wrapper -->
@@ -393,16 +518,32 @@
             </div>
           </div>              
           <!-- // horizontal checkboxes wrapper -->
+            	<h3 class="h3_sub ico_select">Select List of Mobile Numbers:</h3>
+              <div class="grey_box_01 mobile_numbers_wrapper">
+              	<div class="grey_box_title_01">
+                	<input type="checkbox" onclick="checkAll()" class="chk_dark" name="all_numbers" id="all_numbers">
+                  	<label for="all_numbers">Check All</label>                  	
+                </div>    
+		<ul class="ul_mn_scrollbox" id="id_mn_scrollbox">
+			<div id="lists">
+			</div>
+		</ul>  
+                <div class="floatfix"></div>
+              </div>             
+           <!-- // horizontal checkboxes wrapper -->
+         
+         <form:hidden path="sendSearchCityString"/>
+          
           <!-- two columns -->
           <div class="two_cols_wrapper_01 clearfix">
           	<!-- left column -->
-            <div class="left">
-            	<h3 class="h3_sub ico_select">Select a Message to Send:</h3>
+            	<h3 class="h3_sub ico_message">Select a Message to Send:</h3>
               <!-- tabs ///////////////////////////////////////////////////////////////////  -->
               <div class="tabs_01 tabs_height_01" id="tabs_01">
                 <ul class="ul_tabs_select">
                   <li class="tab_01"><a href="#tabs_01_1" class="selected">Corporate</a></li>
-                  <li class="tab_02"><a href="#tabs_01_2">Custom</a></li>
+                  <li class="tab_02"><a href="#tabs_01_2">Spanish</a></li>
+		  			<li class="tab_02"><a href="#tabs_01_3">Custom</a></li>                  
                 </ul>
                 <!-- tab 01 -->
                 <div class="tabs_01_content" id="tabs_01_1">
@@ -413,58 +554,63 @@
                       <!-- // tab 01 -->
                 <!-- tab 02 -->
                 <div class="tabs_01_content" id="tabs_01_2">
-                  <c:if test = "${fn:length(ltUser.customMsgs) > 0}">
+                  <c:if test = "${fn:length(ltUser.approvedMsgsSP) > 0}">
                   <ul class="ul_scroll_list scroll_list_001">          
-                  	<form:radiobuttons element="li" path="sendSearchDMAString" onchange="showSelectedMsg(this, 'Cust')" items="${ltUser.customMsgs}" itemValue="messageId" itemLabel="messageText"/>  
+                  	<form:radiobuttons element="li" path="sendSearchEntityIdString" onchange="showSelectedMsg(this, 'SP')" items="${ltUser.approvedMsgsSP}" itemValue="messageId" itemLabel="messageText"/>  
                   </ul>
                   </c:if>
                 </div>         
                 <!-- // tab 02 -->
+                <!-- tab 03 -->
+                <div class="tabs_01_content" id="tabs_01_3">
+                  <c:if test = "${fn:length(ltUser.customMsgs) > 0}">
+                  <ul class="ul_scroll_list scroll_list_001">  
+                  	<li><strong>If you have a message with single or double quotes, they will be escaped with the \ character in this list.
+                  	Don't worry - The message will appear correctly when it is received/viewed on the mobile phone
+                  	</strong></li>
+            		<c:forEach var="row" items="${ltUser.customMsgs}" varStatus="loopStatus">
+            		<li>
+            	<%--
+                 	<span class="lispan"><a href="JavaScript:void(0)" onclick="deleteMsg('${row.messageId}')" class="lnk_del_01"></a> </span>
+            	--%>
+                  	<form:radiobutton path="sendSearchDMAString" onchange="showSelectedMsg(this, 'Cust', '${row.messageText}')" value="messageId"/>${row.messageText}
+			</li>
+                  	</c:forEach>
+                  </ul>
+                  </c:if>
+                </div>         
+                <!-- // tab 03 -->                
               </div>
               <!-- // tabs ////////////////////////////////////////////////////////////////  -->
-            </div>
             <!-- // left column -->
 
           	<!-- right column -->
-            <div class="right">
-            	<div class="msg_content_box mcb_height_01">
-              	<h4>Message to Send:</h4>
-		<form:textarea path="sendSearchCityString" rows="4" class="ta_text_msg" readonly="true"/>				                
-                <div class="chk_wrapper clearfix">
+            <div class="btn_message_box bmb">
+              <div class="chk_container">
                 	<form:checkbox path="includePhone" id="includePhone" class="chk_light mr5"/>
                 	<label for="includePhone">Include default phone number</label>
-                </div>
+                	<br/>
+                	<form:checkbox path="includeLink" id="includeLink" class="chk_light mr5"/>
+                	<label for="includeLink">Include default link</label>                	
+              </div> 
+              		<br/>
 	          	<form:hidden path="nowSched" />
-                <center>
-					<input type="button" id="sendNow" onclick="sendIt('Y')" value="Send Now" class="btn_send_now">                	                	               	
-                </center>	        
-              </div>
+			<a href="#" id="sendNow" onclick="sendIt('Y')" class="btn_send_now_lnk lnk_centered"> Send Now </a>               	                	               	
+                <div>
+
+              </div>            
             </div>
             <!-- // right column -->
           </div>
           <!-- // two columns -->
 
           <!-- two columns -->
-          <div class="two_cols_wrapper_01 clearfix">
-          	<!-- left column -->
-            <div class="left">
-            	<h3 class="h3_sub ico_select">Select List of Mobile Numbers:</h3>
-              <div class="grey_box_01 mobile_numbers_wrapper">
-              	<div class="grey_box_title_01">
-                	<input type="checkbox" onclick="checkAll()" class="chk_dark" name="all_numbers" id="all_numbers">
-                  	<label for="all_numbers">Check All</label>                  	
-                </div>    
-		<ul class="ul_phone_numbers">
-			<div id="lists">
-			</div>
-		</ul>  
-                <div class="floatfix"></div>
-              </div>             
-            </div>               
-             <!-- // left column -->
+          <div class="two_cols_wrapper_01 clearfix" style="padding:0 0 0 15px;">
+
           	<!-- right column -->
-            <div class="right">
 	            <h3 class="h3_sub ico_schedule">Schedule for Later:</h3>
+	    <a href="#" onclick="getJobs()" class="lnk_scheduled"><font size="+0.5">See Scheduled Messages</font></a>
+	            
               <div class="grey_box_01">
               	<!-- date picker -->
                 <div class="date_picker">
@@ -527,7 +673,6 @@
 	<div class="btn_schedule_box">
 	  <center>
 	    <input type="button" id="scheduleIt" onclick="sendIt('N')" value="Schedule" class="btn_schedule"><br>
-	    <a href="#" onclick="getJobs()" class="lnk_scheduled">See Scheduled</a>
 	  </center>
 	</div>
                 
@@ -538,7 +683,6 @@
           <!-- // two columns -->
         </div>
       </div>
-    </div>
      <!-- // content area -->
     <!-- sidebar -->
     <div class="sidebar" id="id_sidebar">
@@ -555,31 +699,58 @@
           	<div class="info_title">
             	<a href="#" class="prevnext info_prev" id="id_prev_info"></a>
               <a href="#" class="prevnext info_next get_next_info"></a>
-              <h3>Information</h3>
+              <h3>Key Points For This Page</h3>
             </div>
             <!-- slider -->
             <div class="infoslider" id="infoslider">
             	<!-- slide -->
               <div class="slide">
               	<p>
-                	Now, you can instantly reach your customers with the latest deals, promos, discounts, and other general information about your business 
-                  using the power of text messaging&hellip; <b>any time of the day</b>!
-                </p>
-                <p class="p_small">
-                	Don't forget&hellip; it is important to <span class="sp_red">PROMOTE, PROMOTE, PROMOTE</span> your call to action. You can send the best offers to your subscribers, 
-                  but customers will only know you are there if you promote.
+	<ul>
+	<li><b>1. NAME YOUR CAMPAIGN</b> - NO ONE other then you will ever see this.  Your campaign names 
+	appear in the reports for you to identify the messages you have sent out.</li><p/>
+	<li><b>2. SELECT YOUR OFFICE(s)</b> - When you select your office(s), the corresponding opt-in list 
+	will appear below.</li><p/>
+	<li><b>3. SELECT YOUR LIST</b> - Choose the list(s) that you would like to send your message to. 
+	To see the numbers in your list, click on the KEYWORD, and a pop-up will show you all of your 
+	mobile numbers.  You may also notice customer names and opt-in timestamps in your list. </li><p/>	
+	</ul>
                 </p>
               </div>
               <!-- // slide -->
             	<!-- slide -->
               <div class="slide">
               	<p>
-                	1 Now, you can instantly reach your customers with the latest deals, promos, discounts, and other general information about your business 
-                  using the power of text messaging&hellip; <b>any time of the day</b>!
+	<ul>
+	<li><b>4. SELECT A MESSAGE</b> - Click on one of the standard corporate messages, or pick from 
+	one of the custom messages if you have created one.</li><p/>
+	<li><b>5. SEND or SCHEDULE </b> - You can send a message immediately by clicking the green "SEND NOW"
+		button, or you can click the blue "SCHEDULE" button to schedule a message to go out at a 
+		later time. There are 2 check boxes in this section. The first check box allows you 
+		to include your office number, and the second check box is to include your office page 
+		link.  The office page link will only go out if you are sending from the OFFICE level 
+		login.  If you send from the ENTITY level login, the corporate link will be sent out 
+		with the message.</li><p/>	
+	</ul>              	
                 </p>
               </div>
               <!-- // slide -->
 
+            	<!-- slide -->
+              <div class="slide">
+              	<p>
+	<ul>
+	<li><b>6. SEE SCHEDULED MESSAGES</b> - If you click on this link, you will see all messages 
+		scheduled to go out in the future.</li><p/>
+	<li><b>7. ***Create List***</b> This is a new feature that allows you to create sub-lists from 
+		your main opt-in list.  Click on CREATE LIST, give your list a name, select numbers from 
+		your opt-in list on the left, and arrow them over to the right.  These numbers will never 
+		disappear from your main opt-in list. Once you have selected all the numbers for your new 
+		list, click the SAVE button. <b>ONCE YOU SET A LIST, YOU CANNOT MODIFY IT.</b></li>
+	</ul>              	
+                </p>
+              </div>
+              <!-- // slide -->
             </div>
             <!-- // slider -->
             <div class="infonext_wrapper"><a href="#" class="lnk_infonext get_next_info">Next</a></div>
@@ -605,8 +776,18 @@
                   		<c:set var="userId" value="${ltUser.category.userId}"/>
 				<c:out value="${ltUser.category.businessName}"/>
 				<br/>
-				<c:out value="${ltUser.category.website}"/>						
-				<br/>
+				<c:choose>
+				<c:when test = '${fn:length(ltUser.sites[0].customField2) > 0}'>	
+					<c:set var="website" value="http://libertytax.com/${ltUser.sites[0].customField2}"/>									
+				</c:when>
+				<c:otherwise>		
+					<c:set var="website" value="http://libertytax.com"/>														
+				</c:otherwise>
+				</c:choose>
+				<c:if test="${fn:length(website) > 0}">
+					<c:out value="${website}"/>
+					<br/>
+				</c:if>				
 				<c:out value="${ltUser.category.address}"/>
 				<br/>
 				<c:out value="${ltUser.category.city}"/>, 
@@ -649,7 +830,14 @@
                 <li><img src="images/hotspot_thumb_008.png" width="44" height="44"></li>
               </ul>
               <div class="btn_hotspot_wrapper">
-              	<a href="javascript:createHotspot('${keyword}');" class="btn_dark_blue btn_hotspot">Get My Hotspot!</a>
+                <c:choose>
+              	<c:when test = '${ltUser.user.roleActions[0].roleType == "Corporate"}'>
+              		<h3>Please go to the Send Message page to get your hotspot</h3>
+              	</c:when>
+              	<c:otherwise>
+              		<h3>Please go to the Dashboard page to get your hotspot</h3>              	
+              	</c:otherwise>
+              	</c:choose>                
               </div>
             </div>
           </div>

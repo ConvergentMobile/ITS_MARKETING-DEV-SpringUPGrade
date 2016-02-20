@@ -7,6 +7,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import liberty.CustomFields;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -46,11 +48,21 @@ public class LTSUserDetailsService implements UserDetailsService {
 			
 			//User user = new LTUserDAOManager().getUser(Long.valueOf(userId));
 			List<RoleAction> roleActions = new LTUserDAOManager().getRoleActions(role);
+			if (roleActions == null || roleActions.isEmpty()) {
+				request.setAttribute("errorMsg", "Invalid role");
+				throw new Exception("Role is not valid");
+			}
 			//check if this is a Corporate user
 			if (roleActions.get(0).getRoleType().equals("Corporate")) {
 				user = new User();
 				user.setUserId(0L); //set this so that ReportAction.setup does not barf
 			} else {
+				if (role.equals("OfficeMarketing")) { //comes in with officeId so get the entityId from this
+					CustomFields cf = new LTUserDAOManager().getCustomFields(eId, 2);
+					eId = cf.getEntityId();
+					logger.debug("Usig entityId: " + eId);
+				}
+				
 				user = new LTUserDAOManager().loginLT(roleActions.get(0).getRoleType(), eId);
 			}
 			user.setRoleActions(roleActions);

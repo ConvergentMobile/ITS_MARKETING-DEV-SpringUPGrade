@@ -4,6 +4,7 @@
 
   <!-- footer -->
   <div class="footer">
+  	<div align="center"><font color="white"><h2>Need HELP? Having an ISSUE? Email <a style="color: white" href="mailto:support@us411.co">support@us411.co</a></h2></font></div>
   	<div class="powered">Powered by</div>
   </div>
   <!-- // footer -->
