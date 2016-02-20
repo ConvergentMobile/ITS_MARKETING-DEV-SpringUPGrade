@@ -1,0 +1,52 @@
+<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+ 
+ <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+<script language="JavaScript">
+    	function createMessage() {
+            $.ajax({
+                type : 'POST',
+                url : 'createCorpMessage',
+                data: $("#thisForm1").serialize(),
+                success : function(result) {
+            		alert(result);
+            		location.reload();            		
+    			},
+    			error : function(e) {
+    				alert('error: ' + e.text());
+    			}                        
+            });
+    	}   
+</script>
+	
+   <form:form id="thisForm1" method="post" action="dashboard" commandName="ltUser">
+         <div class="sb_title sb_title_ico ico_sb_mobile">  
+                 <h2 class="Mobile Marketing">Create Message</h2>
+               </div>
+               <!-- // title -->
+               <!-- corp msg wrapper -->
+               <div class="corp_msg_wrapper">
+                 <!-- corp msg box -->
+                 <div class="corp_msg_box">
+                 <!-- 
+                   <div class="chk_wrapper_01 clearfix">
+                   </div>
+                 -->
+                   <h4>Message Text</h4>
+                   <div class="corp_msg_text" id="id_corp_msg">
+   					<form:textarea path="adNewMsg" rows="3" cols="60"/>         
+                   </div>
+                   <br/>
+                   <div class="btn_04_wrapper">
+                   	<input type="button" onclick="createMessage()" value="Create Message" class="btn_dark_blue btn_04"></td>         	
+                   </div>
+                 </div>
+              <!-- corp msg box -->
+   
+	
+    
+   </form:form>

@@ -1,0 +1,160 @@
+/* ex-01.css */
+
+.si_sendafriend a { 
+	background: url(../images/ico_si_sendafriend.png) 60px  8px no-repeat; 
+}
+
+.box_send_friend h2 { 
+	background: url(../images/ico_title_send_friend.png) 19px 50% no-repeat; 
+}
+
+.tabs_03_content {
+	margin: 0 1px 0 1px;
+	padding: 3px 0 0 0;
+	overflow: hidden;
+	background: #ebeef3;
+	border-top:    #cecfd1 1px solid;
+	border-bottom: #f9fafa 1px solid;
+
+	position: relative;
+	zoom: 1;
+
+	/* behavior: url(PIE.htc); */
+}
+
+a.btn_save_lnk_003 {
+	width: 150px;
+	height: 40px;
+	overflow: hidden;
+	display: block;
+	margin: 0 auto;
+	margin-top: 5px;
+	padding: 0 0 1px 0;
+	font-family: OpenSansRegular, Arial, Helvetica, sans-serif;
+	font-size: 18px;
+	line-height: 41px;
+	text-align: center;
+	text-decoration: none;
+	text-transform: uppercase;
+	cursor: pointer;
+	color: #fff;
+	background: #34b46c url(../images/btn_save_03.png) 0 0 repeat-x;
+
+	position: relative;
+	zoom: 1;
+	
+	border: #27a55e 1px solid;
+
+	-moz-border-radius:    2px;
+	-webkit-border-radius: 2px;
+	-khtml-border-radius:  2px;
+	 border-radius:        2px;
+
+	behavior: url(PIE.htc);
+}
+
+a.btn_save_lnk_003:hover, a.btn_save_lnk_003:focus { 
+	text-decoration: none;
+	border: #27a55e 1px solid;
+	background: #34b46c; 
+}
+
+.cust_001 {
+	margin: 0 10px 0 20px;
+	font-family: OpenSansRegular, Arial, Helvetica, sans-serif;
+	font-size: 18px;
+	line-height: 51px;
+	color: #242c30;
+	border-bottom: #cecfd1 1px solid;
+}
+
+.cust_002 {
+	margin: 0 10px 0 20px;
+	font-family: OpenSansRegular, Arial, Helvetica, sans-serif;
+	font-size: 18px;
+	line-height: 51px;
+	color: #242c30;
+}
+
+.cust_001 label,
+.cust_002 label { 
+	padding: 0 10px 0 5px;
+	float: none; 
+	display: inline-block;
+}
+
+.radio_cust_001 {
+	display: none;
+}
+
+.ctitle_01 { margin-right: 5px; }
+
+.radio_cust_001 + label span {
+	width: 18px;
+	height: 18px;
+	margin: -2px 7px 0 0;
+	display: inline-block;
+	vertical-align: middle;
+	background: url(../images/radio.png) 0 0 no-repeat;
+	cursor: pointer;
+}
+
+.radio_cust_001:checked + label span {
+	background: url(../images/radio.png) 0 -18px no-repeat;
+}
+
+.chk_same_settings {
+	display: none;
+}
+
+.chk_same_settings + label span {
+	width: 17px;
+	height: 18px;
+	margin: -2px 7px 0 15px;
+	display: inline-block;
+	vertical-align: middle;
+	background: url(../images/checkbox_001.png) 0 0 no-repeat;
+	cursor: pointer;
+}
+
+.chk_same_settings:checked + label span {
+	background: url(../images/checkbox_001.png) 0 -18px no-repeat;
+}
+
+.info_title h3.saf {
+	margin: 0 0 0 20px;
+	padding: 0 0 0 40px;
+	font: 17px/48px OpenSansRegular, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	float: none;
+	background: url(../images/ico_saf_info.png) 0 50% no-repeat;
+}
+
+.entity_optin_chk_wrapper {
+	padding: 23px 0 15px 0;
+	text-align: center;
+}
+
+.entity_optin_chk_wrapper label {
+	font-family: OpenSansRegular, Arial, Helvetica, sans-serif;
+	font-size: 16px;
+}
+
+.chk_003 {
+	display: none;
+}
+
+.chk_003 + label span {
+	width: 17px;
+	height: 18px;
+	margin: -3px 7px 0 15px;
+	display: inline-block;
+	vertical-align: middle;
+	background: url(../images/checkbox_001.png) 0 0 no-repeat;
+	cursor: pointer;
+}
+
+.chk_003:checked + label span {
+	background: url(../images/checkbox_001.png) 0 -18px no-repeat;
+}
+
