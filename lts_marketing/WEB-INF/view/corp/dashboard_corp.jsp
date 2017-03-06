@@ -594,13 +594,10 @@
         <div class="sb_box">
           <!-- information wrapper -->
           <div class="information_wrapper">
-                <p>
-                <div align="center">
+                <!-- <div align="center">
                     <a href="#" onclick="usageReport()" class="btn_dark_blue btn_03_lnk">Usage Report</a>
-                </div>          
+                </div>           -->
           	<div class="info_title">
-            	<a href="#" class="prevnext info_prev" id="id_prev_info"></a>
-              <a href="#" class="prevnext info_next get_next_info"></a>
               <h3>Information</h3>
             </div>            
             <!-- slider -->
@@ -627,7 +624,10 @@
 
             </div>
             <!-- // slider -->
-            <div class="infonext_wrapper"><a href="#" class="lnk_infonext get_next_info">Next</a></div>
+            <div class="infonext_wrapper">
+            	<a href="#" class="lnk_infoprev get_prev_info">Prev</a>
+            	<a href="#" class="lnk_infonext get_next_info">Next</a>
+            </div>
           </div>
           
           <!-- // information wrapper -->
@@ -635,13 +635,13 @@
           <div class="biz_info_wrapper">
             <!-- title -->
             <div class="sb_title sb_title_ico box_opt-out">
-              <h2>Corporate Opt-Out</h2>
+              <h2>Opt-Out</h2>
             </div>
             <!-- // title -->
             <!-- corp msg wrapper -->
             <div class="wide_column_wrapper search_container">
-            <p>This will allow you to opt-out any number in all the liberty tax us411 database. If the number is not in the lts database you will be notified.</p>
-            <div class="mt40 corp">
+            <p style="height: 55px;">This will allow you to opt-out any number in all the liberty tax us411 database. If the number is not in the lts database you will be notified.</p>
+            <div class="mt20 corp">
               <form:input path="searchCityString" placeholder="Enter a number to opt-out"/>
               <%--
               <a href="#" onclick="optout()" class="btn_dark_blue btn_03_lnk popup-with-zoom-anim">Submit</a>

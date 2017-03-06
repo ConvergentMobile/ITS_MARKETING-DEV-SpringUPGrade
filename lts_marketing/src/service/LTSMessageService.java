@@ -22,6 +22,7 @@ public interface LTSMessageService {
 	public void saveList(TargetUserList tul, List<TargetListData> tListData);
 	public void sendMessageNewAcctg(Campaign campaign) throws Exception;
 	
-	public void sendMessage2(String pNum, String msgText, String custId) throws Exception;
+	public void sendMessage2(String pNum, String msgText, String custId, String loc) throws Exception;
 	public boolean checkOptedOut(String smsto, String keyword, String shortcode) throws Exception;
+	public void sendMessage1(Campaign campaign, Long userId) throws Exception;
 }

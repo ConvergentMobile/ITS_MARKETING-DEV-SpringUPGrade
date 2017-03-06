@@ -96,6 +96,22 @@ public class Utility {
 		return tmp;
 	}
 	
+	public String formatPhone(String pnum) throws Exception {
+		if (pnum == null)
+			return null;
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("1");
+
+		if (pnum.length() > 10) {
+			pnum = pnum.substring(1);
+		}
+		sb.append("(").append(pnum.substring(0, 3)).append(")");
+		sb.append(pnum.substring(3, 6)).append("-").append(pnum.substring(6));
+		
+		return sb.toString();
+	}
+	
     public void createFile(List<ValueObject> rows) throws Exception {
         HSSFWorkbook workbook = new HSSFWorkbook();
                 HSSFSheet sheet = workbook.createSheet("Usage Report");
@@ -188,5 +204,44 @@ public class Utility {
 		} catch (Exception e) {
 			return longUrl;
 		}  
+	}
+	
+	//checks if we are in the 8am - 8pm window
+	public Boolean inWindow(Integer delay, String userTZ) throws Exception {		
+		Calendar cal = Calendar.getInstance();
+
+		int hour = cal.get(Calendar.HOUR_OF_DAY);
+
+		cal.setTimeZone(TimeZone.getTimeZone(userTZ));
+		
+		if (delay != null)
+			cal.add(Calendar.HOUR, delay);
+		
+		Date userDate = cal.getTime();
+		
+		cal.set(Calendar.HOUR_OF_DAY, 8);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		
+		if (hour >= 0 && hour < 12)
+                        cal.set(Calendar.DAY_OF_MONTH, cal.get(Calendar.DAY_OF_MONTH)-1);
+
+		Date windowStart = cal.getTime();
+
+		cal.set(Calendar.HOUR_OF_DAY, 20);
+
+		//if (hour >= 0 && hour < 12)
+                        //cal.set(Calendar.DAY_OF_MONTH, cal.get(Calendar.DAY_OF_MONTH)-1);
+
+		Date windowEnd = cal.getTime();
+
+		logger.debug("userDate: " + userDate);
+		logger.debug("windowStart: " + windowStart);
+		logger.debug("windowEnd: " + windowEnd);
+
+		if (userDate.compareTo(windowStart) >= 0 && userDate.compareTo(windowEnd) <= 0)
+			return true;
+		
+		return false;		
 	}
 }

@@ -8,6 +8,27 @@
 .no-close .ui-dialog-titlebar-close {
 display: none;
 </style>
+<script>
+  $(document).ready(function() {
+    Tipped.create('#tabs-01', 'Liberty English');
+    Tipped.create('#tabs-02', 'Liberty Spanish');
+    Tipped.create('#tabs-03', 'Siempre English');
+    Tipped.create('#tabs-04', 'Siempre Spanish');
+    Tipped.create('#tabs-05', 'Juntos Podemos English');
+    Tipped.create('#tabs-06', 'Juntos Podemos Spanish');
+    Tipped.create('#tabs-07', 'Custom');
+    Tipped.create('#tabs-08', 'Liberty English');
+    Tipped.create('#tabs-09', 'Liberty Spanish');
+    Tipped.create('#tabs-10', 'Siempre English');
+    Tipped.create('#tabs-11', 'Siempre Spanish');
+    Tipped.create('#tabs-12', 'Juntos Podemos English');
+    Tipped.create('#tabs-13', 'Juntos Podemos Spanish');
+    Tipped.create('#tabs-14', 'Custom');
+  });
+</script>
+
+<script type="text/javascript" src="js/tipped.js"></script>
+<link rel="stylesheet" type="text/css" href="css/tipped.css" />
 
 <script type="text/JavaScript">	
 	function resetForm() {
@@ -187,7 +208,7 @@ display: none;
     </ul>
     <!-- // left side navigation -->
     <!-- content area -->
-    <div class="content" id="id_content">
+    <div class="content" id="id_content_10">
     
     	<div class="nav_pointer pos_01"></div>
       <!-- subheader -->
@@ -231,9 +252,13 @@ display: none;
               <!-- tabs ///////////////////////////////////////////////////////////////////  -->
               <div class="tabs_01 tabs_height_02" id="tabs_01">
                 <ul class="ul_tabs_select">
-                  <li class="tab_01"><a href="#tabs_01_1" class="selected">Corporate</a></li>
-                  <li class="tab_02"><a href="#tabs_01_2">Spanish</a></li>
-                  <li class="tab_02"><a href="#tabs_01_3">Custom</a></li>                  
+                  <li class="tab_01"><a href="#tabs_01_1" class="selected" id="tabs-01">LTS ENG</a></li>
+                  <li class="tab_02"><a href="#tabs_01_2" id="tabs-02">LTS SPAN</a></li>
+                  <li class="tab_02"><a href="#tabs_01_3" id="tabs-03">ST ENG</a></li>                  
+                  <li class="tab_02"><a href="#tabs_01_4" id="tabs-04">ST SPAN</a></li>                  
+                  <li class="tab_02"><a href="#tabs_01_5" id="tabs-05">JP ENG</a></li>                  
+                  <li class="tab_02"><a href="#tabs_01_6" id="tabs-06">JP SPAN</a></li>                  
+                  <li class="tab_02"><a href="#tabs_01_7" id="tabs-07">CUSTOM</a></li>                  
                 </ul>
                 <!-- tab 01 -->
                 <div class="tabs_02_content" id="tabs_01_1">
@@ -257,22 +282,70 @@ display: none;
                  <!-- // tab 02 -->                 
                  <!-- tab 03 -->
                  <div class="tabs_02_content" id="tabs_01_3">
-                 <c:if test = "${fn:length(ltUser.customMsgs) > 0}" >
+                 <c:if test = "${fn:length(ltUser.approvedMsgsST) > 0}" >
                    <ul class="ul_scroll_list scroll_list_001">   
-                  <c:if test="${fn:length(ltUser.customMsgs) > 0}">                   
-                   	<form:radiobuttons element="li" path="sendSearchEntityIdString" onchange="showSelectedMsg(this, 'Cust', 'ini')" 
-                   		items="${ltUser.customMsgs}" itemValue="messageId" itemLabel="messageText"/>  
+                  <c:if test="${fn:length(ltUser.approvedMsgsST) > 0}">                   
+                   	<form:radiobuttons element="li" path="sendSearchEntityIdString" onchange="showSelectedMsg(this, 'Corp', 'ini')" 
+                   		items="${ltUser.approvedMsgsST}" itemValue="messageId" itemLabel="messageText"/>  
                    </c:if>
                    </ul>
                  </c:if>
                  </div>         
                 <!-- // tab 03 -->
+                <!-- tab 04 -->
+                 <div class="tabs_02_content" id="tabs_01_4">
+                 <c:if test = "${fn:length(ltUser.approvedMsgsSTSP) > 0}" >
+                   <ul class="ul_scroll_list scroll_list_001">   
+                  <c:if test="${fn:length(ltUser.approvedMsgsSTSP) > 0}">                   
+                    <form:radiobuttons element="li" path="sendSearchEntityIdString" onchange="showSelectedMsg(this, 'Corp', 'ini')" 
+                      items="${ltUser.approvedMsgsSTSP}" itemValue="messageId" itemLabel="messageText"/>  
+                   </c:if>
+                   </ul>
+                 </c:if>
+                 </div>         
+                <!-- // tab 04 -->
+                <!-- tab 05 -->
+                 <div class="tabs_02_content" id="tabs_01_5">
+                 <c:if test = "${fn:length(ltUser.approvedMsgsJT) > 0}" >
+                   <ul class="ul_scroll_list scroll_list_001">   
+                  <c:if test="${fn:length(ltUser.approvedMsgsJT) > 0}">                   
+                    <form:radiobuttons element="li" path="sendSearchEntityIdString" onchange="showSelectedMsg(this, 'Corp', 'ini')" 
+                      items="${ltUser.approvedMsgsJT}" itemValue="messageId" itemLabel="messageText"/>  
+                   </c:if>
+                   </ul>
+                 </c:if>
+                 </div>         
+                <!-- // tab 05 -->
+                <!-- tab 06 -->
+                 <div class="tabs_02_content" id="tabs_01_6">
+                 <c:if test = "${fn:length(ltUser.approvedMsgsJTSP) > 0}" >
+                   <ul class="ul_scroll_list scroll_list_001">   
+                  <c:if test="${fn:length(ltUser.approvedMsgsJTSP) > 0}">                   
+                    <form:radiobuttons element="li" path="sendSearchEntityIdString" onchange="showSelectedMsg(this, 'Corp', 'ini')" 
+                      items="${ltUser.approvedMsgsJTSP}" itemValue="messageId" itemLabel="messageText"/>  
+                   </c:if>
+                   </ul>
+                 </c:if>
+                 </div>         
+                <!-- // tab 06 -->
+                <!-- tab 07 -->
+                 <div class="tabs_02_content" id="tabs_01_7">
+                 <c:if test = "${fn:length(ltUser.customMsgs) > 0}" >
+                   <ul class="ul_scroll_list scroll_list_001">   
+                  <c:if test="${fn:length(ltUser.customMsgs) > 0}">                   
+                    <form:radiobuttons element="li" path="sendSearchEntityIdString" onchange="showSelectedMsg(this, 'Cust', 'ini')" 
+                      items="${ltUser.customMsgs}" itemValue="messageId" itemLabel="messageText"/>  
+                   </c:if>
+                   </ul>
+                 </c:if>
+                 </div>         
+                <!-- // tab 07 -->
               </div>
               <!-- // tabs ////////////////////////////////////////////////////////////////  -->
             <!-- // left column -->
 
           <!-- right column -->
-            <div class="btn_message_box">
+            <div class="btn_message_box" style="margin-top: 35px;">
                 <div class="box_curr_message">
                   <label>Current message:</label>
 			<form:textarea path="category.initialMessage" rows="4" readonly="true"/>				                						
@@ -280,7 +353,7 @@ display: none;
                 <div class="chk_wrapper clearfix">
                 	<form:checkbox path="category.includePhoneIni" class="chk_light mr5" />
                 	<label for="include_phone">Include default phone number</label>
-                	<input type="button" value="Save" onclick="saveMsg('ini')" class="btn_green btn_save">               
+                	<input type="button" value="Save" onclick="saveMsg('ini')" class="btn_green btn_save mt10">               
                </div>
                 <div class="clearfix"></div>    
             </div>
@@ -306,9 +379,13 @@ display: none;
               <!-- tabs ///////////////////////////////////////////////////////////////////  -->
               <div class="tabs_01 tabs_height_02" id="tabs_01">
                 <ul class="ul_tabs_select">
-                  <li class="tab_01"><a href="#tabs_02_1" class="selected">Corporate</a></li>
-                  <li class="tab_02"><a href="#tabs_02_2">Spanish</a></li>
-                  <li class="tab_02"><a href="#tabs_02_3">Custom</a></li>                  
+                  <li class="tab_01"><a href="#tabs_02_1" class="selected" id="tabs-08">LTS ENG</a></li>
+                  <li class="tab_02"><a href="#tabs_02_2" id="tabs-09">LTS SPAN</a></li>
+                  <li class="tab_02"><a href="#tabs_02_3" id="tabs-10">ST ENG</a></li>                  
+                  <li class="tab_02"><a href="#tabs_02_4" id="tabs-11">ST SPAN</a></li>                  
+                  <li class="tab_02"><a href="#tabs_02_5" id="tabs-12">JP ENG</a></li>                  
+                  <li class="tab_02"><a href="#tabs_02_6" id="tabs-13">JP SPAN</a></li>                  
+                  <li class="tab_02"><a href="#tabs_02_7" id="tabs-14">CUSTOM</a></li>                  
                 </ul>
                 <!-- tab 01 -->
                 <div class="tabs_02_content" id="tabs_02_1">
@@ -332,20 +409,59 @@ display: none;
                  <!-- // tab 02 -->                 
                 <!-- tab 03 -->
                 <div class="tabs_02_content" id="tabs_02_3">
-                 <c:if test = "${fn:length(ltUser.customMsgs) > 0}" >                              
+                 <c:if test = "${fn:length(ltUser.approvedMsgsST) > 0}" >                              
                   <ul class="ul_scroll_list scroll_list_002">  
-                   	<form:radiobuttons element="li" path="sendSearchDMAString" onchange="showSelectedMsg(this, 'Cust', 'rpt')" 
-                   		items="${ltUser.customMsgs}" itemValue="messageId" itemLabel="messageText"/>  
+                   	<form:radiobuttons element="li" path="sendSearchDMAString" onchange="showSelectedMsg(this, 'Corp', 'rpt')" 
+                   		items="${ltUser.approvedMsgsST}" itemValue="messageId" itemLabel="messageText"/>  
                    </ul>
                  </c:if>
                  </div>  
                 <!-- // tab 03 -->
-              </div>
+                <!-- tab 04 -->
+                <div class="tabs_02_content" id="tabs_02_4">
+                 <c:if test = "${fn:length(ltUser.approvedMsgsSTSP) > 0}" >                              
+                  <ul class="ul_scroll_list scroll_list_002">  
+                    <form:radiobuttons element="li" path="sendSearchDMAString" onchange="showSelectedMsg(this, 'Corp', 'rpt')" 
+                      items="${ltUser.approvedMsgsSTSP}" itemValue="messageId" itemLabel="messageText"/>  
+                   </ul>
+                 </c:if>
+                 </div>  
+                <!-- // tab 04 -->
+                <!-- tab 05 -->
+                <div class="tabs_02_content" id="tabs_02_5">
+                 <c:if test = "${fn:length(ltUser.approvedMsgsJT) > 0}" >                              
+                  <ul class="ul_scroll_list scroll_list_002">  
+                    <form:radiobuttons element="li" path="sendSearchDMAString" onchange="showSelectedMsg(this, 'Corp', 'rpt')" 
+                      items="${ltUser.approvedMsgsJT}" itemValue="messageId" itemLabel="messageText"/>  
+                   </ul>
+                 </c:if>
+                 </div>  
+                <!-- // tab 05 -->
+                <!-- tab 06 -->
+                <div class="tabs_02_content" id="tabs_02_6">
+                 <c:if test = "${fn:length(ltUser.approvedMsgsJTSP) > 0}" >                              
+                  <ul class="ul_scroll_list scroll_list_002">  
+                    <form:radiobuttons element="li" path="sendSearchDMAString" onchange="showSelectedMsg(this, 'Corp', 'rpt')" 
+                      items="${ltUser.approvedMsgsJTSP}" itemValue="messageId" itemLabel="messageText"/>  
+                   </ul>
+                 </c:if>
+                 </div>  
+                <!-- // tab 06 -->
+                <!-- tab 07 -->
+                <div class="tabs_02_content" id="tabs_02_7">
+                 <c:if test = "${fn:length(ltUser.customMsgs) > 0}" >                              
+                  <ul class="ul_scroll_list scroll_list_002">  
+                    <form:radiobuttons element="li" path="sendSearchDMAString" onchange="showSelectedMsg(this, 'Cust', 'rpt')" 
+                      items="${ltUser.customMsgs}" itemValue="messageId" itemLabel="messageText"/>  
+                   </ul>
+                 </c:if>
+                 </div>  
+                <!-- // tab 07 -->
               <!-- // tabs ////////////////////////////////////////////////////////////////  -->
             <!-- // left column -->
-            
+            </div>
           	<!-- right column -->
-            <div class="btn_message_box">
+            <div class="btn_message_box" style="margin-top: 35px;">
                 <div class="box_curr_message">
                   <label>Current message:</label>
 			<form:textarea path="category.autoResponse" rows="4" readonly="true"/>				                						
@@ -353,7 +469,7 @@ display: none;
                 <div class="chk_wrapper clearfix">
                 	<form:checkbox path="category.includePhoneRpt" class="chk_light mr5" />
                 	<label for="include_phone">Include default phone number</label>
-                	<input type="button" value="Save" onclick="saveMsg('rpt')" class="btn_green btn_save">               
+                	<input type="button" value="Save" onclick="saveMsg('rpt')" class="btn_green btn_save mt10">               
                </div>
                 <div class="clearfix"></div>               
             </div>
@@ -367,7 +483,7 @@ display: none;
     <!-- // content area -->
     <!-- sidebar -->
     
-    <div class="sidebar" id="id_sidebar">
+    <div class="sidebar" id="id_sidebar_10">
     	<div class="inner">
       	<!-- title -->
         <div class="sb_title sb_title_ico ico_sb_mobile">
@@ -377,10 +493,8 @@ display: none;
         <!-- sidebar box -->
         <div class="sb_box">
           <!-- information wrapper -->
-          <div class="information_wrapper">
+          <div class="information_wrapper" style="height: 416px;">
           	<div class="info_title">
-            	<a href="#" class="prevnext info_prev" id="id_prev_info"></a>
-              <a href="#" class="prevnext info_next get_next_info"></a>
               <h3>Key Points For This Page</h3>
             </div>
             <!-- slider -->
@@ -403,8 +517,12 @@ no need to select a message for this box unless you really want to.</li>
 
             </div>
             <!-- // slider -->
+            <!-- <div class="infonext_wrapper"><a href="#" class="lnk_infoprev get_prev_info" id="id_prev_info">Prev</a>
+            <a href="#" class="lnk_infonext get_next_info">Next</a></div> -->
           </div>
+
           <!-- // information wrapper -->
+
           <!-- biz info wrapper -->
           <div class="biz_info_wrapper">
             <!-- title -->
@@ -509,4 +627,5 @@ no need to select a message for this box unless you really want to.</li>
 </div>
 	
 <!-- // page wrapper -->
-   
+  
+

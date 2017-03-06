@@ -441,7 +441,7 @@ public class LTReportDAOManager extends ReportDAOManager {
 	
 	//campaign summary
 	public List<ReportData> getCampaignSummary(Map params, int offset, int numRecords, String sortField, String sortOrder) throws Exception {
-		String sql = "select c.name column1, c.start_date column2, c.message_text column3, "
+		String sql = "select c.name column1, c.last_updated column2, c.message_text column3, "
 					+ " (select count(*) from message_statistics_detail msd where msd.campaign_id = c.campaign_id) column4"
 					+ " from campaign c"
 					+ " where c.user_id = ?";
@@ -509,10 +509,11 @@ public class LTReportDAOManager extends ReportDAOManager {
 	public List<ReportData> getCampaignDetail(Map params, int offset, int numRecords, String sortField, String sortOrder) throws Exception {
 		String sql = "select c.name column5, c.start_date column6, c.message_text column7, "
 					+ " msd.mobile_phone column2, msd.status column3, msd.last_updated column4,"
-					+ " (select concat(first_name, ' ', last_name) from target_list_data tld, target_user_list tul"
+					+ " (select concat(tld.first_name, ' ', tld.last_name) from target_list_data tld, target_user_list tul, user u"
 					+ " 	where tld.mobile_phone = msd.mobile_phone"
 					+ " 	and tul.list_id = tld.list_id"
-					+ " 	and tul.user_id = c.user_id) column1"
+					+ " 	and tul.user_id = u.user_id"
+					+ "		and u.keyword = c.keyword) column1"
 					+ " from campaign c, message_statistics_detail msd"
 					+ " where msd.campaign_id = c.campaign_id"
 					+ " and c.campaign_id = ?"
@@ -634,6 +635,7 @@ public class LTReportDAOManager extends ReportDAOManager {
 					+ " where msd.campaign_id = c.campaign_id"
 					+ " and c.name = 'SAF'"
 					+ " and c.user_id = ?"
+					+ " and c.user_id = 0"
 					+ " order by c.start_date desc";
 		
 		String sql = "SELECT "
@@ -647,6 +649,7 @@ public class LTReportDAOManager extends ReportDAOManager {
 				+ " and msd.mobile_phone = concat('1', saf.mobile_phone)"
 				+ " and msd.customer_id_1 = 'SAF'"
 				+ " and msd.campaign_id = c.campaign_id"
+				+ " and c.user_id = 0"				
 				+ " order by c.start_date desc";
 	
 		if (sortField != null && sortField.length() > 0)

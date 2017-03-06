@@ -77,20 +77,29 @@
 	}
 </script>
 		
-		
+
 			<div id="content" class="inner">
 			
 			<form:form id="thisForm_dialog" method="post" action="" commandName="ltUser">
 
-			<h3>Get Your Keyword</h3>
-			<hr/>
-        		
+			<div class="my_popup_03 mpu_02" id="id_popup_01">
+	<div class="mpu_wrapper">
+  	<!-- title -->
+    <div class="mpu_title">
+    	<table cellpadding="0" cellspacing="0" border="0" width="100%">
+      <tr>
+      	<td style="text-align:center"><h3>Get Your Keyword</h3></td>
+      	<td><button title="Close (Esc)" type="button" onclick="closeIt()" class="mfp-close">&times;</button></td>
+      </tr>
+      </table>
+    </div>
+    <!-- // title -->
 			<table border="0" align="center" cellpadding="0" cellspacing="0">
 				<tr>
 					<td valign="top">
-					<table width="455" border="0" cellpadding="3" cellspacing="0">
+					<table width="400" border="0" cellpadding="3" cellspacing="0">
 						<tr>	
-							<td><font color="red">*</font></td>						
+							<td valign="bottom"><font color="red">*</font></td>						
 							<td colspan="2" valign="top">
 								<strong><form:label path="searchOfficeIdString">
 									<c:if test = "${ltUser.currentPage == 'Off'}">
@@ -118,7 +127,7 @@
 						</tr>	
 					--%>						
 						<tr>
-							<td><font color="red">*</font></td>	
+							<td valign="bottom"><font color="red">*</font></td>	
 							<td colspan="2" valign="top">
 								<strong><form:label path="searchKeywordString"><spring:message code="label.keyword" /></form:label></strong>
 							</td>
@@ -130,7 +139,7 @@
 			<br />
 
 					<div>
-						<a href="#" onclick="reserve()">Submit</a>
+						<a href="#" onclick="reserve()" class="btn_dark_blue">Submit</a>
 					</div>
 
 </form:form>

@@ -90,7 +90,7 @@
     </ul>
     <!-- // left side navigation -->
     <!-- content area -->
-    <div class="content" id="id_content">
+    <div class="content" id="id_content_11">
     	<div class="nav_pointer pos_01"></div>
       <!-- subheader -->
       <div class="subheader clearfix">
@@ -186,10 +186,12 @@
 					  </td>
 	                  <td class="td_02">
 	                  	<form:select path="category.timezone" class="select_send_notification">
+	                  		<form:option value="US/Alaska">Alaska</form:option>
 	                  		<form:option value="US/Central">Central</form:option>
 	                  		<form:option value="US/Eastern">Eastern</form:option>
 	                  		<form:option value="US/Mountain">Mountain</form:option>
 	                  		<form:option value="US/Pacific">Pacific</form:option>
+	                  		<form:option value="US/Hawaii">Hawaii</form:option>
 	                  	</form:select>
 	                  </td>
 	                </tr> 
@@ -231,7 +233,7 @@
 		              </tr>            
             </tbody>
             </table>
-          </div>
+          </div> 
           <!-- // box profile -->
         </div>
         <!-- // box -->
@@ -240,7 +242,7 @@
     <!-- // content area -->
     
     <!-- sidebar -->
-    <div class="sidebar" id="id_sidebar">
+    <div class="sidebar" id="id_sidebar_11">
     	<div class="inner">
       	<!-- title -->
         <div class="sb_title sb_title_ico ico_sb_mobile">
@@ -252,8 +254,6 @@
           <!-- information wrapper -->
           <div class="information_wrapper">
           	<div class="info_title">
-            	<a href="#" class="prevnext info_prev" id="id_prev_info"></a>
-              <a href="#" class="prevnext info_next get_next_info"></a>
               <h3>Information</h3>
             </div>
             <!-- slider -->

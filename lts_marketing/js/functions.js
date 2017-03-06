@@ -27,7 +27,35 @@ $(document).ready(function(){
 
   $("#tabs_01 ul").idTabs();
   $("#tabs_02 ul").idTabs();
-  
+
+$('.grid_wrapper_01').slimScroll({
+    height: '132px',
+    distance: '0px',
+    railVisible: true,
+    alwaysVisible: true
+  });
+
+$('#scroll_list_01').slimScroll({
+    height: '132px',
+    distance: '0px',
+    railVisible: true,
+    alwaysVisible: true
+  });
+
+$('#scroll_list_02').slimScroll({
+    height: '132px',
+    distance: '0px',
+    railVisible: true,
+    alwaysVisible: true
+  });
+
+$('#scroll_list_03').slimScroll({
+    height: '132px',
+    distance: '0px',
+    railVisible: true,
+    alwaysVisible: true
+  });
+
   $('.scroll_list_001').slimScroll({
     height: '137px',
     distance: '6px',
@@ -44,7 +72,7 @@ $(document).ready(function(){
 */
 
   $('#id_report_scroll_entity').slimScroll({
-    height: '580px',
+    height: '635px',
     distance: '6px',
     railVisible: true,
     alwaysVisible: true
@@ -58,7 +86,7 @@ $(document).ready(function(){
   });
   
   $('#id_report_scroll_office').slimScroll({
-    height: '580px',
+    height: '580px', 
     distance: '6px',
     railVisible: true,
     alwaysVisible: true
@@ -79,8 +107,8 @@ $(document).ready(function(){
     alwaysVisible: true
   });
 
-  $('#id_entity_keywords').slimScroll({
-    height: '150px',
+  $('#id_entity_keywords').slimScroll({ 
+    height: '260px',
     distance: '6px',
     railVisible: true,
     alwaysVisible: true
@@ -165,12 +193,30 @@ $(document).ready(function(){
   });
 
   $('#id_mn_scrollbox').slimScroll({
-    height: '78px',
-    distance: '0px',
+    height: '118px',
+    distance: '10px',
     railVisible: true,
     alwaysVisible: true
   });
   
+ $('.ul_mn_scrollbox').slimScroll({
+    height: '140px',
+    distance: '0px',
+    railVisible: true,
+    alwaysVisible: true
+  });
+
+$('.list-send-friend').slimScroll({
+    height: '633px',
+    distance: '6px',
+    railVisible: true,
+    alwaysVisible: true
+  });
+
+
+
+
+
   $('.ul_hc_scrollbox li .chk_light').change(function(){
     if (this.checked) {
       $(this).parent().parent().removeClass('selected');
@@ -189,17 +235,17 @@ $(document).ready(function(){
   	height:	 18
   });
   
-  $('.chk_light').screwDefaultButtons({ 
-  	image: "url(images/checkbox.png)",
-  	width:	 13,
-  	height:	 13
-  });
+  // $('.chk_light').screwDefaultButtons({ 
+  // 	image: "url(images/checkbox.png)",
+  // 	width:	 13,
+  // 	height:	 13
+  // });
 
-  $('.chk_dark').screwDefaultButtons({ 
-  	image: "url(images/checkbox_dark.png)",
-  	width:	 13,
-  	height:	 13
-  });
+  // $('.chk_dark').screwDefaultButtons({ 
+  // 	image: "url(images/checkbox_dark.png)",
+  // 	width:	 13,
+  // 	height:	 13
+  // });
 
   $('.ul_scroll_list input[type=radio]').change(function(){
     if ($(this).is(":checked")) {

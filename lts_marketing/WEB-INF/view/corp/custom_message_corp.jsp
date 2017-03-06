@@ -152,7 +152,7 @@
     </div>
     <!-- // content area -->
     <!-- sidebar -->
-    <div class="sidebar" id="id_sidebar_03">
+    <div class="sidebar" id="id_sidebar">
     	<div class="inner">
       	<!-- title -->
         <div class="sb_title">

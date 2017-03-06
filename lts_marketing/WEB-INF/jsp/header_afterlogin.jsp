@@ -73,7 +73,7 @@
 	//spinner
 	function ajaxindicatorstart(text) {
 		if (jQuery('body').find('#resultLoading').attr('id') != 'resultLoading') {
-			jQuery('body').append('<div id="resultLoading" style="display:none"><div><img src="images/logo_lts.png"><div>'+text+'</div></div><div class="bg"></div></div>');
+			jQuery('body').append('<div id="resultLoading" style="display:none"><div><img src="images/logo_lts_circle.png" style="margin-bottom:20px"><div>'+text+'</div></div><div class="bg"></div></div>');
 		}
 
 		jQuery('#resultLoading').css({

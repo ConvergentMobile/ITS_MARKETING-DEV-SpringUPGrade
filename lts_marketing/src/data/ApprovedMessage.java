@@ -23,6 +23,7 @@ public class ApprovedMessage implements Serializable {
 	protected Date lastUpdated;
 	protected String officeId;
 	protected String location;
+	protected String brandName;
 	
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")	
 	protected Date created;
@@ -146,6 +147,14 @@ public class ApprovedMessage implements Serializable {
 
 	public void setLocation(String location) {
 		this.location = location;
+	}
+
+	public String getBrandName() {
+		return brandName;
+	}
+
+	public void setBrandName(String brandName) {
+		this.brandName = brandName;
 	}
 
 	public ApprovedMessage get(Integer msgId, List<ApprovedMessage>msgList) throws Exception {

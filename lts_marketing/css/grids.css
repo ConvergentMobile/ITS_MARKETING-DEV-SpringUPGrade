@@ -25,12 +25,12 @@
 	background-repeat: no-repeat; */
 }
 
-.grid_keyword tfoot td {
+/*.grid_keyword tfoot td {
 	height: 22px;
 	border-top: #fff 1px solid;
 	border-bottom: none;
 	background: url(../images/tfoot_grid_keyword.png) 0 0 repeat-x;
-}
+}*/
 
 .grid_keyword {
 	font: 14px/18px Arial, Helvetica, sans-serif;
@@ -204,6 +204,7 @@
 
 .grid_search th.th_03 div {
 	border-right: #f9f9f9 1px solid;
+	padding-left:  15px;
 }
 
 .grid_search th.th_05 div {

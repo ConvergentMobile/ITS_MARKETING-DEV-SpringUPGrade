@@ -72,9 +72,10 @@
 					return;
 				}
 				outstr += category.businessName + '<br/>';
-				if (category.website != null) {
-					outstr += category.website + '<br/>';
-				}
+				//if (category.website != null) {
+					//outstr += category.website + '<br/>';
+				//}
+				outStr += "http://libertytax.com";				
 				outstr += category.address + '<br/>';
 				outstr += category.city + ',' + category.state + '&nbsp;'
 						+ category.zip + '<br/>';
@@ -197,7 +198,7 @@
 		</ul>			
     <!-- // left side navigation -->
     <!-- content area -->
-    <div class="content" id="id_content">
+    <div class="content" id="id_content_09"> 
     	<div class="nav_pointer pos_01"></div>
       <!-- subheader -->
       <div class="subheader clearfix">
@@ -214,35 +215,48 @@
       <!-- // subheader -->
     	<div class="inner_box">
       	<!-- box -->
-        <div class="box box_red_title box_send_friend" style="height: 776px;overflow-y:auto;">        
+        <div class="box box_red_title box_send_friend">        
         	<!-- title -->
         	<div class="box_title">
           	<h2>Send a Friend</h2>
           
-            <div class="campaign clearfix">
-            </div>
+            	<!-- <div class="campaign clearfix"></div> -->
 	        </div>
 	        	           
-	 <table>
+	 <table class="send-friend grid grid_01" width="100%">
+	 	<colgroup>
+	 		<col width="10%">
+	 		<col width="70%">
+	 		<col width="20%">
+	 	</colgroup>
 	    <tr>
 	 	<th>Office</th>
 	 	<th>Message</th>
 	 	<th>Include Phone</th>
 	    </tr>
+	 </table>
+	 <div class="list-send-friend">
+	 <table class="send-friend grid grid_01" width="100%">
+		<colgroup>
+	 		<col width="10%">
+	 		<col width="70%">
+	 		<col width="20%">
+	 	</colgroup>
 	    <c:forEach var="site" items="${ltUser.sites}" varStatus="loopStatus">
 	     <form:hidden path="sites[${loopStatus.index}].customField1"/>
 	     <form:hidden path="sites[${loopStatus.index}].keyword"/>	    
 	     <form:hidden path="sites[${loopStatus.index}].userId"/>	    
+
 	     <tr>
 	    	<td><form:hidden path="sites[${loopStatus.index}].customField2" value="${site.customField2}"/>${site.customField2}</td>
 	    	<td>
-		   <form:select style="width: 500px" path="sites[${loopStatus.index}].customField3">
+		   <form:select path="sites[${loopStatus.index}].customField3">
 		      <form:option value="">Select a Message</form:option>
 		      <form:options items="${ltUser.customMsgs}" itemValue="messageText" itemLabel="messageText" />
 		   </form:select>	    	
 	    	</td>
 		<td>
-                   <form:select path="sites[${loopStatus.index}].customField4">
+                   <form:select path="sites[${loopStatus.index}].customField4" class="w60">
                    	<form:option value="Yes">Yes</form:option>
                    	<form:option value="No">No</form:option>
                    </form:select>
@@ -250,18 +264,19 @@
 	    </tr>
 	    </c:forEach>
 	 </table>
+	 </div>
 	        	           
           <!-- // title -->
  
-	</div>	
 	 		<div class="btn_message_box" style="background: none;">             
  				<a href="#" onclick="saveIt()" class="btn_save_lnk_003 lnk_centered"> Save </a>
         	</div>
+	</div>	
         </div>
       </div>
      <!-- // content area -->
     <!-- sidebar -->
-    <div class="sidebar" id="id_sidebar">
+    <div class="sidebar" id="id_sidebar_09">
     	<div class="inner">
       	<!-- title -->
         <div class="sb_title sb_title_ico ico_sb_mobile">
@@ -273,8 +288,7 @@
           <!-- information wrapper -->
           <div class="information_wrapper">
           	<div class="info_title">
-            	<a href="#" class="prevnext info_prev" id="id_prev_info"></a>
-              <a href="#" class="prevnext info_next get_next_info"></a>
+
               <h3>Key Points For This Page</h3>
             </div>
             <!-- slider -->
@@ -286,18 +300,30 @@
 		<li><b>1. Entity Opt-In</b> - You must opt-in for this program.  All messages are sent 
 		out 24 hours after a customer leaves your desk (provided they have opted in for 
 		text marketing / text operations messages).</li><p/>
-		<li><b>2. Select Your Offices</b> - Select one or all offices for this program</li><p/>
+		<li><b>2. Select Your Offices</b> - Select one or all offices for this program</li>
+		<li>&nbsp;</li>
+		<li>&nbsp;</li>
+                </p>
+              </div>
+              <!-- // slide -->
+ 	<!-- slide -->
+              <div class="slide">
+              	<p>
+              	<ul>
 		<li><b>3. Select Your SAF Message</b> - Select 1 of the 4 SAF messages. These are not 
 		messages that you can create at this time.</li><p/>
 		<li><b>4. Save</b> - Save the settings and you are all set up for SAF messages to go out 
 		automatically</li>
+		<li>&nbsp;</li>
+		<li>&nbsp;</li>
                 </p>
               </div>
               <!-- // slide -->
 
-
             </div>
             <!-- // slider -->
+             <div class="infonext_wrapper"><a href="#" class="lnk_infoprev get_prev_info" id="id_prev_info">Prev</a>
+            <a href="#" class="lnk_infonext get_next_info">Next</a></div>
           </div>
           <!-- // information wrapper -->
           <!-- biz info wrapper -->
@@ -320,7 +346,15 @@
                   		<c:set var="userId" value="${ltUser.category.userId}"/>
 				<c:out value="${ltUser.category.businessName}"/>
 				<br/>
-				<c:out value="${ltUser.category.website}"/>						
+				<c:choose>
+				<c:when test = '${fn:length(ltUser.sites[0].customField2) > 0}'>	
+					<c:set var="website" value="http://libertytax.com/${ltUser.sites[0].customField2}"/>									
+				</c:when>
+				<c:otherwise>		
+					<c:set var="website" value="http://libertytax.com"/>														
+				</c:otherwise>
+				</c:choose>				
+				<c:out value="http://libertytax.com"/>							
 				<br/>
 				<c:out value="${ltUser.category.address}"/>
 				<br/>

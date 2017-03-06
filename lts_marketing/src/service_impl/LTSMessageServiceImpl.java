@@ -162,8 +162,8 @@ public class LTSMessageServiceImpl {
 			}
 		} else {
 			try {
-				//this.sendMessage(campaign, campaign.getUserId());
-				this.sendMessage(campaign);
+				this.sendMessage1(campaign, campaign.getUserId());
+				//this.sendMessage(campaign);
 			} catch (Exception e) {
 				e.printStackTrace();
 				logger.debug("Error in sending msgs " + e.getMessage());
@@ -259,15 +259,20 @@ public class LTSMessageServiceImpl {
 		
 		for (final String listId : campaign.getListIds()) {
 			List<String> pNums = new TargetUserListDao().getListData(listId);
-			for (String pNum : pNums)
-				if (! pList.containsValue(pNum)) //add the number only if does not exist
+			if (pNums.isEmpty()) {
+				throw new Exception("No phone numbers found");
+			}			
+			for (String pNum : pNums) {
+				pNum = this.normalizePhoneNumber(pNum);
+				if (! pList.containsKey(pNum)) //add the number only if does not exist
 					pList.put(pNum, userId);
+			}
 		}
 		
 		if (pList.isEmpty()) {
 			throw new Exception("No phone numbers found");
 		}
-		
+	
 	    ApplicationContext ctx = new ClassPathXmlApplicationContext(APPLICATION_CONTEXT_FILE);
 	    JMSProducer producer = (JMSProducer)ctx.getBean("producer");
 		Queue q = (Queue) ctx.getBean("destination");
@@ -275,7 +280,7 @@ public class LTSMessageServiceImpl {
 	    producer.sendMessage(campaign, pList);
 	}
 	
-	private void sendMessage1(Campaign campaign, Long userId) throws Exception {
+	public void sendMessage1(Campaign campaign, Long userId) throws Exception {
 		logger.debug("sendMessage of categoryBase - keyword: " + campaign.getKeyword());
 		Map<String, Long> pList = new HashMap<String, Long>();
 		
@@ -284,10 +289,12 @@ public class LTSMessageServiceImpl {
 		for (final String listId : campaign.getListIds()) {
 			List<String> pNums = new TargetUserListDao().getListData(listId);
 			if (pNums.isEmpty()) {
-				throw new Exception("No phone numbers found");
+				//throw new Exception("No phone numbers found");
+				continue;
 			}
 			for (String pNum : pNums) {
-				if (! pList.containsValue(pNum)) { //add the number only if does not exist
+				pNum = this.normalizePhoneNumber(pNum);
+				if (! pList.containsKey(pNum)) { //add the number only if does not exist
 					pList.put(pNum, userId);
 					Runnable worker = new SMSExecutorImpl(pNum, campaign.getMessageText(), campaign.getCampaignId(), null, null);
 					executor.execute(worker);
@@ -300,7 +307,7 @@ public class LTSMessageServiceImpl {
 	}
 	
 	//Used in AmbassadorWH1
-	public void sendMessage2(String pNum, String msgText, String custId) throws Exception {		
+	public void sendMessage2(String pNum, String msgText, String custId, String loc) throws Exception {		
         ExecutorService executor = Executors.newFixedThreadPool(1);
 		Runnable worker = new SMSExecutorImpl(pNum, msgText, UUID.randomUUID().toString(), "Ambassador", custId);
 		executor.execute(worker);

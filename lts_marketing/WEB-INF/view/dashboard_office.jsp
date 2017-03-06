@@ -100,7 +100,7 @@
 				$('#dialog1').dialog({
 					title : '',
 					height : 600,
-					width : 675,
+					width : 1000,
 					
 				});
 				$(".ui-dialog-titlebar").hide();
@@ -452,7 +452,7 @@ display: none;
     </ul>
     <!-- // left side navigation -->
     <!-- content area -->
-    <div class="content" id="id_content">
+    <div class="content" id="id_content_08">
     	<div class="nav_pointer pos_01"></div>
       <!-- subheader -->
       <div class="subheader clearfix">
@@ -618,7 +618,7 @@ display: none;
 					</form:select>                 	
                 </div>
 	          	<form:hidden path="nowSched" />
-	        <br/><br/>
+	        	<br/>
                 <center>
                 	<c:if test="${ltUser.sites[0].customField3 != 'R'}">
                 	<input type="button" id="sendNow" onclick="sendIt('Y')" value="Send Now" class="btn_send_now">    
@@ -631,7 +631,7 @@ display: none;
           <!-- // two columns -->
 
           <!-- two columns -->
-          <div class="two_cols_wrapper_01 clearfix" style="padding:0 0 0 15px;">
+          <div class="two_cols_wrapper_01 clearfix">
           	<!-- right column -->
 	            <h3 class="h3_sub ico_schedule">Schedule for Later:</h3>
 	    <a href="#" onclick="getJobs()" class="lnk_scheduled"><font size="+0.5">See Scheduled Messages</font></a>	    
@@ -714,7 +714,7 @@ display: none;
      </div>
      <!-- // content area -->
     <!-- sidebar -->
-    <div class="sidebar" id="id_sidebar">
+    <div class="sidebar" id="id_sidebar_08">
     	<div class="inner">
       	<!-- title -->
         <div class="sb_title sb_title_ico ico_sb_mobile">
@@ -724,10 +724,10 @@ display: none;
         <!-- sidebar box -->
         <div class="sb_box">
           <!-- information wrapper -->
-          <div class="information_wrapper">
+          <div class="information_wrapper" style="height: 370px;">
           	<div class="info_title">
-            	<a href="#" class="prevnext info_prev" id="id_prev_info"></a>
-              <a href="#" class="prevnext info_next get_next_info"></a>
+<!--             	<a href="#" class="prevnext info_prev" id="id_prev_info"></a>
+              <a href="#" class="prevnext info_next get_next_info"></a> -->
               <h3>Key Points For This Page</h3>
             </div>
             <!-- slider -->
@@ -792,18 +792,16 @@ and is directly fed to US411 everyday.</li>
 	      </tbody>
 	      </table>
 
-              <hr/>
-
               <table class="grid bizinfo_grid" width="100%">
               <tr>
-                 <td class="td_01">
+                 <td class="td_01" style="padding: 0 25px;">
         		This will allow you to opt-out any number in all the Liberty Tax US411 database. 
         		If the number is not in the lts database you will be notified                 
                  </td>
               </tr>
               <tr><td>&nbsp;</td></tr>
               <tr>
-              	<td class="mt40 corp">
+              	<td class="mt40 corp" style="padding: 0 25px 20px;">
           		<form:input path="searchCityString" placeholder="Enter a number to opt-out"/>
 	  		<a href="#" onclick="optout()" class="btn_dark_blue btn_03_lnk">Submit</a>               	
               	</td>
@@ -811,9 +809,6 @@ and is directly fed to US411 everyday.</li>
 	      </table>
 	   </div>
 
-	    <hr/>
-
-	    
         </div>
 	    
 	  </div>				
@@ -824,7 +819,7 @@ and is directly fed to US411 everyday.</li>
               <h2 class="Mobile Marketing">Get your hotspot</h2>
             </div>
             <!-- // title -->
-            <div class="hotspot">
+            <div class="hotspot" style="height: 340px;">
             	<!-- box -->
           		<div class="hotspot_box">
               	<p class="p_left">Customize <br>your <br>Hotspot</p>

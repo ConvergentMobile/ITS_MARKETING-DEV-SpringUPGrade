@@ -10,6 +10,9 @@ display: none;
 
 <script type="text/JavaScript">	
 	$(document).ready(function() {		
+		$('#sendSearchCityString').val('');
+		$('#sendSearchDMAString').val('');		
+		
 		$( "#errwin" ).dialog({
 			title: 'Alerts & Notifications',
 			width: 400,
@@ -66,6 +69,14 @@ display: none;
 		});
 				
 	}
+	
+	function showMsg(id, msg, comments) {
+		$('#sendSearchCityString').val(msg);
+		if (comments != '') {
+			$('#sendSearchDMAString').val(comments);
+			$('#rejectReason').show();
+		}
+	}	
 
 </script>
 
@@ -133,7 +144,7 @@ display: none;
           <div class="wide_column_wrapper custom_msg">
           	<div class="description">
               <p>
-                All new messages will be reviewed for compliance with the corproate policies. Your message may be Accepted or Rejected. Accepted and Rejected messages will appear on the right hand-side panel. Messages are usually reviewd within 1 week after submission.
+                All new messages will be reviewed for compliance with the corporate policies. Your message may be Accepted or Rejected. Accepted and Rejected messages will appear on the right hand-side panel. Messages are usually reviewd within 1 week after submission.
               </p>
               <p>
                 Please type your new Message Content in the space below.            
@@ -149,8 +160,12 @@ display: none;
             <div class="floatfix"></div>
             <label for="msg_content" class="lb_01">Message Content:</label>
             <div class="big_input_wrapper">
-		<form:textarea path="sendSearchCityString" class="input_big" maxlength="140" rows="7"/>					            
-            </div>
+		<form:textarea path="sendSearchCityString" class="input_big" maxlength="140" rows="7"/>	
+            </div> 
+            <div id="rejectReason" class="big_input_wrapper" style="display: none">
+            	<label for="msg_content" class="lb_01">Comments:</label>            
+				<form:textarea path="sendSearchDMAString" class="input_big" maxlength="140" rows="3"/>	
+            </div>      
             <div class="button_wrapper_01 clearfix">
             	<input type="button" onclick="javascript:submitMsg()" class="btn_green btn_01" value="Create & Send for Approval">                        	
             </div>
@@ -173,7 +188,7 @@ display: none;
         <!-- sidebar box type 1 -->
         <div class="sb_box_01">
           <h3>Messages Pending Approval</h3>
-          <div class="grid_wrapper_01">
+          <div class="grid_wrapper_01" id="scroll_list_01">
           	<table class="grid grid_01" width="100%">
             <colgroup>
             	<col width="77%" />
@@ -202,7 +217,7 @@ display: none;
         <!-- sidebar box type 1 -->
         <div class="sb_box_01">
           <h3>Approved Messages</h3>
-          <div class="grid_wrapper_01">
+          <div class="grid_wrapper_01" id="scroll_list_02">
           	<table class="grid grid_01" width="100%">
             <colgroup>
             	<col width="77%" />
@@ -231,7 +246,7 @@ display: none;
         <!-- sidebar box type 1 -->
         <div class="sb_box_01">
           <h3>Rejected Messages</h3>
-          <div class="grid_wrapper_01">
+          <div class="grid_wrapper_01" id="scroll_list_03">
           	<table class="grid grid_01" width="100%">
             <colgroup>
             	<col width="77%" />
@@ -247,7 +262,7 @@ display: none;
 		<c:forEach var="pMsg" items="${ltUser.customMsgs}" varStatus="loopStatus"> 
 			<c:set var="keyword" value="${site.keyword}" />
 			<tr>
-				<td class="td_01"><div><c:out  value="${pMsg.messageText}"/></div></td>								
+				<td class="td_01"><div><a href="#" onclick="showMsg('${pMsg.messageId}', '${pMsg.messageText}', '${pMsg.comments}')"><c:out  value="${pMsg.messageText}"/></a></div></td>								
 				<td class="td_02"><div><fmt:formatDate type="both" pattern="MM/dd/yyyy hh:mm a z" value="${pMsg.updated}" /></div></td>
 			</tr>
 		</c:forEach>  
@@ -261,10 +276,10 @@ display: none;
      	<div class="inner">
 
          <!-- sidebar box type 1 -->
-         <div class="sb_box_01">
+         <div class="sb_box_01" style="height:280px">
            <h3>Key Points For This Page</h3>
            <div class="grid_wrapper_01">
-           <div class="infoslider">
+           <div class="infoslider" style="margin:0 30px 0 0">
            <p class="slide">
            <ul>
  		<li>1. <b>Select Your Office</b> you want to create your message for.<br/>
@@ -290,3 +305,8 @@ display: none;
   <!-- // content wrapper -->
   
 
+<style>
+  .grid_wrapper_01 li {
+    margin: 0 0 10px;
+  }
+</style>

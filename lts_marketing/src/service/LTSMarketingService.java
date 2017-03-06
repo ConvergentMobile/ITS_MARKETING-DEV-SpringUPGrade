@@ -11,6 +11,7 @@ import liberty.CustomFields;
 import reports.LTReport;
 import reports.ReportData;
 import subclass.LTCategory_3;
+import user.TargetUserList;
 import user.User;
 
 import admin_user.UserProfileVO;
@@ -43,6 +44,7 @@ public interface LTSMarketingService {
 	public List<ApprovedMessage> getCorporateMessages(Integer siteId);
 	public List<ApprovedMessage> getCorporateMessages(Integer siteId, String lang);
 	public List<ApprovedMessage> getCustomMessages(Integer siteId, String eid);
+	public List<ApprovedMessage> getCorporateMessages(Integer siteId, String lang, String brandName);
 	
 	public List<ApprovedMessage> getCorporateMessagesCA(Integer siteId);
 
@@ -67,6 +69,7 @@ public interface LTSMarketingService {
 	public List<UserProfileVO> getSAFSites(Long userId) throws Exception;
 	
 	public void saveDetails(Object obj) throws Exception;
+	public TargetUserList getList(String listId) throws Exception;
 	
 	public List<ValueObject> getUsageReport() throws Exception;
 }

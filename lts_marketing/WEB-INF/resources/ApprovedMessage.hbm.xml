@@ -89,5 +89,11 @@ type="java.lang.String"
 column="location"
 />
 
+<property
+name="brandName"
+type="java.lang.String"
+column="brand_name"
+/>
+
 </class>
 </hibernate-mapping>

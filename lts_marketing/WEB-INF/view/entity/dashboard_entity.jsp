@@ -200,7 +200,7 @@
 
 	function setKeyword(userId, entId, offId, status) {
 		if (status == 'R') {
-			var val = offId;
+			var val = offId; 
 			var off = 'true';
 			if (offId == '') {
 				val = entId;
@@ -226,15 +226,9 @@
 				$('#dialog1').dialog({
 					title : 'Keyword Allocation',
 					height : 500,
-					width : 400,
-					buttons : {
-						"Close" : function() {
-							$(this).dialog("close");
-							location.reload();
-						}
-					},
+					width : 450
 				});
-
+				$(".ui-dialog-titlebar").hide();
 			},
 			error : function(e) {
 				alert('error: ' + e.text());
@@ -247,34 +241,28 @@
 			alert("Must allocate your keyword first");
 			return;
 		}
-	        $.ajax({
+
+		$.ajax({
 	            type : 'GET',
 	            url : 'changeKeyword',
             	    data: 'keyword=' + keyword,
 	            success : function(result) {
-			$('#dialog1').html(result);
 			$('#dialog1').dialog({
- 				dialogClass: "no-close",			
-				title: 'Change Keyword',
-				modal: false,
-				width:600,	
-                position: {
+				title : 'Change Keyword',
+				width : 600,
+				 position: {
                     my: "center",
-                    at: "center",
-                    of: "#id_content_07"
-                },	       
-			    	buttons: {
-					"Close": function () {
-				    		$(this).dialog("close");
-				    		location.reload();				    		
-					}
-			    	},								
-			});            	    
-            	    },
-				error : function(e) {
-					alert('error: ' + e);
-				}                        
-	        });	
+                    at: "center"
+                }
+			});
+			$(".ui-dialog-titlebar").hide();
+			$('#dialog1').html(result);				
+	            },
+			error : function(e) {
+				alert('error: ' + e.toString());
+			}                        
+	        });		
+	        
 	}
 	
 	function submitMsg() {
@@ -497,7 +485,7 @@
             </tbody>
             </table>
           </div>
-          <table width="100%" class="grid grid_keyword">
+      <!--     <table width="100%" class="grid grid_keyword">
             <colgroup>
               <col width="6%"  />
               <col width="32%" />
@@ -509,7 +497,7 @@
                 <td colspan="4"></td>
               </tr>
             </tfoot>
-          </table>
+          </table> -->
         </div>
         <!-- // box -->
       	<!-- box -->
@@ -564,8 +552,8 @@
           <!-- information wrapper -->
           <div class="information_wrapper">
           	<div class="info_title">
-            	<a href="#" class="prevnext info_prev" id="id_prev_info"></a>
-              <a href="#" class="prevnext info_next get_next_info"></a>
+            	<!-- <a href="#" class="prevnext info_prev" id="id_prev_info"></a>
+              <a href="#" class="prevnext info_next get_next_info"></a> -->
               <h3>Key Points For This Page</h3>
             </div>
             <!-- slider -->
@@ -593,7 +581,8 @@ and is directly fed to US411 everyday.</li>
             </div>
             <!-- // slider -->
           </div>
-            <div class="infonext_wrapper"><a href="#" class="lnk_infonext get_next_info">Next</a></div>
+          <div class="infonext_wrapper"><a href="#" class="lnk_infoprev get_prev_info" id="id_prev_info">Prev</a>
+            <a href="#" class="lnk_infonext get_next_info">Next</a></div>
           
           <!-- // information wrapper -->
           <!-- biz info wrapper -->

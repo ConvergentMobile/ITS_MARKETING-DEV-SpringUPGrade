@@ -4,6 +4,34 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 
+<script type="text/javascript" src="js/tipped.js"></script>
+<link rel="stylesheet" type="text/css" href="css/tipped.css" />
+
+
+<script>
+  $(document).ready(function() {
+    Tipped.create('#tabs-01', 'Liberty English');
+    Tipped.create('#tabs-02', 'Liberty Spanish');
+    Tipped.create('#tabs-03', 'Siempre English');
+    Tipped.create('#tabs-04', 'Siempre Spanish');
+    Tipped.create('#tabs-05', 'Juntos Podemos English');
+    Tipped.create('#tabs-06', 'Juntos Podemos Spanish');
+    Tipped.create('#tabs-07', 'Custom');
+  });
+</script>
+
+<script>
+  $(document).ready(function() {
+    Tipped.create('#tabs-08', 'Liberty English');
+    Tipped.create('#tabs-09', 'Liberty Spanish');
+    Tipped.create('#tabs-10', 'Siempre English');
+    Tipped.create('#tabs-11', 'Siempre Spanish');
+    Tipped.create('#tabs-12', 'Juntos Podemos English');
+    Tipped.create('#tabs-13', 'Juntos Podemos Spanish');
+    Tipped.create('#tabs-14', 'Custom');
+  });
+</script>
+
 <script type="text/JavaScript">	
 	$(document).ready(function() {
 		resetForm($('#thisForm'));
@@ -92,13 +120,24 @@
 		window.open('createHotspotKW?kw=' + kw,"mywindow","scrollbars=yes,menubar=1,resizable=1,width=450,height=550");		
 	}
 	
-	function showSelectedMsg(elem, msgType, msg) {
+	function showSelectedMsgOld(elem, msgType, msg) {
 		elemId = $(elem).attr("id");	
 		var msgText = $("label[for='"+elemId+"']").text();
 		if (msgType == 'Cust') {
 			msgText = msg;
 		}
 		$('#sendSearchCityString').val(msgText);
+	}
+	
+	function showSelectedMsg(elem, msgType, msg) {
+		elemId = $(elem).attr("id");	
+		var msgText = $("label[for='"+elemId+"']").text();
+		if (msgType == 'Cust') {
+			msgText = msg;
+		}
+		var msgId = $('input[name="sendSearchEntityIdString"]:checked').val();
+		//alert('1: ' + $('input[name="sendSearchEntityIdString"]:checked').val());
+		$('#sendSearchCityString').val(msgId);
 	}
 
 	function deleteMsg(msgId) {
@@ -133,7 +172,7 @@
 			$('#dialog1').dialog({
 				title : '',
 				height : 500,
-				width : 1000,
+				width : 800,
 			});
 			$(".ui-dialog-titlebar").hide();
 			$('#dialog1').html(result);				
@@ -168,8 +207,8 @@
             success : function(result) {
 				$('#dialog1').dialog({
 					title : '',
-					height : 600,
-					width : 675,
+					height : 640,
+					width : 1300,
 					
 				});
 				$(".ui-dialog-titlebar").hide();
@@ -187,12 +226,12 @@
 		   var id = inputs.length+1;
 		
 		var astr = '<li><label for="listIds' + id + '">' + name + '</label>';
-		astr += '<input id="listIds' + id + '" type="checkbox" class="chk_light" name="listIds" value="' + val + '"/></li>';
+		astr += '<input id="listIds' + id + '" type="checkbox" class="chk_dark" name="listIds" value="' + val + '"/></li>';
 		astr += '&nbsp;<a href="#" onclick="viewList(\''+val+'\')">View</a>';
 				
 		astr2 = '&nbsp;<a href="#"  onclick="viewList(\''+val+'\')">' + name + '</a>';
 		var astr1 = '<li>' + astr2;
-		astr1 += '&nbsp;<input id="listIds' + id + '"type="checkbox" class="chk_light" name="listIds" value="' + val + '"/>';
+		astr1 += '&nbsp;<input id="listIds' + id + '"type="checkbox" class="chk_dark" name="listIds" value="' + val + '"/>';
 		astr1 += '&nbsp;<a href="#" onclick="deleteList(\''+val+'\', \''+name+'\')"><img src="images/delete.png" title="Delete"/></a></li>';
 
 		//alert(astr);
@@ -201,7 +240,7 @@
 	}
 	
 	function addCheckbox1(name, val) {
-		   var container = $('#lists');
+		   var container = $('#lists'); 
 		   var inputs = container.find('input');
 		   var id = inputs.length+1;
 		
@@ -220,12 +259,12 @@
 		//   container.append(viewLink);
 	}
 
-	function getProfile(userId) {
+	function getProfile(userId, officeId) {
 		var outstr = '';
 		var outstr2 = '';
 		$.ajax({
 			type : 'GET',
-			contentType : "application/html",
+			contentType : "application/json",
 			url : 'getProfileInfo',
 			data : 'userId=' + userId,
 			success : function(category) {
@@ -238,9 +277,14 @@
 				if (category.businessName != null) {
 					outstr += category.businessName + '<br/>';
 				}
-				if (category.website != null) {
-					outstr += category.website + '<br/>';
-				}
+				//if (category.website != null) {
+					//outstr += category.website + '<br/>';
+				//}
+				if (officeId != '' && officeId != 'Entity') {
+					outstr += "http://libertytax.com/" + officeId + '<br/>';
+				} else {
+					outstr += "http://libertytax.com" + '<br/>';
+				}				
 				if (category.address != null) {
 					outstr += category.address + '<br/>';
 					outstr += category.city + ',' + category.state + '&nbsp;'
@@ -263,7 +307,7 @@
 		});
 	}
 	
-	function getList(userId) {
+	function getList(userId, officeId) {
 		//alert('cnt: ' + $('[name="officeIds"]:checked').length);
 		if ($('[name="officeIds"]:checked').length <= 0) {
 			alert('Must select atleast one office');
@@ -273,7 +317,7 @@
 	        $.ajax({
 	            type : 'GET',
 	            url : 'getList',
-	            contentType: "application/html",
+	            contentType: "application/json",
 	            data: $('#thisForm').serialize(),
 	            success : function(result) {
 	                if (result.length == 0) {
@@ -291,7 +335,7 @@
 				}                        
 	        });
 	        
-	        getProfile(userId);
+	        getProfile(userId, officeId);
 	}
 		
 	function setMsgType(msgType) {
@@ -383,7 +427,7 @@
 	            success : function(result) {
 			$('#dialog1').dialog({
 				title : '',
-				height : 300,
+				height : 400,
 				width : 1000,
 			});
 			$(".ui-dialog-titlebar").hide();
@@ -433,7 +477,8 @@
 	            },
 	            success : function(result) {
  					popup(result, 0);    
- 					resetForm();
+ 					//resetForm();
+ 					$('#searchCityString').val('');
  		    	},
 		    	error : function(e) {
 					alert('error: ' + e.text());
@@ -500,7 +545,7 @@
 		</ul>			
     <!-- // left side navigation -->
     <!-- content area -->
-    <div class="content" id="id_content">
+    <div class="content" id="id_content_08">
     	<div class="nav_pointer pos_01"></div>
       <!-- subheader -->
       <div class="subheader clearfix">
@@ -550,7 +595,7 @@
 		    <li>
 		    	<label><c:out value="${item.customField2}"/></label>
 		    	<form:checkbox path="officeIds" 
-		    		onclick="getList('${item.userId}')" value="${item.customField2}"/>
+		    		onclick="getList('${item.userId}', '${item.customField2}')" value="${item.customField2}" />
 		    </li>
 		</c:forEach> 
               </ul>
@@ -561,7 +606,7 @@
             	<h3 class="h3_sub ico_select">Select List of Mobile Numbers:</h3>
               <div class="grey_box_01 mobile_numbers_wrapper">
               	<div class="grey_box_title_01">
-                	<input type="checkbox" onclick="checkAll()" class="chk_dark" name="all_numbers" id="all_numbers">
+                	<input type="checkbox" onclick="checkAll()" name="all_numbers" id="all_numbers" style="position:relative;top:4px;">
                   	<label for="all_numbers">Check All</label>                  	
                 </div>    
 		<ul class="ul_mn_scrollbox" id="id_mn_scrollbox">
@@ -581,15 +626,21 @@
               <!-- tabs ///////////////////////////////////////////////////////////////////  -->
               <div class="tabs_01 tabs_height_01" id="tabs_01">
                 <ul class="ul_tabs_select">
-                  <li class="tab_01"><a href="#tabs_01_1" class="selected">Corporate</a></li>
-                  <li class="tab_02"><a href="#tabs_01_2">Spanish</a></li>
-		  			<li class="tab_02"><a href="#tabs_01_3">Custom</a></li>                  
+                  <li class="tab_01"><a href="#tabs_01_1" class="selected" id="tabs-01">LTS ENG</a></li>
+                  <li class="tab_02"><a href="#tabs_01_2" id="tabs-02">LTS SPAN</a></li>
+                  <li class="tab_02"><a href="#tabs_01_3" id="tabs-03">ST ENG</a></li>                  
+                  <li class="tab_02"><a href="#tabs_01_4" id="tabs-04">ST SPAN</a></li>                  
+                  <li class="tab_02"><a href="#tabs_01_5" id="tabs-05">JP ENG</a></li>                  
+                  <li class="tab_02"><a href="#tabs_01_6" id="tabs-06">JP SPAN</a></li>                  
+                  <li class="tab_02"><a href="#tabs_01_7" id="tabs-07">CUSTOM</a></li>                  
                 </ul>
                 <!-- tab 01 -->
                 <div class="tabs_01_content" id="tabs_01_1">
+                <c:if test = "${fn:length(ltUser.approvedMsgs) > 0}">
                   <ul class="ul_scroll_list scroll_list_001">
-                  	<form:radiobuttons element="li" path="sendSearchStateString" onchange="showSelectedMsg(this, 'Corp')" items="${ltUser.approvedMsgs}" itemValue="messageId" itemLabel="messageText"/>  
-	          </ul>
+                  	<form:radiobuttons element="li" path="sendSearchEntityIdString" onchange="showSelectedMsg(this, 'Corp')" items="${ltUser.approvedMsgs}" itemValue="messageId" itemLabel="messageText"/>  
+	          	  </ul>
+                </c:if>	          	  
                 </div>
                       <!-- // tab 01 -->
                 <!-- tab 02 -->
@@ -603,23 +654,60 @@
                 <!-- // tab 02 -->
                 <!-- tab 03 -->
                 <div class="tabs_01_content" id="tabs_01_3">
-                  <c:if test = "${fn:length(ltUser.customMsgs) > 0}">
+                  <c:if test = "${fn:length(ltUser.approvedMsgsST) > 0}">
                   <ul class="ul_scroll_list scroll_list_001">  
-                  	<li><strong>If you have a message with single or double quotes, they will be escaped with the \ character in this list.
-                  	Don't worry - The message will appear correctly when it is received/viewed on the mobile phone
-                  	</strong></li>
-            		<c:forEach var="row" items="${ltUser.customMsgs}" varStatus="loopStatus">
+                  	<form:radiobuttons element="li" path="sendSearchEntityIdString" onchange="showSelectedMsg(this, 'Corp')" items="${ltUser.approvedMsgsST}" itemValue="messageId" itemLabel="messageText"/>  
+             	<%--                 
+            		<c:forEach var="row" items="${ltUser.approvedMsgsST}" varStatus="loopStatus">
             		<li>
-            	<%--
                  	<span class="lispan"><a href="JavaScript:void(0)" onclick="deleteMsg('${row.messageId}')" class="lnk_del_01"></a> </span>
-            	--%>
-                  	<form:radiobutton path="sendSearchDMAString" onchange="showSelectedMsg(this, 'Cust', '${row.messageText}')" value="messageId"/>${row.messageText}
+                  	<form:radiobutton path="sendSearchCityString" onchange="showSelectedMsg(this, 'Corp', '${row.messageText}')" value="messageId"/>${row.messageText}
 			</li>
                   	</c:forEach>
+            	--%>                  	
                   </ul>
                   </c:if>
                 </div>         
                 <!-- // tab 03 -->                
+                <!-- tab 04-->
+                <div class="tabs_01_content" id="tabs_01_4">
+                  <c:if test = "${fn:length(ltUser.approvedMsgsSTSP) > 0}">
+                  <ul class="ul_scroll_list scroll_list_001">          
+                  	<form:radiobuttons element="li" path="sendSearchEntityIdString" onchange="showSelectedMsg(this, 'Corp')" items="${ltUser.approvedMsgsSTSP}" itemValue="messageId" itemLabel="messageText"/>  
+                  </ul>
+                  </c:if>
+                </div>         
+                <!-- // tab 04 -->
+                <!-- tab 05 -->
+                <div class="tabs_01_content" id="tabs_01_5">
+                  <c:if test = "${fn:length(ltUser.approvedMsgsJT) > 0}">
+                  <ul class="ul_scroll_list scroll_list_001">          
+                  	<form:radiobuttons element="li" path="sendSearchEntityIdString" onchange="showSelectedMsg(this, 'Corp')" items="${ltUser.approvedMsgsJT}" itemValue="messageId" itemLabel="messageText"/>  
+                  </ul>
+                  </c:if>
+                </div>         
+                <!-- // tab 05 -->
+                <!-- tab 06 -->
+                <div class="tabs_01_content" id="tabs_01_6">
+                  <c:if test = "${fn:length(ltUser.approvedMsgsJTSP) > 0}">
+                  <ul class="ul_scroll_list scroll_list_001">          
+                  	<form:radiobuttons element="li" path="sendSearchEntityIdString" onchange="showSelectedMsg(this, 'Corp')" items="${ltUser.approvedMsgsJTSP}" itemValue="messageId" itemLabel="messageText"/>  
+                  </ul>
+                  </c:if>
+                </div>         
+                <!-- // tab 06 -->
+                <!-- tab 07 -->
+                <div class="tabs_01_content" id="tabs_01_7">
+                  <c:if test = "${fn:length(ltUser.customMsgs) > 0}">
+                  <ul class="ul_scroll_list scroll_list_001">          
+                  	<li><strong>If you have a message with single or double quotes, they will be escaped with the \ character in this list.
+                  	Don't worry - The message will appear correctly when it is received/viewed on the mobile phone
+                  	</strong></li>                  
+                  	<form:radiobuttons element="li" path="sendSearchEntityIdString" onchange="showSelectedMsg(this, 'Cust')" items="${ltUser.customMsgs}" itemValue="messageId" itemLabel="messageText"/>  
+                  </ul>
+                  </c:if>
+                </div>         
+                <!-- // tab 07 -->
               </div>
               <!-- // tabs ////////////////////////////////////////////////////////////////  -->
             <!-- // left column -->
@@ -629,11 +717,10 @@
               <div class="chk_container">
                 	<form:checkbox path="includePhone" id="includePhone" class="chk_light mr5"/>
                 	<label for="includePhone">Include default phone number</label>
-                	<br/>
                 <!-- 
                 	<form:checkbox path="includeLink" id="includeLink" class="chk_light mr5"/>
                 	<label for="includeLink">Include default link</label>   
-                --> 
+                --> <br /><br />
                 	<label for="includeLink">Select link</label>                  	
 					<form:select path="adNewMsg">
 						<form:option value="">No Link</form:option>
@@ -653,11 +740,11 @@
           <!-- // two columns -->
 
           <!-- two columns -->
-          <div class="two_cols_wrapper_01 clearfix" style="padding:0 0 0 15px;">
+          <div class="two_cols_wrapper_01 clearfix">
 
           	<!-- right column -->
 	            <h3 class="h3_sub ico_schedule">Schedule for Later:</h3>
-	    <a href="#" onclick="getJobs()" class="lnk_scheduled"><font size="+0.5">See Scheduled Messages</font></a>
+	    <a href="#" onclick="getJobs()" class="lnk_scheduled">See Scheduled Messages</a>
 	            
               <div class="grey_box_01">
               	<!-- date picker -->
@@ -733,7 +820,7 @@
       </div>
      <!-- // content area -->
     <!-- sidebar -->
-    <div class="sidebar" id="id_sidebar">
+    <div class="sidebar" id="id_sidebar_08">
     	<div class="inner">
       	<!-- title -->
         <div class="sb_title sb_title_ico ico_sb_mobile">
@@ -745,8 +832,6 @@
           <!-- information wrapper -->
           <div class="information_wrapper">
           	<div class="info_title">
-            	<a href="#" class="prevnext info_prev" id="id_prev_info"></a>
-              <a href="#" class="prevnext info_next get_next_info"></a>
               <h3>Key Points For This Page</h3>
             </div>
             <!-- slider -->
@@ -801,7 +886,8 @@
               <!-- // slide -->
             </div>
             <!-- // slider -->
-            <div class="infonext_wrapper"><a href="#" class="lnk_infonext get_next_info">Next</a></div>
+            <div class="infonext_wrapper"><a href="#" class="lnk_infoprev get_prev_info" id="id_prev_info">Prev</a>
+            <a href="#" class="lnk_infonext get_next_info">Next</a></div>
           </div>
           <!-- // information wrapper -->
           <!-- biz info wrapper -->
@@ -825,7 +911,8 @@
 				<c:out value="${ltUser.category.businessName}"/>
 				<br/>
 				<c:choose>
-				<c:when test = '${fn:length(ltUser.sites[0].customField2) > 0}'>	
+				<c:when test = '${fn:length(ltUser.sites[0].customField2) > 0 
+						&& ltUser.sites[0].customField2 != "Entity"}'>	
 					<c:set var="website" value="http://libertytax.com/${ltUser.sites[0].customField2}"/>									
 				</c:when>
 				<c:otherwise>		
@@ -850,9 +937,18 @@
 		</tr>
 	      </tbody>
 	      </table>
-	      
-              <hr/>
-
+	    </div>
+	  </div>				
+          <!-- // biz info wrapper -->
+		
+		<!-- biz info wrapper -->
+          <div class="biz_info_wrapper">
+            <!-- title -->
+            <div class="sb_title sb_title_ico ico_sb_biz">
+              <h2 class="Mobile Marketing">Opt-Out</h2>
+            </div>
+            <!-- // title -->
+            <div class="biz_info_grid_wrapper" style="padding: 20px;height:110px;">
               <table class="grid bizinfo_grid" width="100%">
               <tr>
                  <td class="td_01">
@@ -870,7 +966,8 @@
 	      </table>	      
 	    </div>
 	  </div>				
-          <!-- // biz info wrapper -->
+          <!-- // opt-out wrapper -->
+
           <div class="hotspot_wrapper">
             <!-- title -->
             <div class="sb_title sb_title_ico ico_sb_hotspot">

@@ -127,21 +127,19 @@ button::-moz-focus-inner {
   height: 44px;
   line-height: 44px;
   position: absolute;
-  right: 0;
-  top: 0;
+  right: 5px;
+  top: 5px;
   text-decoration: none;
   text-align: center;
   opacity: 0.65;
   padding: 0 0 18px 10px;
   color: white;
   font-style: normal;
-  font-size: 44px;
+  font-size: 44px!important;
   font-family: Arial, Baskerville, monospace; }
   .mfp-close:hover, .mfp-close:focus {
     opacity: 1; }
-  .mfp-close:active {
-    top: 1px; }
-
+  
 .mfp-close-btn-in .mfp-close {
   color: #9aa3a7; }
 
@@ -612,14 +610,68 @@ img.mfp-img {
 	color: #fff;
 }
 
+.my_popup_02 {
+  width: 450px;
+  height: auto;
+  margin: 0 auto 20px auto;
+  padding: 0 0 20px 0;
+  position: relative;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: #323232 0 1px 10px;
+  z-index: 100000002;
+}
 
+.mfp-content .my_popup_02 .mfp-close {
+  margin-top: 5px;
+  color: #fff;
+}
+
+.my_popup_03 {
+  width: 425px;
+  height: auto;
+  margin: 0 auto 20px auto;
+  padding: 0 0 20px 0;
+  position: relative;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: #323232 0 1px 10px;
+  z-index: 100000002;
+}
+
+.mfp-content .my_popup_03 .mfp-close {
+  margin-top: 5px;
+  color: #fff;
+}
+
+.my_popup_03 form {
+  padding: 10px 0 0;
+}
+
+.my_popup_03 .btn_dark_blue {
+  display: inline-block;
+  text-align: center;
+  padding: 0 20px;
+  margin: 10px 0 0 133px;
+  color: #fff!important;  
+}
+
+.my_popup_03 label {
+  display: inline-block;
+  margin: 20px 0 0;
+}
+
+.my_popup_03 input {
+  padding: 6px;
+  width: 150px;
+  margin: 10px 0 -10px;
+}
 
 .mpu_title {
 	padding: 0 35px 0 35px;
 	background: #334685;
 	border-top-left-radius: 4px;
 	border-top-right-radius: 4px;
-
 }
 
 .mpu_title h3 {

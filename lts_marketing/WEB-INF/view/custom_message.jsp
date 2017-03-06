@@ -5,6 +5,9 @@
 
 <script type="text/JavaScript">	
 	$(document).ready(function() {
+		$('#sendSearchCityString').val('');
+		$('#sendSearchDMAString').val('');	
+		
 		$( "#errwin" ).dialog({
 			title: 'Alerts & Notifications',
 			width: 400,
@@ -48,6 +51,14 @@
 		});
 				
 	}
+	
+	function showMsg(id, msg, comments) {
+		$('#sendSearchCityString').val(msg);
+		if (comments != '') {
+			$('#sendSearchDMAString').val(comments);
+			$('#rejectReason').show();
+		}
+	}		
 
 /*
 	$(document).ready(function() { 	
@@ -105,7 +116,7 @@
     </ul>
     <!-- // left side navigation -->
     <!-- content area -->
-    <div class="content" id="id_content">
+    <div class="content" id="id_content_05">
     
     	<div class="nav_pointer pos_01"></div>
       <!-- subheader -->
@@ -136,6 +147,10 @@
             <div class="big_input_wrapper">
 		<form:textarea path="sendSearchCityString" class="input_big" maxlength="140" rows="9"/>					            
             </div>
+            <div id="rejectReason" class="big_input_wrapper" style="display: none">
+            	<label for="msg_content" class="lb_01">Comments:</label>            
+				<form:textarea path="sendSearchDMAString" class="input_big" maxlength="140" rows="3"/>	
+            </div>                  
             <div class="button_wrapper_01 clearfix">
             	<input type="button" class="btn_green btn_01" onclick="javascript:submitMsg()" value="Create & Send for Approval">
             </div>
@@ -147,7 +162,7 @@
     </div>
     <!-- // content area -->
     <!-- sidebar -->
-    <div class="sidebar" id="id_sidebar">
+    <div class="sidebar" id="id_sidebar_05">
     	<div class="inner">
       	<!-- title -->
         <div class="sb_title">
@@ -202,7 +217,7 @@
 		<c:forEach var="pMsg" items="${ltUser.approvedMsgs}" varStatus="loopStatus"> 
 			<c:set var="keyword" value="${site.keyword}" />
 			<tr>
-				<td class="td_01"><div><c:out  value="${pMsg.messageText}"/></div></td>								
+				<td class="td_01"><div><c:out value="${pMsg.messageText}"/></div></td>								
 				<td class="td_02"><div><fmt:formatDate type="date" pattern="MM/dd/yyyy" value="${pMsg.updated}" /></div></td>
 			</tr>
 		</c:forEach>    
@@ -231,7 +246,7 @@
 		<c:forEach var="pMsg" items="${ltUser.customMsgs}" varStatus="loopStatus"> 
 			<c:set var="keyword" value="${site.keyword}" />
 			<tr>
-				<td class="td_01"><div><c:out  value="${pMsg.messageText}"/></div></td>								
+				<td class="td_01"><div><a href="#" onclick="showMsg('${pMsg.messageId}', '${pMsg.messageText}', '${pMsg.comments}')"><c:out  value="${pMsg.messageText}"/></a></div></td>								
 				<td class="td_02"><div><fmt:formatDate type="date" pattern="MM/dd/yyyy" value="${pMsg.updated}" /></div></td>
 			</tr>
 		</c:forEach>  
@@ -249,9 +264,9 @@
         </div>
         <!-- // title -->
         <!-- sidebar box type 1 -->
-        <div class="sb_box_01">
+        <div class="sb_box_02">
           <h3>Key Points For This Page</h3>
-          <div class="grid_wrapper_01">
+          <div class="grid_wrapper_02">
            <div class="infoslider">
            <p class="slide">          
 <ul>

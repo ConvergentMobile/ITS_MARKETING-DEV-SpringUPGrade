@@ -142,16 +142,21 @@
    <form:form id="thisForm1" method="post" action="" commandName="ltUser">
 	<form:hidden path="searchDMAString"/>
 
-	<div id="id_popup_01" class="my_popup_01 mpu_01">
+	<div id="id_popup_01" class="my_popup_01 mpu_01" style="width: 650px;">
 	
 		<div class="mpu_wrapper">
 		<!-- title -->
-	    <div class="mpu_title">
-		<table cellpadding="0" cellspacing="0" border="0" width="100%">
+	    <div class="mpu_title" style="text-align: center;">
+	    <h3>View List</h3>
+			<button title="Close (Esc)" type="button" onclick="closeIt()" class="mfp-close">&times;</button>
+	    </div>
+	    <div class="mpu_subtitle">
+	    	<table cellpadding="0" cellspacing="0" border="0" width="100%">
 	      <tr>
 		<td><h3>Your Mobile Opt-Ins: <span class="cred">${fn:length(ltUser.listData)}</span></h3></td>
 		<td class="td_02"><form:input path="searchStateString" placeholder="Search by name"/>
-			<a href="#" onclick="searchNumber()"><img src="./images/bg_sbn.png"></a></td>
+			<a href="#" onclick="searchNumber()"><img src="./images/bg_sbn.png"></a>
+		</td>
 	      </tr>
 	      </table>
 	    </div>
@@ -159,10 +164,10 @@
 	    <!-- table header -->
 	    <table width="100%" class="grid grid_search">
 	    <colgroup>
-	      <col width="32%" />
+	      <col width="25%" />
+	      <col width="40%" />
 	      <col width="30%" />
-	      <col width="32%" />
-	      <col width="6%" />
+	      <col width="5%" />
 	    </colgroup>
 	    <thead>
 	      <tr>
@@ -178,10 +183,10 @@
 	    <div id="id_search_pu">
 	      <table width="100%" class="grid grid_search">
 	      <colgroup>
-		<col width="32%" />
+		<col width="25%" />
+		<col width="40%" />
 		<col width="30%" />
-		<col width="32%" />
-		<col width="6%" />
+		<col width="5%" />
 	      </colgroup>
 	      <tbody>
             	<c:forEach var="row" items="${ltUser.listData}" varStatus="loopStatus">	 
@@ -207,10 +212,17 @@
     
   </div>                      
     
-    	<div align="center">
-    	    <a href="#" onclick="closeIt();" class="btn_dark_blue">Close</a>	
-	</div>
+  
 	
    </form:form>
 </div>      
 </div>
+
+<script>
+	  $('#id_search_pu').slimScroll({
+    height: '270px',
+    distance: '6px',
+    railVisible: true,
+    alwaysVisible: true
+  });
+</script>

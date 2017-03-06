@@ -41,7 +41,12 @@
 		if (kw.indexOf(" ") > 0) {
 			alert("Keyword must be a single word without any spaces");
 			return;
-		}			
+		}
+		
+		if (kw.indexOf("&") > 0) {
+			alert("Keyword cannot contain special characters");
+			return;
+		}	
 		
 		$.ajax({
 		    type : 'POST',
@@ -67,15 +72,20 @@
 <body  id="office">	
    <form:form id="thisForm1" method="post" action="" commandName="ltUser">
 	
-      	<!-- box -->
-        <div class="box box_grey_bg box_grey_title box_message" id="box">
-        	<!-- title -->
-        	<div class="box_title">
-          		<h2>Change Keyword</h2>
-          	</div>
-          <!-- // title -->
-          <!-- msg params -->
-          <div class="wide_column_wrapper search_container_01">
+      	<div class="my_popup_02 mpu_02" id="id_popup_01">
+	<div class="mpu_wrapper">
+  	<!-- title -->
+    <div class="mpu_title">
+    	<table cellpadding="0" cellspacing="0" border="0" width="100%">
+      <tr>
+      	<td style="text-align:center"><h3>Change Keyword</h3></td>
+      	<td><button title="Close (Esc)" type="button" onclick="closeIt()" class="mfp-close">&times;</button></td>
+      </tr>
+      </table>
+    </div>
+    <!-- // title -->
+    <!-- table header -->
+		<div class="wide_column_wrapper search_container_01">
           	<table class="grid grid_06" width="50%">
             <colgroup>
             </colgroup>
@@ -98,8 +108,18 @@
           </div>
           <!-- // msg params -->
 
-        </div>
-        <!-- // box -->
+    <!-- // table header -->
+    
+  </div>
+</div>
     
    </form:form>
+
+
+<!-- box -->
+        
+
+
+
+
  </body>

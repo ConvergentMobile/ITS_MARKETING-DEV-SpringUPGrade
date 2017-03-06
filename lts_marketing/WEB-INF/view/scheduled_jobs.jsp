@@ -110,8 +110,16 @@
   </div>
 </div>
 
-	<div align="center">
-    	   <a href="#" onclick="closeIt();" class="btn_dark_blue">Close</a>	
-	</div>
+	
    </form:form>
 </div>
+
+<script>
+   $('#id_search_pu').slimScroll({
+    height: '200px',
+    distance: '6px',
+    railVisible: true,
+    alwaysVisible: true
+  });
+
+</script>

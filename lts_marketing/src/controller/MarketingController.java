@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -41,6 +42,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
@@ -257,6 +259,11 @@ public class MarketingController {
 			} else {			
 				ltUser.setApprovedMsgs(mktgService.getCorporateMessages(siteId));
 				ltUser.setApprovedMsgsSP(mktgService.getCorporateMessages(siteId, "SP"));
+				
+				ltUser.setApprovedMsgsST(mktgService.getCorporateMessages(siteId, "EN", "Siempre"));
+				ltUser.setApprovedMsgsSTSP(mktgService.getCorporateMessages(siteId, "SP", "Siempre"));
+				ltUser.setApprovedMsgsJT(mktgService.getCorporateMessages(siteId, "EN", "Juntos"));
+				ltUser.setApprovedMsgsJTSP(mktgService.getCorporateMessages(siteId, "SP", "Juntos"));
 			}
 			
 			ltUser.setCustomMsgs(mktgService.approvedMsgsFromDate(user.getUserId(), "Off", "A"));	
@@ -381,6 +388,11 @@ public class MarketingController {
 			} else {			
 				ltUser.setApprovedMsgs(mktgService.getCorporateMessages(siteId));
 				ltUser.setApprovedMsgsSP(mktgService.getCorporateMessages(siteId, "SP"));
+				
+				ltUser.setApprovedMsgsST(mktgService.getCorporateMessages(siteId, "EN", "Siempre"));
+				ltUser.setApprovedMsgsSTSP(mktgService.getCorporateMessages(siteId, "SP", "Siempre"));
+				ltUser.setApprovedMsgsJT(mktgService.getCorporateMessages(siteId, "EN", "Juntos"));
+				ltUser.setApprovedMsgsJTSP(mktgService.getCorporateMessages(siteId, "SP", "Juntos"));
 			}
 			
 			ltUser.setCustomMsgs(mktgService.approvedMsgsFromDate(user.getUserId(), "Off", "A"));	
@@ -446,6 +458,11 @@ public class MarketingController {
 			ltUser.setApprovedMsgs(corpMsgs);
 			ltUser.getApprovedMsgs().addAll(corpMsgsSP);
 			
+			ltUser.setApprovedMsgsSP(mktgService.getCorporateMessages(siteId, "EN", "Siempre"));
+			ltUser.setApprovedMsgsSP(mktgService.getCorporateMessages(siteId, "SP", "Siempre"));
+			ltUser.setApprovedMsgsSP(mktgService.getCorporateMessages(siteId, "EN", "Juntos"));
+			ltUser.setApprovedMsgsSP(mktgService.getCorporateMessages(siteId, "SP", "Juntos"));
+			
 			logger.debug("dashboardCorp end 3: " + Calendar.getInstance().getTimeInMillis());
 
 		} catch (Exception e) {
@@ -483,13 +500,18 @@ public class MarketingController {
 	*/
 	
 	//return the profile info as data
-	@RequestMapping(value = "/getProfileInfo", method = RequestMethod.GET)
+	@ResponseStatus(value=HttpStatus.OK)
+	@RequestMapping(value = "/getProfileInfo", method = RequestMethod.GET, produces="application/json")
 	public @ResponseBody LTCategory_3 getProfileInfo(@ModelAttribute("ltUser") LTUserForm ltUser, HttpServletRequest request) throws Exception {
 		ModelAndView mv = new ModelAndView("profile", "ltUser", ltUser);
 		ModelAndView errorMV = new ModelAndView("error", "ltUser", ltUser);
 
 		User user = new Utility().getUserFromSecurityContext();
-		ltUser.setSites(mktgService.getSites(user.getUserId()));
+		
+		if (user.getRoleActions().get(0).getRoleType().equals("Corporate"))
+			ltUser.setSites(corpService.getAllSites());
+		else
+			ltUser.setSites(mktgService.getSites(user.getUserId()));
 
 		if (request.getParameter("userId") == null || request.getParameter("userId").length() <= 0)  {
 			return null;
@@ -977,6 +999,7 @@ public class MarketingController {
 			aMsg.setLanguage("EN");
 			aMsg.setStatus("P");
 			aMsg.setCreated(Calendar.getInstance().getTime());
+			aMsg.setBrandName("Liberty"); //for now - 12/22/2016
 			
 			CustomFields cfields = mktgService.getCustomFields(userId);
 			String loc = cfields.getLocation() != null ? cfields.getLocation() : "US";
@@ -1128,7 +1151,12 @@ public class MarketingController {
 			
 			ltUser.setApprovedMsgs(mktgService.getCorporateMessages(siteId));
 			ltUser.setApprovedMsgsSP(mktgService.getCorporateMessages(siteId, "SP"));
-
+			
+			ltUser.setApprovedMsgsST(mktgService.getCorporateMessages(siteId, "EN", "Siempre"));
+			ltUser.setApprovedMsgsSTSP(mktgService.getCorporateMessages(siteId, "SP", "Siempre"));
+			ltUser.setApprovedMsgsJT(mktgService.getCorporateMessages(siteId, "EN", "Juntos"));
+			ltUser.setApprovedMsgsJTSP(mktgService.getCorporateMessages(siteId, "SP", "Juntos"));
+			
 			//get the custom approved msgs based on office or entity
 			String entType = "Off";
 
@@ -1560,6 +1588,7 @@ public class MarketingController {
 			saf8.setMessageText("Reciba $100 en efectivo por cada cliente nuevo que usted refiera a SiempreTax+!");
 			safMsgs.add(saf8);
 			
+			/*
 			ApprovedMessage saf9 = new ApprovedMessage();
 			saf9.setMessageId(9);
 			saf9.setMessageText("Get $20 for every new customer you refer to Liberty Tax!");
@@ -1574,7 +1603,8 @@ public class MarketingController {
 			saf11.setMessageId(11);
 			saf11.setMessageText("Reciba $20 en efectivo con cada preparacion de impuestos pagada en SiempreTax+!");
 			safMsgs.add(saf11);
-		
+			*/
+			
 			ltUser.setCustomMsgs(safMsgs);				
 			
 			//get the info for the first office
@@ -1820,6 +1850,11 @@ public class MarketingController {
 			} else {			
 				ltUser.setApprovedMsgs(mktgService.getCorporateMessages(siteId));
 				ltUser.setApprovedMsgsSP(mktgService.getCorporateMessages(siteId, "SP"));
+				
+				ltUser.setApprovedMsgsST(mktgService.getCorporateMessages(siteId, "EN", "Siempre"));
+				ltUser.setApprovedMsgsSTSP(mktgService.getCorporateMessages(siteId, "SP", "Siempre"));
+				ltUser.setApprovedMsgsJT(mktgService.getCorporateMessages(siteId, "EN", "Juntos"));
+				ltUser.setApprovedMsgsJTSP(mktgService.getCorporateMessages(siteId, "SP", "Juntos"));
 			}
 			
 			String entType = "Off";
@@ -1855,13 +1890,31 @@ public class MarketingController {
 		Long userId = user.getUserId();
 		
 		List<String> listIds = ltUser.getListIds();
-		String msg = ltUser.getSendSearchCityString();
+		//String msg = ltUser.getSendSearchCityString();
+		Integer msgId = Integer.valueOf(ltUser.getSendSearchCityString());
 		List<String> officeIds = ltUser.getOfficeIds();
 		
 		try {
+			String msg = mktgService.getCustomMsgById(msgId).getMessageText();
+
 			ltUser.setSendNow(ltUser.getNowSched().equals("Y") ? true : false);
 			List<UserProfileVO> sites = mktgService.getSites(userId);
 			String keyword = null;
+			
+			//for corp role 
+			//if only one office is chosen, use that keyword else use LIBERTY TAX
+			if (user.getRoleActions().get(0).getRoleType().equals("Corporate")) {
+				if (officeIds.size() > 1) {
+					keyword = "LIBERTY TAX";					
+				} else {
+					sites = corpService.getAllSites();
+					for (UserProfileVO site : sites) {
+						if (site.getCustomField2().equals(officeIds.get(0)))
+							keyword = site.getKeyword();
+						break;
+					}
+				}	
+			}
 			
 			//for office role
 			if (user.getRoleActions().get(0).getRoleType().equals("Office")) {
@@ -1872,9 +1925,18 @@ public class MarketingController {
 				//If only one office is selected, use the keyword for that office
 				//Else, use the entity keyword
 				if (officeIds.size() > 1) {
-					keyword = this.getKeyword(userId, null);
+					keyword = this.getKeyword(userId, null);					
 				} else {
 					keyword = this.getKeyword(userId, officeIds.get(0));
+				}	
+				
+				if (listIds.size() > 1) { //If multiple lists are selected, ignore the include phone option
+					ltUser.setIncludePhone(false);	
+				} else { //If Entity list is selected, ignore the include phone option
+					TargetUserList tul = dao.getList(listIds.get(0));
+					String entKeyword = this.getKeyword(userId, null);
+					if (tul.getListName().equals(entKeyword))
+						ltUser.setIncludePhone(false);	
 				}
 			}
 
@@ -1901,6 +1963,7 @@ public class MarketingController {
 			campaign.setUserId(userId);
 			campaign.setName(cName);
 			campaign.setKeyword(keyword);
+			//campaign.setStartDate(Calendar.getInstance().getTime());
 			
 			String shortcode = PropertyUtil.load().getProperty("shortcode");
 			campaign.setShortcode(shortcode);
@@ -1909,7 +1972,7 @@ public class MarketingController {
 			campaign.setListIds(listIds);
 			campaign.setListId("Multi");
 			
-			String msgText = new CategoryBase().createMessage(keyword + "\n" + ltUser.getSendSearchCityString(), campaign);
+			String msgText = new CategoryBase().createMessage(keyword + "\n" + msg, campaign);
 
 			Long uid = this.getUserId(keyword);
 			LTCategory_3 catg = null;
@@ -1919,14 +1982,34 @@ public class MarketingController {
 				catg = mktgService.getProfile(uid);
 			}
 			
-			ltUser.setCategory(catg);
+			ltUser.setCategory(catg);			
+			
+			//check if we are in the 8am - 8pm window - only for Send Now
+			/*
+			if (ltUser.isSendNow()) {
+				String tzone = null;
+				if (catg != null && catg.getTimezone() != null)
+					tzone = catg.getTimezone();
+				if (tzone == null)
+					 tzone = "US/Pacific";
+				if (! new Utility().inWindow(0, tzone)) {
+					return message.getMessage("error.send.outsidewindow", new Object[] {}, locale);
+				}	
+			}
+			*/
 			
 			if (ltUser.isIncludePhone()) { //get the office phone
 				//get the info for the first office
 					if (catg != null) {				
 						String phone = catg.getPhone();
-						if (phone != null && phone.length() > 0)
-							msgText += " " + phone;
+						/* Don't add the entity phone number - 1/9/2017
+						if (phone == null || phone.length() <= 0) 
+							phone = catg.getAdminMobilePhone(); //For Entity
+						*/
+
+						if (phone != null && phone.length() > 0) {
+							msgText += " " + new Utility().formatPhone(phone);
+						}
 					}
 			}
 			
@@ -1954,7 +2037,8 @@ public class MarketingController {
 				if (user.getRoleActions().get(0).getRoleType().equals("Entity"))
 					linkUrl += "?m=e&id=" + sites.get(0).getCustomField1();
 				
-				msgText += "\n" + new Utility().shortenUrl(linkUrl);		
+				//msgText += "\n" + new Utility().shortenUrl(linkUrl);	
+				msgText += "\n" + linkUrl;
 			}
 			
 			if (lnk.equals("2")) { //default link
@@ -1994,10 +2078,11 @@ public class MarketingController {
 			} else
 				new LTSMessageServiceImpl().sendMessageLT(campaign, ltUser);
 			
-			if (ltUser.isSendNow())
+			if (ltUser.isSendNow()) {			
 				return message.getMessage("success.msg.send", new Object[] {}, locale);
-			else
+			} else {
 				return message.getMessage("schedule.ok", new Object[] {}, locale);
+			}
 		} catch (NoSuchMessageException e) {
 			e.printStackTrace();
 			return message.getMessage("error.msg.send", new Object[] {e.getMessage()}, locale);
@@ -2242,6 +2327,7 @@ public class MarketingController {
 		newMsg.setLocation("US");
 		newMsg.setCreated(now);
 		newMsg.setUpdated(now);
+		newMsg.setBrandName("Liberty"); //for now - 12/22/2016
 		
 		try {
 			corpService.createCorpMessage(newMsg);	

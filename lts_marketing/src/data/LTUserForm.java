@@ -66,6 +66,11 @@ public class LTUserForm {
 	private List<ValueObject> hours;
 	private List<UserProfileVO> sites;
 	
+	private List<ApprovedMessage> approvedMsgsST;
+	private List<ApprovedMessage> approvedMsgsSTSP;
+	private List<ApprovedMessage> approvedMsgsJT;
+	private List<ApprovedMessage> approvedMsgsJTSP;
+	
 	//Msg Send
 	private String schedDate;
 	private String schedTime;
@@ -323,6 +328,38 @@ public class LTUserForm {
 
 	public void setApprovedMsgsSP(List<ApprovedMessage> approvedMsgsSP) {
 		this.approvedMsgsSP = approvedMsgsSP;
+	}
+
+	public List<ApprovedMessage> getApprovedMsgsST() {
+		return approvedMsgsST;
+	}
+
+	public void setApprovedMsgsST(List<ApprovedMessage> approvedMsgsST) {
+		this.approvedMsgsST = approvedMsgsST;
+	}
+
+	public List<ApprovedMessage> getApprovedMsgsSTSP() {
+		return approvedMsgsSTSP;
+	}
+
+	public void setApprovedMsgsSTSP(List<ApprovedMessage> approvedMsgsSTSP) {
+		this.approvedMsgsSTSP = approvedMsgsSTSP;
+	}
+
+	public List<ApprovedMessage> getApprovedMsgsJT() {
+		return approvedMsgsJT;
+	}
+
+	public void setApprovedMsgsJT(List<ApprovedMessage> approvedMsgsJT) {
+		this.approvedMsgsJT = approvedMsgsJT;
+	}
+
+	public List<ApprovedMessage> getApprovedMsgsJTSP() {
+		return approvedMsgsJTSP;
+	}
+
+	public void setApprovedMsgsJTSP(List<ApprovedMessage> approvedMsgsJTSP) {
+		this.approvedMsgsJTSP = approvedMsgsJTSP;
 	}
 
 	public List<ValueObject> getHours() {

@@ -1,6 +1,8 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -13,6 +15,12 @@ import com.google.gson.Gson;
 
 import dao.LTUserDAOManager;
 import data.ValueObject;
+import user.Campaign;
+import user.JobScheduler;
+import user.TargetUserList;
+import util.LatLon;
+import util.PropertyUtil;
+import util.Utility;
 
 public class TestIt {
 	private static final String GOOGLE_URL_SHORT_API = "https://www.googleapis.com/urlshortener/v1/url";
@@ -21,9 +29,17 @@ public class TestIt {
 	public static void main(String[] args) throws Exception {
 		//new TestIt().test1();
 		
+		/*
+		String pnum = new Utility().formatPhone("14157226737");
+		System.out.println("pnum: " + pnum);
+		
 		String longUrl = "http://localhost/lts_marketing/ext/infoForm?m=e&id=5010";
 		String surl = new TestIt().shortenUrl(longUrl);
 		System.out.println("surl: " + surl);
+		*/
+		
+		new LatLon().getIt("d:\\temp\\LTS Locations for LatLong 022417.csv", "d:\\temp\\latlon_out.csv");
+		//new LatLon().getIt("d:\\temp\\latlon_1.csv", "d:\\temp\\latlon_out.csv");
 	}
 	
 	public String shortenUrl(String longUrl) throws Exception {	
@@ -75,5 +91,36 @@ public class TestIt {
         
 		for (Map.Entry<String, Long> entry : pList.entrySet())
 			System.out.println("num: " + entry.getKey());
+	}
+	
+	public void testScheduleJob() throws Exception {
+		Campaign  campaign = new Campaign();
+		campaign.setCampaignId(UUID.randomUUID().toString());
+		campaign.setUserId(31454L);
+		campaign.setName("Test Campaign 1");
+		campaign.setKeyword("LIBTAXOG");
+		
+		String shortcode = "US411";
+		campaign.setShortcode(shortcode);
+		
+		List<String> listIds = new ArrayList<String>();
+		listIds.add("08bc9908-98b7-4fb1-af02-695c6bf7732f");
+		listIds.add("a33e4f47-6fc3-4d01-af8f-fee7672bbd63");
+		
+		campaign.setListIds(listIds);
+		campaign.setListId("Multi");
+		
+		List<TargetUserList> tuList = new ArrayList<TargetUserList>();
+		for (String listId : campaign.getListIds()) {
+			TargetUserList tul = new TargetUserList();
+			tul.setListId(listId);
+			tuList.add(tul);
+		}
+		campaign.setMultiList(tuList);
+		
+		campaign.setMessageText("This is a test msg");
+		campaign.setRawMessageText("This is a test msg");
+		
+		new JobScheduler().schedule("1/12/2017", "10:30 AM", campaign, "US/Pacific", null, null, null);
 	}
 }

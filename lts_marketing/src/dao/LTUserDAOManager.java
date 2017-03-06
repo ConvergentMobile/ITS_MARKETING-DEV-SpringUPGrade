@@ -377,6 +377,7 @@ public class LTUserDAOManager extends UserDAOManager {
 	}
 	
 	//opt out used by Corp
+	//TO DO - change it so that insert into optout happens only if the number exists
 	public int optout(String mobilePhone, String shortcode, String keyword) throws Exception {
 		String sql = "insert into opt_out(phone_number, shortcode, keyword, firstname, lastname)"
 				+ "	select tld.mobile_phone, ?, u.keyword, tld.first_name, tld.last_name"
@@ -410,6 +411,22 @@ public class LTUserDAOManager extends UserDAOManager {
 			close();
 		}
 	}	
+	
+	public TargetUserList getList(String listId) throws Exception {
+		String sql = "select tul.list_id, tul.user_id, tul.list_name, tul.list_path, tul.list_display_path, tul.list_type"
+					+ " from target_user_list tul"
+					+ " where tul.list_id = :id";
+		
+		session = HibernateUtil.currentSession();
+		
+		Query q = session.createSQLQuery(sql).addEntity("tul", TargetUserList.class);
+		List<TargetUserList> tuList = q.setParameter("id", listId).list();
+		if (tuList.isEmpty()) {
+			return null;
+		}
+		
+		return tuList.get(0);
+	}
 	
 	/*
 	//opt out used by Corp

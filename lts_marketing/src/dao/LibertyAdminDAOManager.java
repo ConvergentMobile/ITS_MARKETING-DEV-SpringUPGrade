@@ -860,9 +860,14 @@ public class LibertyAdminDAOManager implements Serializable {
 		}	
 	}
 	
-	//get the list of approved messages - just the Corporate msgs
 	public List<ApprovedMessage> getApprovedMsgs(Integer siteId, String lang) throws Exception {
-		String sql = "from ApprovedMessage where siteId = :siteId and language = :lang and userId is null";
+		return this.getApprovedMsgs(siteId, lang, "Liberty");
+	}
+	
+	//get the list of approved messages - just the Corporate msgs
+	public List<ApprovedMessage> getApprovedMsgs(Integer siteId, String lang, String brandName) throws Exception {
+		String sql = "from ApprovedMessage where siteId = :siteId and language = :lang and userId is null"
+					+ " and brandName = :brand";
 		
 		logger.debug("getApprovedMsgs start 1: " + Calendar.getInstance().getTimeInMillis());
 
@@ -872,6 +877,7 @@ public class LibertyAdminDAOManager implements Serializable {
 			
 			List<ApprovedMessage> msgList = q.setInteger("siteId", siteId)
 											.setString("lang", lang)
+											.setString("brand", brandName)
 											.list();
 			if (msgList.isEmpty())
 				return null;
@@ -890,7 +896,7 @@ public class LibertyAdminDAOManager implements Serializable {
 
 	//get the list of custom approved messages
 	public List<ApprovedMessage> getCustomMsgs(Integer siteId, String entityId) throws Exception {
-		String sql = "from ApprovedMessage where siteId = :siteId and entityId = :entityId and status = 'A'";
+		String sql = "from ApprovedMessage where siteId = :siteId and entityId = :entityId and status = 'A' and language = 'US'";
 		
 		try {		
 			session = HibernateUtil.currentSession();
@@ -935,7 +941,8 @@ public class LibertyAdminDAOManager implements Serializable {
 		String csql = "select ap.* from approved_messages ap"
 				+ " where ap.site_id = :siteId"
 				+ " and ap.status = :status"				
-				+ " and ap.user_id > :userId";
+				//+ " and ap.user_id > :userId";
+				+ " and ap.user_id = :userId";				
 		
 		String sql = osql;
 		

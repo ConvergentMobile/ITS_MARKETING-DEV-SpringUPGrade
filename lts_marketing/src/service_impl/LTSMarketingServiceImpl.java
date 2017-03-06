@@ -18,6 +18,7 @@ import reports.ReportData;
 import subclass.LTCategory_3;
 
 import user.RoleAction;
+import user.TargetUserList;
 import user.User;
 import util.InputDecoder;
 import util.PropertyUtil;
@@ -158,6 +159,10 @@ public class LTSMarketingServiceImpl {
 		return adminDao.getApprovedMsgs(siteId, lang);
 	}
 	
+	public List<ApprovedMessage> getCorporateMessages(Integer siteId, String lang, String brandName) throws Exception {
+		return adminDao.getApprovedMsgs(siteId, lang, brandName);
+	}
+	
 	public List<ApprovedMessage> getCustomMessages(Integer siteId, String eid) throws Exception {
 		List<ApprovedMessage> mlist = adminDao.getCustomMsgs(siteId, eid);
 		return mlist;
@@ -194,9 +199,10 @@ public class LTSMarketingServiceImpl {
 	//get approved messages from the last x days
 	public List<ApprovedMessage> approvedMsgsFromDate(Long userId, String entType, String status, Integer days) throws Exception {		
 		List<ApprovedMessage> mlist = adminDao.getCustomMsgs(siteId, userId, entType, status, days); 
-		if (mlist == null || mlist.isEmpty())
+		//if (mlist == null || mlist.isEmpty())
 			return mlist;
 		
+		/*
 		for (ApprovedMessage amsg : mlist) {
 			 String s = amsg.getMessageText().replaceAll("\n", "<LF>");
 			 s = s.replaceAll("\\p{Cntrl}", "<LF>"); //to get rid of any ^Ms
@@ -206,6 +212,7 @@ public class LTSMarketingServiceImpl {
 			 logger.debug("msg: " + amsg.getMessageText());
 		 }
 		return mlist;
+		*/
 	}
 	
 	public List<ApprovedMessage> approvedMsgsFromDate(Long userId, String entType, String status) throws Exception {		
@@ -262,5 +269,9 @@ public class LTSMarketingServiceImpl {
 	
 	public List<ValueObject> getUsageReport() throws Exception {
 		return adminDao.getUsageReport();
+	}
+	
+	public TargetUserList getList(String listId) throws Exception {
+		return dao.getList(listId);
 	}
 }
