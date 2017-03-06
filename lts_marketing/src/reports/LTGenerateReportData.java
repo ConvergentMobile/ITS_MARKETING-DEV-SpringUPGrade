@@ -168,7 +168,16 @@ public class LTGenerateReportData {
 				this.summaryRow.put("Campaign Name", reportRows.get(0).getColumn5());
 				//this.summaryRow.put("Message Text", reportRows.get(0).getColumn7());
 				
-	        	return reportRows;	  	        	
+	        	return reportRows;	 
+        	case 14: //InfoForm data
+        		reportRows = rptDAO.getInfoFormData(params, offset, numRecords, sortField, sortOrder);
+        		col = 0;       		
+				reportColHeaders.add(col++, "Mobile Phone");   
+				reportColHeaders.add(col++, "Name");   				
+				reportColHeaders.add(col++, "Date"); 				
+				this.setReportColumnHeaders(reportColHeaders);	    
+				
+	        	return reportRows;		        	
         	default:
         		logger.error("Unknown report");
         		break;

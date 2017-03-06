@@ -7,7 +7,8 @@
 		<property name="hibernate.connection.datasource">java:/comp/env/jdbc/pooledInstab</property>
 		<property name="show_sql">true</property>
 		<property name="dialect">org.hibernate.dialect.MySQLDialect</property>
-		<property name="hibernate.hbm2ddl.auto">update</property>
+		
+		<!-- <property name="hibernate.hbm2ddl.auto">update</property> -->
 		
 		<property name="hibernate.c3p0.acquire_increment">5</property>
 		<property name="hibernate.c3p0.idle_test_period">3600</property>
@@ -38,5 +39,6 @@
 	<mapping resource="/ApprovedMessage.hbm.xml"/>
 	<mapping resource="/LTReport.hbm.xml"/>
 	<mapping resource="/SAF.hbm.xml"/>
+	<mapping resource="/InfoForm.hbm.xml"/>
     </session-factory>	
 </hibernate-configuration>

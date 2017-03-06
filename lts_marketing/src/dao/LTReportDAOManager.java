@@ -571,14 +571,24 @@ public class LTReportDAOManager extends ReportDAOManager {
 					+ " where u.user_id = ?"
 					+ " and o.keyword = u.keyword";
 
+		Vector<Object> args = new Vector<Object>();
+		String dateClause = "";
+		
+		args.add(params.get("userIds"));
+
+		if (params.get("fromDate") != null) {
+			dateClause = " and o.last_updated >= ? and o.last_updated <= ?";
+			args.add(params.get("fromDate"));
+			args.add(params.get("toDate") + " 24:00:00");		
+			sql += dateClause;
+		}
+		
 		if (sortField != null && sortField.length() > 0)
 			sql += " order by " + sortField;
 		if (sortOrder != null && sortOrder.length() > 0)
 			sql += " " + sortOrder;
 		
 		logger.debug("sql: " + sql);
-
-		String userId = params.get("userIds").toString();
 
 		List<ReportData> reportDataList = new ArrayList<ReportData>();
 		
@@ -591,8 +601,12 @@ public class LTReportDAOManager extends ReportDAOManager {
 					.addScalar("column4", new StringType())										
 					.setResultTransformer(Transformers.aliasToBean(ReportData.class));						
 			
-			reportDataList = q.setString(0, userId)
-					.list();
+			int pos = 0;
+			for (Object arg : args) {
+				q.setString(pos++, arg.toString());
+			}
+			
+			reportDataList = q.list();
 			
 			String sql1 = "select found_rows() column1";
 			q = session.createSQLQuery(sql1)
@@ -670,6 +684,63 @@ public class LTReportDAOManager extends ReportDAOManager {
 			List<ReportData> reportDataList1 = q.list();
 
 			reportDataList.addAll(reportDataList1);
+		} finally  {
+			close();
+		}
+		return reportDataList;
+	}
+	
+	//all the data from the InfoForm
+	public List<ReportData> getInfoFormData(Map params, int offset, int numRecords, String sortField, String sortOrder) throws Exception {
+		String sql = "select i.mobile_phone column1, concat(i.first_name, ' ', i.last_name) column2,"
+					+ " date_format(i.last_updated, '%m/%d/%Y') column3,"
+					+ " i.entity_id column4, i.office_id column5"
+					+ " from info_form i, user_customer_defined ucd"
+					+ " where ucd.user_id = ?"
+					+ " and (ucd.custom_field_1 = i.entity_id"
+					+ "		or ucd.custom_field_2 = i.office_id)";
+		
+		Vector<Object> args = new Vector<Object>();
+		String dateClause = "";
+		
+		args.add(params.get("userIds"));
+
+		if (params.get("fromDate") != null) {
+			dateClause = " and i.last_updated >= ? and i.last_updated <= ?";
+			args.add(params.get("fromDate"));
+			args.add(params.get("toDate") + " 24:00:00");			
+			sql += dateClause;
+		}
+		
+		logger.debug("sql: " + sql);
+		
+		List<ReportData> reportDataList = new ArrayList<ReportData>();
+		
+		try {
+			session = HibernateUtil.currentSession();
+			Query q = session.createSQLQuery(sql)
+					.addScalar("column1", new StringType())					
+					.addScalar("column2", new StringType())	
+					.addScalar("column3", new StringType())	
+					.addScalar("column4", new StringType())										
+					.addScalar("column5", new StringType())										
+					.setResultTransformer(Transformers.aliasToBean(ReportData.class));						
+			
+			int pos = 0;
+			for (Object arg : args) {
+				q.setString(pos++, arg.toString());
+			}
+			
+			reportDataList = q.list();
+			
+			String sql1 = "select found_rows() column1";
+			q = session.createSQLQuery(sql1)
+					.addScalar("column1", new StringType())														
+					.setResultTransformer(Transformers.aliasToBean(ReportData.class));			
+
+			List<ReportData> reportDataList1 = q.list();
+
+			reportDataList.addAll(reportDataList1);			
 		} finally  {
 			close();
 		}

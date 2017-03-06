@@ -20,6 +20,12 @@
 <security:http pattern="/rest" security="none" />
 <security:http pattern="/*libertytax.net/**" security="none" />
 <security:http pattern="/generateUrl" security="none" />
+<security:http pattern="/css" security="none" />
+<security:http pattern="/styles" security="none" />
+<security:http pattern="/scripts" security="none" />
+<security:http pattern="/js" security="none" />
+<security:http pattern="/images" security="none" />
+<security:http pattern="/ext" security="none" />
 
 <bean id="preAuthenticatedProcessingFilterEntryPoint" class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint" />
 
@@ -29,6 +35,7 @@
    -->     
     <security:intercept-url pattern="/error1" access="hasRole('ROLE_ANONYMOUS')"/> 
     <security:intercept-url pattern="/rest/**" access="hasRole('ROLE_ANONYMOUS')"/> 
+    <security:intercept-url pattern="/ext/**" access="hasRole('ROLE_ANONYMOUS')"/> 
     <security:intercept-url pattern="/**" access="isAuthenticated()" requires-channel="http"/>        
     <security:custom-filter ref="preAuthFilter" position="PRE_AUTH_FILTER"/> 
     <security:access-denied-handler ref="accessDeniedHandler" />   

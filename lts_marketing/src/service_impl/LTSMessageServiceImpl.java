@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -32,6 +33,7 @@ import user.UserDAOManager;
 import util.LTException;
 import util.PropertyUtil;
 import dao.LTUserDAOManager;
+import dao.LibertyAdminDAOManager;
 import data.LTUserForm;
 import data.ValueObject;
 
@@ -294,7 +296,17 @@ public class LTSMessageServiceImpl {
 		}
 		
         executor.shutdown();
-        executor.awaitTermination(60, TimeUnit.MINUTES);
+        //executor.awaitTermination(60, TimeUnit.MINUTES);
+	}
+	
+	//Used in AmbassadorWH1
+	public void sendMessage2(String pNum, String msgText, String custId) throws Exception {		
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+		Runnable worker = new SMSExecutorImpl(pNum, msgText, UUID.randomUUID().toString(), "Ambassador", custId);
+		executor.execute(worker);
+		
+        executor.shutdown();
+        //executor.awaitTermination(60, TimeUnit.MINUTES);
 	}
 	
 	public List<TargetUserList> getList(List<String> officeIds) throws Exception {
@@ -307,6 +319,10 @@ public class LTSMessageServiceImpl {
 	
 	public List<TargetListData> getList(String listId) throws Exception {
 		return new TargetUserListDao().getTargetListData(listId);
+	}
+	
+	public List<TargetListData> getList(String listId, String sortCol, String sortOrder) throws Exception {
+		return new TargetUserListDao().getTargetListData(listId, sortCol, sortOrder);
 	}
 	
 	public List<TargetListData> getDefaultList(Long userId) throws Exception {
@@ -345,5 +361,9 @@ public class LTSMessageServiceImpl {
 			tmp = "1" + tmp;
 
 		return tmp;
+	}
+	
+	public boolean checkOptedOut(String smsto, String keyword, String shortcode) throws Exception {
+		return new LibertyAdminDAOManager().checkOptedOut(smsto, keyword, shortcode);
 	}
 }

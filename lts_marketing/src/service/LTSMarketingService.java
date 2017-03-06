@@ -19,6 +19,7 @@ import category_3.Category_3;
 
 import dao.LTUserDAOManager;
 import data.ApprovedMessage;
+import data.ValueObject;
 
 public interface LTSMarketingService {
 	public void loginSSO(String roleP, String idP, String fp, LTUserDAOManager userDAO, HttpServletRequest request);
@@ -66,4 +67,6 @@ public interface LTSMarketingService {
 	public List<UserProfileVO> getSAFSites(Long userId) throws Exception;
 	
 	public void saveDetails(Object obj) throws Exception;
+	
+	public List<ValueObject> getUsageReport() throws Exception;
 }

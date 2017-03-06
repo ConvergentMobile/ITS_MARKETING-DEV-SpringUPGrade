@@ -145,9 +145,26 @@
 	}
 
 	function listMgmt() {
+		var chkArray = [];
+
+		$('input[name="listIds"]:checked').each(function() {
+			chkArray.push($(this).val());
+		});
+
+		if (chkArray.length > 1) {
+			popup("You must select only one list", 0);	
+			return;
+		} else if (chkArray.length == 0) {
+			popup("Please select at least one list", 0);
+			return;
+		}
+		
         $.ajax({
             type : 'GET',
             url : 'listMgmt',
+		    data: {
+		    	listId: chkArray[0],
+		    },            
             success : function(result) {
 				$('#dialog1').dialog({
 					title : '',
@@ -399,6 +416,29 @@
 					alert('error: ' + e);
 				}                        
 	        });	
+	}
+	
+	function optout() {
+		var mp = $('#searchCityString').val();
+		if (mp == '') {
+			popup("Must enter a mobile phone number", 0);
+			return;
+		}
+		
+	        $.ajax({
+	            type : 'POST',
+	            url : 'optout',
+	            data: {
+	            	'mobilePhone': mp,
+	            },
+	            success : function(result) {
+ 					popup(result, 0);    
+ 					resetForm();
+ 		    	},
+		    	error : function(e) {
+					alert('error: ' + e.text());
+		    	}    		    
+	        });
 	}	
 </script>
 
@@ -590,8 +630,16 @@
                 	<form:checkbox path="includePhone" id="includePhone" class="chk_light mr5"/>
                 	<label for="includePhone">Include default phone number</label>
                 	<br/>
+                <!-- 
                 	<form:checkbox path="includeLink" id="includeLink" class="chk_light mr5"/>
-                	<label for="includeLink">Include default link</label>                	
+                	<label for="includeLink">Include default link</label>   
+                --> 
+                	<label for="includeLink">Select link</label>                  	
+					<form:select path="adNewMsg">
+						<form:option value="">No Link</form:option>
+			                  	<form:option value="1">Info Form</form:option>
+			                  	<form:option value="2">Default Link</form:option>
+					</form:select>                  	            	
               </div> 
               		<br/>
 	          	<form:hidden path="nowSched" />
@@ -802,6 +850,24 @@
 		</tr>
 	      </tbody>
 	      </table>
+	      
+              <hr/>
+
+              <table class="grid bizinfo_grid" width="100%">
+              <tr>
+                 <td class="td_01">
+        		This will allow you to opt-out any number in all the Liberty Tax US411 database. 
+        		If the number is not in the lts database you will be notified                 
+                 </td>
+              </tr>
+              <tr><td>&nbsp;</td></tr>
+              <tr>
+              	<td class="mt40 corp">
+          		<form:input path="searchCityString" placeholder="Enter a number to opt-out"/>
+	  		<a href="#" onclick="optout()" class="btn_dark_blue btn_03_lnk">Submit</a>               	
+              	</td>
+              </tr>              
+	      </table>	      
 	    </div>
 	  </div>				
           <!-- // biz info wrapper -->
@@ -816,7 +882,12 @@
           		<div class="hotspot_box">
               	<p class="p_left">Customize <br>your <br>Hotspot</p>
                 <p class="p_right">Select <br>your <br>design</p>
-                <div class="hotspot_seal"><img src="images/seal_hotspot_001.png" width="168" height="168"></div>
+                <c:if test='${ltUser.user.billingCountry == "CA"}'>                
+                	<div class="hotspot_seal"><img src="images/seal_hotspot_ca.png" width="168" height="168"></div>               
+                </c:if>
+                <c:if test='${ltUser.user.billingCountry == "US"}'>
+                	<div class="hotspot_seal"><img src="images/seal_hotspot_001.png" width="168" height="168"></div>
+              	</c:if>                    
               </div>
               <!-- // box -->
               <ul class="ul_hotspot">

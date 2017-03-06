@@ -37,7 +37,18 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
         </init-param> 		
 		<load-on-startup>2</load-on-startup>
 	</servlet>	
-	
+
+    <servlet>
+	<servlet-name>AmbassadorWH1</servlet-name>
+        <servlet-class>util.AmbassadorWH1</servlet-class>
+        <load-on-startup>4</load-on-startup>
+   </servlet>
+
+   <servlet-mapping>
+        <servlet-name>AmbassadorWH1</servlet-name>
+        <url-pattern>/ext/amb/*</url-pattern>
+   </servlet-mapping>   
+   
 	<servlet-mapping>
 		<servlet-name>LTSFileUpload</servlet-name>
 		<url-pattern>/rest/*</url-pattern>

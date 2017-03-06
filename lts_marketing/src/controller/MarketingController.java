@@ -1,9 +1,7 @@
 package controller;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
@@ -26,21 +24,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import keyword.KeywordApplication;
-import keyword.KeywordDAOManager;
-import liberty.CustomFields;
-
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.struts.action.ActionErrors;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.action.ActionMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.MessageSource;
@@ -57,31 +46,6 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import reports.LTGenerateReportData;
-import reports.LTReport;
-import reports.ReportData;
-import reports.ReportParams;
-import service_impl.LTSCorpServiceImpl;
-import service_impl.LTSMarketingServiceImpl;
-import service_impl.LTSMessageServiceImpl;
-import sms.SMSDelivery;
-import sms.SMSMain;
-import subclass.LTCategory_3;
-import user.Campaign;
-import user.CategoryBase;
-import user.JobScheduler;
-import user.RoleAction;
-import user.SendMessageForm;
-import user.TargetListData;
-import user.TargetUserList;
-import user.TargetUserListDao;
-import user.User;
-import user.UserDAOManager;
-import util.InputDecoder;
-import util.LTException;
-import util.PropertyUtil;
-import util.US411Exception;
-import util.Utility;
 import admin_user.UserProfileVO;
 import dao.LTReportDAOManager;
 import dao.LTUserDAOManager;
@@ -90,6 +54,33 @@ import data.ApprovedMessage;
 import data.LTUserForm;
 import data.SAF;
 import data.ValueObject;
+import keyword.KeywordApplication;
+import keyword.KeywordDAOManager;
+import liberty.CustomFields;
+import reports.LTGenerateReportData;
+import reports.LTReport;
+import reports.ReportData;
+import reports.ReportParams;
+import service_impl.LTSCorpServiceImpl;
+import service_impl.LTSMarketingServiceImpl;
+import service_impl.LTSMessageServiceImpl;
+import sms.SMSMain;
+import subclass.LTCategory_3;
+import user.Campaign;
+import user.CategoryBase;
+import user.JobScheduler;
+import user.RoleAction;
+import user.TargetListData;
+import user.TargetUserList;
+import user.TargetUserListDao;
+import user.User;
+import user.UserDAOManager;
+import util.ExportData;
+import util.InputDecoder;
+import util.LTException;
+import util.PropertyUtil;
+import util.US411Exception;
+import util.Utility;
 
 @Controller
 public class MarketingController {
@@ -517,9 +508,11 @@ public class MarketingController {
 			if (! site.getUserId().equals(userId))
 				continue;
 			if (site.getCustomField2().equals("Entity")) {
-				String pnum = catg.getAdminMobilePhone().length() > 10 ? catg.getAdminMobilePhone().substring(1)
+				if (catg.getAdminMobilePhone() != null) {
+					String pnum = catg.getAdminMobilePhone().length() > 10 ? catg.getAdminMobilePhone().substring(1)
 										: catg.getAdminMobilePhone();
-				catg.setPhone(pnum);
+					catg.setPhone(pnum);
+				}
 				break;
 			}
 		}	
@@ -577,9 +570,11 @@ public class MarketingController {
 				continue;
 			if (site.getCustomField2().equals("Entity")) {
 				//catg.setPhone(catg.getAdminMobilePhone().substring(1)); //these start with 1 unlike the others
-				String pnum = catg.getAdminMobilePhone().length() > 10 ? catg.getAdminMobilePhone().substring(1)
-						: catg.getAdminMobilePhone();
-				catg.setPhone(pnum);
+				if (catg.getAdminMobilePhone() != null) {
+					String pnum = catg.getAdminMobilePhone().length() > 10 ? catg.getAdminMobilePhone().substring(1)
+							: catg.getAdminMobilePhone();
+					catg.setPhone(pnum);
+				}
 				break;
 			} else { //set the officeId
 				ltUser.setSearchDMAString(site.getCustomField2());
@@ -1537,12 +1532,12 @@ public class MarketingController {
 
 			ApprovedMessage saf3 = new ApprovedMessage();
 			saf3.setMessageId(3);
-			saf3.setMessageText("¡Reciba $50 en efectivo por cada cliente nuevo que usted refiera a Liberty Tax Service!");
+			saf3.setMessageText("Reciba $50 en efectivo por cada cliente nuevo que usted refiera a Liberty Tax Service!");
 			safMsgs.add(saf3);
 
 			ApprovedMessage saf4 = new ApprovedMessage();
 			saf4.setMessageId(4);
-			saf4.setMessageText("¡Reciba $100 en efectivo por cada cliente nuevo que usted refiera a Liberty Tax Service!");
+			saf4.setMessageText("Reciba $100 en efectivo por cada cliente nuevo que usted refiera a Liberty Tax Service!");
 			safMsgs.add(saf4);
 			
 			ApprovedMessage saf5 = new ApprovedMessage();
@@ -1557,12 +1552,12 @@ public class MarketingController {
 
 			ApprovedMessage saf7 = new ApprovedMessage();
 			saf7.setMessageId(7);
-			saf7.setMessageText("¡Reciba $50 en efectivo por cada cliente nuevo que usted refiera a SiempreTax+!");
+			saf7.setMessageText("Reciba $50 en efectivo por cada cliente nuevo que usted refiera a SiempreTax+!");
 			safMsgs.add(saf7);
 
 			ApprovedMessage saf8 = new ApprovedMessage();
 			saf8.setMessageId(8);
-			saf8.setMessageText("¡Reciba $100 en efectivo por cada cliente nuevo que usted refiera a SiempreTax+!");
+			saf8.setMessageText("Reciba $100 en efectivo por cada cliente nuevo que usted refiera a SiempreTax+!");
 			safMsgs.add(saf8);
 			
 			ApprovedMessage saf9 = new ApprovedMessage();
@@ -1572,12 +1567,12 @@ public class MarketingController {
 			
 			ApprovedMessage saf10 = new ApprovedMessage();
 			saf10.setMessageId(10);
-			saf10.setMessageText("¡Reciba $20 en efectivo con cada preparacion de impuestos pagada en Liberty Tax!");
+			saf10.setMessageText("Reciba $20 en efectivo con cada preparacion de impuestos pagada en Liberty Tax!");
 			safMsgs.add(saf10);
 			
 			ApprovedMessage saf11 = new ApprovedMessage();
 			saf11.setMessageId(11);
-			saf11.setMessageText("¡Reciba $20 en efectivo con cada preparacion de impuestos pagada en SiempreTax+!");
+			saf11.setMessageText("Reciba $20 en efectivo con cada preparacion de impuestos pagada en SiempreTax+!");
 			safMsgs.add(saf11);
 		
 			ltUser.setCustomMsgs(safMsgs);				
@@ -1950,6 +1945,26 @@ public class MarketingController {
 				msgText += "\n" + linkUrl;
 			}
 			
+			//see if a link has been selected
+			String lnk = ltUser.getAdNewMsg();
+			if (lnk.equals("1")) { //Info form
+				String linkUrl = PropertyUtil.load().getProperty("infoFormURL");
+				if (user.getRoleActions().get(0).getRoleType().equals("Office"))
+					linkUrl += "?m=o&id=" + sites.get(0).getCustomField2();
+				if (user.getRoleActions().get(0).getRoleType().equals("Entity"))
+					linkUrl += "?m=e&id=" + sites.get(0).getCustomField1();
+				
+				msgText += "\n" + new Utility().shortenUrl(linkUrl);		
+			}
+			
+			if (lnk.equals("2")) { //default link
+				String linkUrl = "http://www.libertytax.com";
+				if (user.getRoleActions().get(0).getRoleType().equals("Office"))
+					linkUrl += "/" + sites.get(0).getCustomField2();	
+				
+				msgText += "\n" + linkUrl;				
+			}
+			
 			/*
 			if (ltUser.isIncludeLink()) { //do this only if link is to be included
 				//Include the default link for this store
@@ -2087,7 +2102,8 @@ public class MarketingController {
 	}	
 	
 	@RequestMapping(value = "/listMgmt", method = RequestMethod.GET)
-	public ModelAndView listMgmtG(@ModelAttribute("ltUser") LTUserForm ltUser, HttpServletRequest request) throws Exception {
+	public ModelAndView listMgmtG(@ModelAttribute("ltUser") LTUserForm ltUser, 
+										@RequestParam String listId, HttpServletRequest request) throws Exception {
 		ModelAndView mv = new ModelAndView("/WEB-INF/view/list_mgmt.jsp", "ltUser", ltUser);
 
 		User user = new Utility().getUserFromSecurityContext();
@@ -2096,9 +2112,7 @@ public class MarketingController {
 		List<TargetListData> listData = null;
 		
 		try {
-			//get the keyword list
-			
-			listData = new LTSMessageServiceImpl().getDefaultList(userId);
+			listData = new LTSMessageServiceImpl().getList(listId, "lastUpdated", "desc");
 			ltUser.setListData(listData);
 			ltUser.setSearchDMAString(listData.get(0).getListId()); //save the listId
 		} catch (Exception e) {
@@ -2319,6 +2333,75 @@ public class MarketingController {
 		ltUser.setReportData(clist);
 		
 		return mv;
+	}
+
+	@RequestMapping(value = "/exportReportData", method = RequestMethod.POST)
+	public @ResponseBody String exportReportData(@ModelAttribute("ltUser") LTUserForm ltUser, BindingResult bindingResult,
+										HttpServletRequest request) throws Exception {			
+		ModelAndView mv =  new ModelAndView("reports", "ltUser", ltUser);
+
+		Long userId = new Utility().getUserFromSecurityContext().getUserId();
+
+		Map<String, Object> params = new HashMap<String, Object>();		
+		params.put("userId", userId);
+		
+		Date fromDate = null;
+		Date toDate = null;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+		//check if we have dates
+		if (ltUser.getSearchCityString() != null && ltUser.getSearchCityString().length() > 0) {
+			fromDate = sdf.parse(ltUser.getSearchCityString());
+		}
+		if (ltUser.getSearchStateString() != null && ltUser.getSearchStateString().length() > 0) {
+			toDate = sdf.parse(ltUser.getSearchStateString());
+		}		
+
+		if (fromDate != null && toDate != null) {			
+	 		//check that to_date >= from_date
+	 		if (toDate.compareTo(fromDate) < 0) {
+				mv.addObject("error", "Start Date cannot be later than End Date");
+				return "Error";
+	 		} else {
+	 			params.put("start_date", sdf.format(fromDate));
+	 			params.put("end_date", sdf.format(toDate));
+	 		}
+		}
+		
+		if (fromDate != null) {			
+	 		params.put("start_date", sdf.format(fromDate));
+		}
+		
+		if (toDate != null) {			
+	 		params.put("end_date", sdf.format(toDate));
+		}
+		
+		Integer reportType = null;
+		
+		for (LTReport report : ltUser.getReports()) {
+			if (report.getReportId() != null) {
+				reportType = report.getReportType();
+				if (report.getParams() == null || report.getParams().isEmpty())
+					continue;
+				for (ReportParams rp : report.getParams()) {
+					params.put(rp.getParamName(), rp.getParamValue());
+					logger.debug("p/v: " + rp.getParamName() + ", " + rp.getParamValue());
+				}
+			}
+		}
+		
+		String reportDataFile = null;
+		try {
+			String rptFile = new ExportData().exportToXLS(userId, reportType, params);
+			mv.addObject("error", "Report data has been exported");
+			reportDataFile = PropertyUtil.load().getProperty("report_display_path") + rptFile;
+	        request.setAttribute("reportDataFile", reportDataFile);
+		} catch (Exception e) {
+			mv.addObject("error", "Error in exporting report data");
+			e.printStackTrace();
+		}
+		
+		return reportDataFile;
 	}
 	
 	@RequestMapping(value = "/runReportsPaged", method = RequestMethod.POST)
@@ -2953,6 +3036,24 @@ public class MarketingController {
 			}
 		} catch (Exception e) {
 			return message.getMessage("error.optout", new Object[] {mobilePhone, e.getMessage()}, locale);
+		}
+	}
+	
+	//Run the Corp Usage Report
+	@RequestMapping(value = "/usageReport", method = RequestMethod.GET)
+	public @ResponseBody String usageReport(@ModelAttribute("ltUser") LTUserForm ltUser,
+									HttpServletRequest request) throws Exception {
+
+		try {				
+			List<ValueObject> res = mktgService.getUsageReport();
+			if (res == null || res.isEmpty()) {
+				return "Error: No data found";
+			}
+			new Utility().createFile(res);
+			return "Success: File created";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "Error: " + e.getMessage();
 		}
 	}
 	

@@ -76,24 +76,41 @@
 	}
 	
 	function listMgmt() {
-		$.ajax({
-		    type : 'GET',
-		    url : 'listMgmt',
-		    success : function(result) {
-					$('#dialog1').dialog({
-						title : '',
-						height : 600,
-						width : 675,
+		var chkArray = [];
 
-					});
-					$(".ui-dialog-titlebar").hide();
-					$('#dialog1').html(result);				
-		    },
-				error : function(e) {
-					alert('error: ' + e.toString());
-				}                        
-		});		
-	}	
+		$('input[name="listIds"]:checked').each(function() {
+			chkArray.push($(this).val());
+		});
+
+		if (chkArray.length > 1) {
+			popup("You must select only one list", 0);	
+			return;
+		} else if (chkArray.length == 0) {
+			popup("Please select at least one list", 0);
+			return;
+		}
+		
+        $.ajax({
+            type : 'GET',
+            url : 'listMgmt',
+		    data: {
+		    	listId: chkArray[0],
+		    },            
+            success : function(result) {
+				$('#dialog1').dialog({
+					title : '',
+					height : 600,
+					width : 675,
+					
+				});
+				$(".ui-dialog-titlebar").hide();
+				$('#dialog1').html(result);				
+            },
+			error : function(e) {
+				alert('error: ' + e.toString());
+			}                        
+        });		
+	}
 
 	function deleteNumber(listId, number) {
 	        $.ajax({
@@ -351,6 +368,29 @@
 
 	function closeIt() {
 		$('#dialog1').dialog('close');
+	}
+	
+	function optout() {
+		var mp = $('#searchCityString').val();
+		if (mp == '') {
+			popup("Must enter a mobile phone number", 0);
+			return;
+		}
+		
+	        $.ajax({
+	            type : 'POST',
+	            url : 'optout',
+	            data: {
+	            	'mobilePhone': mp,
+	            },
+	            success : function(result) {
+ 					popup(result, 0);    
+ 					resetForm();
+ 		    	},
+		    	error : function(e) {
+					alert('error: ' + e.text());
+		    	}    		    
+	        });
 	}		
 </script>
 
@@ -565,11 +605,20 @@ display: none;
                 <div class="chk_container">
                 	<form:checkbox path="includePhone" id="includePhone" class="chk_light mr5"/>
                 	<label for="include_phone">Include default phone number</label>
-                	<br/>
+                	<br/><br/>
+                <!--
                 	<form:checkbox path="includeLink" id="includeLink" class="chk_light mr5"/>
-                	<label for="includeLink">Include default link</label>                   
+                	<label for="includeLink">Include default link</label>  
+                -->
+                	<label for="includeLink">Select link</label>                  	
+					<form:select path="adNewMsg">
+						<form:option value="">No Link</form:option>
+						<form:option value="1">Info Form</form:option>
+						<form:option value="2">Default Link</form:option>
+					</form:select>                 	
                 </div>
 	          	<form:hidden path="nowSched" />
+	        <br/><br/>
                 <center>
                 	<c:if test="${ltUser.sites[0].customField3 != 'R'}">
                 	<input type="button" id="sendNow" onclick="sendIt('Y')" value="Send Now" class="btn_send_now">    
@@ -742,7 +791,31 @@ and is directly fed to US411 everyday.</li>
 		</tr>
 	      </tbody>
 	      </table>
-	    </div>
+
+              <hr/>
+
+              <table class="grid bizinfo_grid" width="100%">
+              <tr>
+                 <td class="td_01">
+        		This will allow you to opt-out any number in all the Liberty Tax US411 database. 
+        		If the number is not in the lts database you will be notified                 
+                 </td>
+              </tr>
+              <tr><td>&nbsp;</td></tr>
+              <tr>
+              	<td class="mt40 corp">
+          		<form:input path="searchCityString" placeholder="Enter a number to opt-out"/>
+	  		<a href="#" onclick="optout()" class="btn_dark_blue btn_03_lnk">Submit</a>               	
+              	</td>
+              </tr>              
+	      </table>
+	   </div>
+
+	    <hr/>
+
+	    
+        </div>
+	    
 	  </div>				
           <!-- // biz info wrapper -->
           <div class="hotspot_wrapper">

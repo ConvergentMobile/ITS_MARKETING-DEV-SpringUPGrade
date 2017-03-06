@@ -1363,4 +1363,50 @@ public class LibertyAdminDAOManager implements Serializable {
 			session.flush();
 		}
 	}
+	
+	public List<ValueObject> getUsageReport() throws Exception {
+        String sql = "select entity_id field1, office_id field2, keyword field3, status field6,"
+                + " ifnull(marketing_msg_sent, 0) field4, ifnull(optins, 0) field5, email field7, phone field8"
+                + " from dashboard_usage_report"
+                + " where entity_id > ''"
+                + " order by field1, field2";
+
+        try {
+                session = HibernateUtil.currentSession();
+                Query q = session.createSQLQuery(sql)
+                                .addScalar("field1", new StringType())
+                                .addScalar("field2", new StringType())
+                                .addScalar("field3", new StringType())
+                                .addScalar("field4", new StringType())
+                                .addScalar("field5", new StringType())
+                                .addScalar("field6", new StringType())
+                                .addScalar("field7", new StringType())
+                                .addScalar("field8", new StringType())
+                                .setResultTransformer(Transformers.aliasToBean(ValueObject.class));
+
+                List<ValueObject> res = q.list();
+                return res;
+        } finally {
+                HibernateUtil.closeSession();
+        }
+	}
+	
+	//not used
+	public boolean checkOptedOut(String smsto, String keyword, String shortcode) throws Exception {
+		String sql = "select phone_number field1 from opt_out where phone_number = ?";
+        try {
+            session = HibernateUtil.currentSession();
+            Query q = session.createSQLQuery(sql)
+                            .addScalar("field1", new StringType())
+                            .setResultTransformer(Transformers.aliasToBean(ValueObject.class));
+
+            List<ValueObject> res = q.list();
+            if (res.isEmpty())
+            	return false;
+            
+            return true;
+	    } finally {
+	            close();
+	    }
+	}
 }

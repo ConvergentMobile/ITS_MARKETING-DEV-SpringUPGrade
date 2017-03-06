@@ -251,10 +251,8 @@
 }
 
 .hotspot_seal {
-	width: 167px;
-	height: 167px;
-	margin: 0 auto;
-	padding: 0 0 0 21px;
+	width: 100%;
+	text-align: center;
 }
 
 .hotspot .p_left {
@@ -623,4 +621,8 @@ table.grid_04 tr:hover td {
 .grid_04 select {
 	margin: 0 0 0 10px;
 	padding: 6px 6px 6px 4px
+}
+
+#id_sidebar .biz_info_grid_wrapper {
+	height: 255px;
 }

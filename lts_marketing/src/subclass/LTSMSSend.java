@@ -12,6 +12,8 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
+import service_impl.LTSMessageServiceImpl;
+import sms.SMSDelivery;
 import sms.SMSSend;
 import sms.UpdateStats;
 import util.PropertyUtil;
@@ -26,17 +28,38 @@ public class LTSMSSend extends SMSSend {
     //private static final String deliveryURL = "http://23.23.203.174/sms/deliveryreport_us.jsp";
     private static final String deliveryURL = PropertyUtil.load().getProperty("deliveryURL", "http://us411.co/sms/deliveryreport_us.jsp");
 
+	private SMSDelivery smsD = new SMSDelivery();
+
     public LTSMSSend(int account, String smsto, String msg, String campaignId, String keyword, String customerId, String txId) throws Exception {
 		super(account, smsto, msg, campaignId, customerId, txId);
 
          this.keyword = keyword;
     }
+    
+    //used by Ambassador
+    public void sendIt2() throws Exception {
+        Vector<String> ticketIds = new Vector<String>();
+        smsto = smsD.normalizePhoneNumber(smsto);
+ 	    try {
+ 			ticketIds = smsD.sendMsg(smsto, msg, keyword, "US411", true);
+            upds.updateMsgStats(ticketIds, smsto, campaignId, "US411", customerId, txId, keyword);
+ 	    } finally {
+ 	    }
+     }
 
     public Vector<String> sendIt() throws Exception {
  		String stdStuff = "\nStop to End,HELP 4 Help. Msg & Data rates may apply";	
+        Vector<String> ticketIds = new Vector<String>();
 
-         Vector<String> ticketIds = new Vector<String>();
-
+        /*
+		if (new LTSMessageServiceImpl().checkOptedOut(smsto, null, null)) {
+			logger.error(smsto + " has opted out");
+			ticketIds.add("Opted Out");
+            upds.updateMsgStats(ticketIds, smsto, campaignId, "US411", customerId, txId, keyword);
+            return ticketIds;
+		}
+		*/
+		
  		String temp = Normalizer.normalize(msg, Normalizer.Form.NFD); 
  		Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
  		msg = pattern.matcher(temp).replaceAll("");

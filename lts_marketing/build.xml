@@ -29,6 +29,7 @@
 	<property name="sms.jar"      		value="D:/workspace/lib/sms.jar"/>
 	<property name="spring-test.jar"    value="D:/spring-framework-3.2.2/spring-test-3.2.2.RELEASE.jar"/>	
 	<property name="jersey.lib.path"    value="D:/jersey-archive-1.15/lib"/>
+	<property name="gson.lib"      		value="D:/google-gson-2.2.4-release/google-gson-2.2.4/gson-2.2.4.jar"/>
 	
     <path id="project.class.path">
         <fileset dir="./lib/">
@@ -56,7 +57,7 @@
     	<pathelement path="${junit.jar}"/> 
     	<pathelement path="${activemq.jar}"/>    
     	<pathelement path="${sms.jar}"/> 
-    	
+    	<pathelement path="${gson.lib}"/> 
     </path>
 
     <target name="clean">
@@ -132,6 +133,7 @@
     	 	<fileset dir="." includes="**/images/*"/>
     	 	<fileset dir="." includes="**/*.php"/>
     	 	<fileset dir="." includes="**/*.swf"/>
+    	 	<fileset dir="." includes="**/ext/**"/>
     	 </war>       
     </target>
 

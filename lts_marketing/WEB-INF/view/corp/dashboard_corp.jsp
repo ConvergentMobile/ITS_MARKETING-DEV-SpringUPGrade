@@ -240,7 +240,22 @@
 				alert('error: ' + e.text());
 			}
 		});	
-	}	     
+	}
+	
+    function usageReport() {
+        $.ajax({
+            type : 'GET',
+            url : 'usageReport',
+            //data: $("#thisFormP").serialize(),
+            success : function(result) {
+                    var res = '<a href="../../outfiles/reports/dashboard_report.xls"> Report File</a>';
+                    popup(res, 0);
+            },
+            error : function(e) {
+                    alert('error: ' + e.text());
+            }
+        });
+    }
 
     	function createMessage() {
             $.ajax({
@@ -579,23 +594,26 @@
         <div class="sb_box">
           <!-- information wrapper -->
           <div class="information_wrapper">
+                <p>
+                <div align="center">
+                    <a href="#" onclick="usageReport()" class="btn_dark_blue btn_03_lnk">Usage Report</a>
+                </div>          
           	<div class="info_title">
             	<a href="#" class="prevnext info_prev" id="id_prev_info"></a>
               <a href="#" class="prevnext info_next get_next_info"></a>
               <h3>Information</h3>
-            </div>
+            </div>            
             <!-- slider -->
             <div class="infoslider" id="infoslider">
             	<!-- slide -->
               <div class="slide">
-              	<p>
                 	Now, you can instantly reach your customers with the latest deals, promos, discounts, and other general information about your business 
                   using the power of text messaging&hellip; <b>any time of the day</b>!
                 </p>
                 <p class="p_small">
                 	Don't forget&hellip; it is important to <span class="sp_red">PROMOTE, PROMOTE, PROMOTE</span> your call to action. You can send the best offers to your subscribers, 
                   but customers will only know you are there if you promote.
-                </p>
+                </p>                
               </div>
               <!-- // slide -->
             	<!-- slide -->

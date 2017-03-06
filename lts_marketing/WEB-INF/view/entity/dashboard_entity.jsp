@@ -261,7 +261,7 @@
                 position: {
                     my: "center",
                     at: "center",
-                    of: "#id_content_02"
+                    of: "#id_content_07"
                 },	       
 			    	buttons: {
 					"Close": function () {
@@ -359,7 +359,8 @@
 
 	function closeIt() {
 		$('#dialog1').dialog('close');
-	}		
+	}	
+		
 </script>
 
   <!-- // header -->
@@ -406,7 +407,7 @@
     </ul>
 		<!-- // left side navigation -->
     <!-- content area -->
-    <div class="content" id="id_content_02">
+    <div class="content" id="id_content_07">
     	<div class="nav_pointer pos_01"></div>
       <!-- subheader -->
       <div class="subheader clearfix">
@@ -551,7 +552,7 @@
     <!-- // content area -->
     
     <!-- sidebar -->
-    <div class="sidebar" id="id_sidebar_02">
+    <div class="sidebar" id="id_sidebar_07">
     	<div class="inner">
       	<!-- title -->
         <div class="sb_title sb_title_ico ico_sb_mobile">
@@ -649,7 +650,7 @@ and is directly fed to US411 everyday.</li>
 		</tr>
 	      </tbody>
 	      </table>
-	    </div>
+	    </div>	               	    
 	  </div>				
           <!-- // biz info wrapper -->                  	
           <div class="hotspot_wrapper">

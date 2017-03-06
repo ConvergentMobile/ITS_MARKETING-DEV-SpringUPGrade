@@ -10,6 +10,8 @@ import keyword.KeywordApplication;
 import liberty.CustomFields;
 
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import reports.LTReport;
 import reports.ReportData;
@@ -193,6 +195,8 @@ public class LTSMarketingServiceImpl {
 	public List<ApprovedMessage> approvedMsgsFromDate(Long userId, String entType, String status, Integer days) throws Exception {		
 		List<ApprovedMessage> mlist = adminDao.getCustomMsgs(siteId, userId, entType, status, days); 
 		if (mlist == null || mlist.isEmpty())
+			return mlist;
+		
 		for (ApprovedMessage amsg : mlist) {
 			 String s = amsg.getMessageText().replaceAll("\n", "<LF>");
 			 s = s.replaceAll("\\p{Cntrl}", "<LF>"); //to get rid of any ^Ms
@@ -254,5 +258,9 @@ public class LTSMarketingServiceImpl {
 	
 	public int deleteSAF(String officeId) throws Exception {
 		return adminDao.deleteSAF(officeId);
+	}
+	
+	public List<ValueObject> getUsageReport() throws Exception {
+		return adminDao.getUsageReport();
 	}
 }

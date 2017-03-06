@@ -22,11 +22,15 @@ body {
 #id_content_04 { height: 785px; }
 #id_sidebar_04 { height: 782px; }
 
-#id_content_05 { height: 715px; }
-#id_sidebar_05 { height: 712px; }
+#id_content_05 { height: 781px; }
+#id_sidebar_05 { height: 778px; }
 
-#id_content_06 { min-height: 813px; width: 75%; }
-#id_sidebar_06 { min-height: 810px; width: 25%; }
+#id_content_06 { min-height: 796px; width: 75%; }
+#id_sidebar_06 { min-height: 793px; width: 25%; }
+
+#id_content_07 { height: 864px; }
+#id_sidebar_07 { height: 861px; }
+
 
 a,       a:visited { text-decoration: underline; color: #334786; }
 a:hover, a:focus   { text-decoration: underline; color: #243771; }
@@ -131,7 +135,7 @@ a.btn_send_now_lnk:hover, a.btn_send_now_lnk:focus {
 
 .btn_schedule {
 	width: 187px;
-	height: 39px;
+	height: 42px;
 	overflow: hidden;
 	margin: 0 auto;
 	margin-bottom: 3px;
@@ -159,7 +163,7 @@ a.btn_send_now_lnk:hover, a.btn_send_now_lnk:focus {
 	behavior: url(PIE.htc);
 }
 
-.btn_schedule:hover, .btn_schedule:focus { background: #3d4b61 url(../images/btn_schedule.png) 0 -39px no-repeat; }
+.btn_schedule:hover, .btn_schedule:focus { background: #3d4b61 url(../images/btn_schedule.png) 0 -42px no-repeat; }
 
 /* /// */
 
@@ -1170,6 +1174,7 @@ a.btn_schedule_lnk {
 .grey_box_01 {
 	border-top: #c3c6ce 1px solid;
 	background: #ebeef3;
+	padding: 0 0 10px;
 }
 
 .grey_box_title_01 {
@@ -2045,7 +2050,7 @@ table tr.slighty_red:hover td {
 
 .btn_message_box .btn_send_now_lnk {
 	width: 150px;
-	margin: 7px 0 0;
+	margin: 30px 0 0;
 }
 
 .box_curr_message {
@@ -2089,9 +2094,11 @@ table tr.slighty_red:hover td {
 }
 
 .chk_container {
-	position: absolute;
-	left: 20px;
-	top: 17px;
+	position: relative;
+	text-align: center;
+	top: 10px;
+	width: 405px;
+	margin: 0 auto;
 }
 
 .chk_container label {
@@ -2128,4 +2135,9 @@ table tr.slighty_red:hover td {
 
 .chk_include_phone:checked + label:hover .chk_ip {
    background: url(../images/chk_ip.png) -13px -13px no-repeat;
+}
+
+#id_content_07 .btn_01 {
+	margin: 0 auto;
+	float: none;
 }
