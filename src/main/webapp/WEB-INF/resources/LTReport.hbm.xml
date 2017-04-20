@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+<class 
+name="reports.LTReport" 
+table="reports">
+	
+<id name="reportId" column="report_id" type="java.lang.Integer">
+<generator class="native"/>
+</id>
+
+<idbag name="params" table="report_params" lazy="false">
+	<collection-id column="report_params_id" type="java.lang.Integer">
+		<generator class="native" />
+	</collection-id>
+	<key>
+	 <column name="report_id" />
+	</key>
+	<composite-element class="reports.ReportParams"> 
+		<property name="paramName" column="param_name" not-null="true" type="java.lang.String"/>
+		<property name="paramLabel" column="param_label" not-null="true" type="java.lang.String"/>
+		<property name="paramLOV" column="param_lov" not-null="false" type="java.lang.String"/>		
+	</composite-element>
+</idbag>
+
+<property
+name="siteId"
+type="java.lang.Integer"
+column="site_id"
+/>
+
+<property
+name="name"
+type="java.lang.String"
+column="name"
+/>
+
+<property
+name="description"
+type="java.lang.String"
+column="description"
+/>
+
+<property
+name="sortOrder"
+type="java.lang.Integer"
+column="sort_order"
+/>
+
+<property
+name="reportType"
+type="java.lang.Integer"
+column="report_type"
+/>
+
+<property
+name="isMulti"
+type="java.lang.Boolean"
+column="is_multi"
+/>
+</class>
+</hibernate-mapping>

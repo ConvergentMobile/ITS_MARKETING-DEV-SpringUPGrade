@@ -1,0 +1,1136 @@
+package category_1;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.apache.log4j.Logger;
+import org.apache.struts.util.LabelValueBean;
+
+import user.CategoryBase;
+import user.Field;
+import user.UserDAOManager;
+import util.ImageFile;
+
+public class Category_1 extends CategoryBase implements Serializable {
+	private static final long serialVersionUID = 1L;
+	Logger logger = Logger.getLogger(Category_1.class);
+	
+	private String cuisine;
+	private String price;
+	private String[] mealsServed;
+	private String mealsServedDB; //save in db as a string
+	private String description;
+	
+	private String address;
+	private String chef;
+	private String phone;
+	private String dressCode;
+	private String[] paymentOptions;
+	private String paymentOptionsDB;
+	private String whatOthersSay;
+		
+	private String barOption;
+	private String introText; //intro text for the Events page
+	
+	private List<MenuItem> menuItems = new ArrayList<MenuItem>();
+	
+	private List<MenuItem> lunchMenuItems = new ArrayList<MenuItem>();
+	private List<MenuItem> breakfastMenuItems = new ArrayList<MenuItem>();
+	private List<MenuItem> dinnerMenuItems = new ArrayList<MenuItem>();
+	
+	private List<MenuItem> lunchSides = new ArrayList<MenuItem>();
+	private List<MenuItem> breakfastSides = new ArrayList<MenuItem>();
+	private List<MenuItem> dinnerSides = new ArrayList<MenuItem>();
+	
+	private List<MenuItem> lunchApps = new ArrayList<MenuItem>();
+	private List<MenuItem> dinnerApps = new ArrayList<MenuItem>();
+	private List<MenuItem> lunchSoups = new ArrayList<MenuItem>();
+	private List<MenuItem> dinnerSoups = new ArrayList<MenuItem>();
+	
+	private List<MenuItem> lunchDesserts = new ArrayList<MenuItem>();
+	private List<MenuItem> dinnerDesserts = new ArrayList<MenuItem>();
+
+	private List<MenuItem> nonAlcohol = new ArrayList<MenuItem>();
+	private List<MenuItem> cocktails = new ArrayList<MenuItem>();
+	private List<MenuItem> beerWines = new ArrayList<MenuItem>();
+
+	private List<Event> events = new ArrayList<Event>();
+	private List<ImageFile> photos = new ArrayList<ImageFile>();
+	
+	private List<MenuSection> menuSections = new ArrayList<MenuSection>();
+	private List<MenuSection> lunchMenu = new ArrayList<MenuSection>();
+	private List<MenuSection> dinnerMenu = new ArrayList<MenuSection>();
+	
+	private UserDAOManager dao = new UserDAOManager();
+	private String sql = "from Category_1 as p where p.userId = ?";
+	
+	private static int MAX_LUNCHMENU_ITEMS = 3;
+	private static int MAX_DINNERMENU_ITEMS = 3;
+	private static int MAX_BKFSTMENU_ITEMS = 3;
+	private static int MAX_BKFSTSIDES_ITEMS = 3;
+	private static int MAX_LUNCHSIDES_ITEMS = 3;
+	private static int MAX_DINNERSIDES_ITEMS = 3;
+	private static int MAX_DINNERAPPS_ITEMS = 3;
+	private static int MAX_LUNCHAPPS_ITEMS = 3;
+	private static int MAX_DINNERSOUPS_ITEMS = 3;
+	private static int MAX_LUNCHSOUPS_ITEMS = 3;
+	private static int MAX_LUNCHDESSERT_ITEMS = 3;
+	private static int MAX_DINNERDESSERT_ITEMS = 3;
+	private static int MAX_NONALCOHOL_ITEMS = 3;
+	private static int MAX_COCKTAILS_ITEMS = 3;
+	private static int MAX_BEERWINES_ITEMS = 3;
+	private static int MAX_EVENT_ITEMS = 5;
+	private static int MAX_PHOTOS = 3;
+
+	public Category_1() {
+		super();
+		this.categoryId = 1;
+	}
+
+	public Category_1(Long userId, Integer categoryId) {
+		super(userId, categoryId);
+	}
+
+	public String getCuisine() {
+		return cuisine;
+	}
+
+	public void setCuisine(String cuisine) {
+		this.cuisine = cuisine;
+	}
+
+	public String getPrice() {
+		return price;
+	}
+
+	public void setPrice(String price) {
+		this.price = price;
+	}
+
+	public String[] getMealsServed() {
+		return mealsServed;
+	}
+
+	public void setMealsServed(String[] mealsServed) {
+		this.mealsServed = mealsServed;
+		this.setMealsServedDB();
+	}
+
+	//Set the array from a string
+	public void setMealsServed() {
+		this.mealsServed = mealsServedDB.split(",");
+		for (String s : mealsServed)
+			logger.debug("mealsServed: " + s);
+	}
+	
+	public String getMealsServedDB() {
+		logger.debug("In getMealsServedDB");
+		return mealsServedDB;
+	}
+
+	public void setMealsServedDB(String mealsServedDB) {
+		this.mealsServedDB = mealsServedDB;
+		logger.debug("In setMealsServedDB calling setMealsServed");
+		this.setMealsServed();
+	}
+
+	//convert the array to a string 
+	public void setMealsServedDB() {	
+		this.mealsServedDB = arrayToString(this.mealsServed);
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
+	public List<MenuItem> getMenuItems() {
+		return menuItems;
+	}
+
+	public Logger getLogger() {
+		return logger;
+	}
+
+	public void setLogger(Logger logger) {
+		this.logger = logger;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public String getChef() {
+		return chef;
+	}
+
+	public void setChef(String chef) {
+		this.chef = chef;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public String getDressCode() {
+		return dressCode;
+	}
+
+	public void setDressCode(String dressCode) {
+		this.dressCode = dressCode;
+	}
+
+	public String[] getPaymentOptions() {
+		return paymentOptions;
+	}
+
+	public void setPaymentOptions(String[] paymentOptions) {
+		this.paymentOptions = paymentOptions;
+		this.setPaymentOptionsDB();
+	}
+
+	//set from string
+	public void setPaymentOptions() {
+		this.paymentOptions = paymentOptionsDB.split(",");
+	}
+	
+	public String getPaymentOptionsDB() {
+		return paymentOptionsDB;
+	}
+
+	public void setPaymentOptionsDB(String paymentOptionsDB) {
+		this.paymentOptionsDB = paymentOptionsDB;
+		this.setPaymentOptions();
+	}
+	
+	//convert to string
+	public void setPaymentOptionsDB() {	
+		this.paymentOptionsDB = arrayToString(this.paymentOptions);
+	}
+
+	public String getWhatOthersSay() {
+		return whatOthersSay;
+	}
+
+	public void setWhatOthersSay(String whatOthersSay) {
+		this.whatOthersSay = whatOthersSay;
+	}
+
+	public List<ImageFile> getPhotos() {
+		return photos;
+	}
+
+	public void setPhotos(List<ImageFile> photos) {
+		this.photos = photos;
+	}
+
+	public String getIntroText() {
+		return introText;
+	}
+
+	public void setIntroText(String introText) {
+		this.introText = introText;
+	}
+
+	public UserDAOManager getDao() {
+		return dao;
+	}
+
+	public void setDao(UserDAOManager dao) {
+		this.dao = dao;
+	}
+
+	public void setMenuItems(List<MenuItem> menuItems) {
+		this.menuItems = menuItems;
+	}
+
+	public List<MenuItem> getDinnerMenuItems() {
+		return dinnerMenuItems;
+	}
+
+	public List<MenuItem> getLunchMenuItems() {
+		return lunchMenuItems;
+	}
+
+	public void setLunchMenuItems(List<MenuItem> lunchMenuItems) {
+		this.lunchMenuItems = lunchMenuItems;
+	}
+
+	public void setDinnerMenuItems(List<MenuItem> dinnerMenuItems) {
+		this.dinnerMenuItems = dinnerMenuItems;
+	}
+
+	public List<MenuItem> getBreakfastMenuItems() {
+		return breakfastMenuItems;
+	}
+
+	public void setBreakfastMenuItems(List<MenuItem> breakfastMenuItems) {
+		this.breakfastMenuItems = breakfastMenuItems;
+	}
+
+	public List<MenuItem> getLunchSides() {
+		return lunchSides;
+	}
+
+	public void setLunchSides(List<MenuItem> lunchSides) {
+		this.lunchSides = lunchSides;
+	}
+
+	public List<MenuItem> getBreakfastSides() {
+		return breakfastSides;
+	}
+
+	public void setBreakfastSides(List<MenuItem> breakfastSides) {
+		this.breakfastSides = breakfastSides;
+	}
+
+	public List<MenuItem> getDinnerSides() {
+		return dinnerSides;
+	}
+
+	public void setDinnerSides(List<MenuItem> dinnerSides) {
+		this.dinnerSides = dinnerSides;
+	}
+
+	public List<MenuItem> getLunchApps() {
+		return lunchApps;
+	}
+
+	public void setLunchApps(List<MenuItem> lunchApps) {
+		this.lunchApps = lunchApps;
+	}
+
+	public List<MenuItem> getDinnerApps() {
+		return dinnerApps;
+	}
+
+	public void setDinnerApps(List<MenuItem> dinnerApps) {
+		this.dinnerApps = dinnerApps;
+	}
+
+	public List<MenuItem> getLunchSoups() {
+		return lunchSoups;
+	}
+
+	public void setLunchSoups(List<MenuItem> lunchSoups) {
+		this.lunchSoups = lunchSoups;
+	}
+
+	public List<MenuItem> getDinnerSoups() {
+		return dinnerSoups;
+	}
+
+	public void setDinnerSoups(List<MenuItem> dinnerSoups) {
+		this.dinnerSoups = dinnerSoups;
+	}
+
+	public List<MenuItem> getLunchDesserts() {
+		return lunchDesserts;
+	}
+
+	public void setLunchDesserts(List<MenuItem> lunchDesserts) {
+		this.lunchDesserts = lunchDesserts;
+	}
+
+	public List<MenuItem> getDinnerDesserts() {
+		return dinnerDesserts;
+	}
+
+	public void setDinnerDesserts(List<MenuItem> dinnerDesserts) {
+		this.dinnerDesserts = dinnerDesserts;
+	}
+
+	public List<MenuItem> getNonAlcohol() {
+		return nonAlcohol;
+	}
+
+	public void setNonAlcohol(List<MenuItem> nonAlcohol) {
+		this.nonAlcohol = nonAlcohol;
+	}
+
+	public List<MenuItem> getCocktails() {
+		return cocktails;
+	}
+
+	public void setCocktails(List<MenuItem> cocktails) {
+		this.cocktails = cocktails;
+	}
+
+	public List<MenuItem> getBeerWines() {
+		return beerWines;
+	}
+
+	public void setBeerWines(List<MenuItem> beerWines) {
+		this.beerWines = beerWines;
+	}
+
+	public List<Event> getEvents() {
+		return events;
+	}
+
+	public void setEvents(List<Event> events) {
+		this.events = events;
+	}
+
+	public String getBarOption() {
+		return barOption;
+	}
+
+	public void setBarOption(String barOption) {
+		this.barOption = barOption;
+	}
+
+	public List<MenuSection> getMenuSections() {
+		return menuSections;
+	}
+
+	public void setMenuSections(List<MenuSection> menuSections) {
+		this.menuSections = menuSections;
+	}
+
+	public List<MenuSection> getLunchMenu() {
+		return lunchMenu;
+	}
+
+	public void setLunchMenu(List<MenuSection> lunchMenu) {
+		this.lunchMenu = lunchMenu;
+	}
+
+	public List<MenuSection> getDinnerMenu() {
+		return dinnerMenu;
+	}
+
+	public void setDinnerMenu(List<MenuSection> dinnerMenu) {
+		this.dinnerMenu = dinnerMenu;
+	}
+
+	public String getSql() {
+		return sql;
+	}
+
+	public void setSql(String sql) {
+		this.sql = sql;
+	}
+
+	public List<Field> getCategory(Integer categoryId) throws Exception {		
+		List<Field> fields = dao.getCategory(categoryId);
+		if (! fields.isEmpty())
+			return fields;
+		
+		return null;
+	}
+	
+	public Category_1 get(HttpServletRequest request, String mode, Integer type) throws Exception  {
+		logger.debug("Category_1:get");
+		Category_1 catg_1 = null;
+		
+		if (mode.equals("get")) {
+			super.getCategory(); //get the category fields
+				
+			List<Category_1> rList = dao.getDetails(userId, sql);
+			if (rList.isEmpty()) {
+				catg_1 = new Category_1(this.userId, this.categoryId);
+			} else		
+				catg_1 = rList.get(0);
+			
+			//handle the collection
+			if (catg_1.getMenuItems() == null)
+				catg_1.menuItems = new ArrayList<MenuItem>();
+			
+			if (catg_1.getMenuSections() == null)
+				catg_1.menuSections = new ArrayList<MenuSection>();
+			
+			//split the collection based on the itemType
+			//need to do this as there is no easy way to map this in hibernate. parent has one pk (profile_id)
+			//while child has a composite pk (profile_id, item_type)
+			//List<MenuItem> items = new ArrayList<MenuItem>();		
+			
+			List<MenuItem> lItems = new ArrayList<MenuItem>();
+			List<MenuItem> dItems = new ArrayList<MenuItem>();
+			List<MenuItem> bkfstItems = new ArrayList<MenuItem>();
+			List<MenuItem> bkfstSides = new ArrayList<MenuItem>();
+			List<MenuItem> lunchSides = new ArrayList<MenuItem>();
+			List<MenuItem> dinnerSides = new ArrayList<MenuItem>();
+			
+			List<MenuItem> lunchApps = new ArrayList<MenuItem>();
+			List<MenuItem> dinnerApps = new ArrayList<MenuItem>();
+			List<MenuItem> lunchSoups = new ArrayList<MenuItem>();
+			List<MenuItem> dinnerSoups = new ArrayList<MenuItem>();
+
+			List<MenuItem> lunchDesserts = new ArrayList<MenuItem>();
+			List<MenuItem> dinnerDesserts = new ArrayList<MenuItem>();
+			
+			List<MenuItem> nonAlcohol = new ArrayList<MenuItem>();
+			List<MenuItem> cocktails = new ArrayList<MenuItem>();
+			List<MenuItem> beerWines = new ArrayList<MenuItem>();
+
+			for (MenuItem mi : catg_1.menuItems) {
+				switch (ItemEnum.valueOf(mi.getItemType())) {
+					case LUNCH: //Lunch items
+						lItems.add(mi);
+						break;
+					case DINNER: //Dinner items
+						dItems.add(mi);
+						break;
+					case BREAKFAST: //Breakfast items
+						bkfstItems.add(mi);
+						break;		
+					case BFAST_SIDES: //Breakfast sides
+						bkfstSides.add(mi);
+						break;	
+					case LUNCH_SIDES: //Lunch sides
+						lunchSides.add(mi);
+						break;	
+					case DINNER_SIDES: //Dinner sides
+						dinnerSides.add(mi);
+						break;		
+					case LUNCH_APPS: //Lunch apps
+						lunchApps.add(mi);
+						break;	
+					case DINNER_APPS: //Dinner apps
+						dinnerApps.add(mi);
+						break;	
+					case LUNCH_SOUPS: //Lunch Soups/Salads
+						lunchSoups.add(mi);
+						break;	
+					case DINNER_SOUPS: //Dinner Soups/Salads
+						dinnerSoups.add(mi);
+						break;	
+					case LUNCH_DESSERTS: //Lunch Desserts
+						lunchDesserts.add(mi);
+						break;		
+					case DINNER_DESSERTS: //Dinner Desserts
+						dinnerDesserts.add(mi);
+						break;	
+					case NON_ALCOHOL: //Non-alcohol
+						nonAlcohol.add(mi);
+						break;	
+					case COCKTAILS: //Cocktails
+						cocktails.add(mi);
+						break;	
+					case BEER_WINES: //Beer & Wines
+						beerWines.add(mi);
+						break;							
+					default:
+						logger.error("itemType: " + mi.getItemType() + " unknown");
+				}
+			}
+		
+			//catg_1.setMenuItems(items);
+			
+			catg_1.setLunchMenuItems(lItems);
+			catg_1.setDinnerMenuItems(dItems);
+			catg_1.setBreakfastMenuItems(bkfstItems);
+			catg_1.setBreakfastSides(bkfstSides);
+			catg_1.setLunchSides(lunchSides);
+			catg_1.setDinnerSides(dinnerSides);			
+			catg_1.setLunchApps(lunchApps);
+			catg_1.setDinnerApps(dinnerApps);
+			catg_1.setLunchSoups(lunchSoups);
+			catg_1.setDinnerSoups(dinnerSoups);		
+			catg_1.setLunchDesserts(lunchDesserts);			
+			catg_1.setDinnerDesserts(dinnerDesserts);		
+			catg_1.setNonAlcohol(nonAlcohol);
+			catg_1.setCocktails(cocktails);
+			catg_1.setBeerWines(beerWines);
+
+			/*
+			if (catg_1.getMenuItems().size() < MAX_MENU_ITEMS && catg_1.getMenuItems().size() > 0) 
+				MAX_MENU_ITEMS = catg_1.getMenuItems().size();
+			if (catg_1.getDinnerMenuItems().size() < MAX_DINNERMENU_ITEMS && catg_1.getDinnerMenuItems().size() > 0)
+				MAX_DINNERMENU_ITEMS = catg_1.getMenuItems().size();
+			if (catg_1.getBreakfastMenuItems().size() < MAX_BKFSTMENU_ITEMS && catg_1.getBreakfastMenuItems().size() > 0)
+				MAX_BKFSTMENU_ITEMS = catg_1.getMenuItems().size();	
+			if (catg_1.getLunchSides().size() < MAX_LUNCHSIDES_ITEMS && catg_1.getLunchSides().size() > 0)
+				MAX_LUNCHSIDES_ITEMS = catg_1.getMenuItems().size();		
+			if (catg_1.getBreakfastSides().size() < MAX_BKFSTSIDES_ITEMS && catg_1.getBreakfastSides().size() > 0)
+				MAX_BKFSTSIDES_ITEMS = catg_1.getMenuItems().size();
+			if (catg_1.getDinnerSides().size() < MAX_DINNERSIDES_ITEMS && catg_1.getDinnerSides().size() > 0)
+				MAX_DINNERSIDES_ITEMS = catg_1.getMenuItems().size();	
+			*/		
+			
+			lunchMenu = new ArrayList<MenuSection>();
+			dinnerMenu = new ArrayList<MenuSection>();
+			for (MenuSection ms : catg_1.getMenuSections()) {
+				logger.debug("menusection type = " + ms.getType());
+				switch(ItemEnum.valueOf(ms.getType())) {
+					case LUNCH_MENU: 
+						lunchMenu.add(ms);
+						break;
+					case DINNER_MENU:
+						dinnerMenu.add(ms);
+						break;	
+					default:
+						logger.error("section: " + ms.getType() + " unknown");
+				}
+			}
+			
+			catg_1.setLunchMenu(lunchMenu);
+			catg_1.setDinnerMenu(dinnerMenu);
+			
+			logger.debug("lunchMenu size: " + catg_1.getLunchMenu().size());
+		} else { //adding an extra line/section
+			catg_1 = (Category_1)request.getSession().getAttribute("category");
+			logger.debug("get: mode = add, size = " + catg_1.getMenuItems().size());	
+			List<MenuItem> mList;
+			List<MenuSection> msList;
+			switch (ItemEnum.valueOf(type)) {
+				case LUNCH:
+					mList = deleteEmpties(catg_1.getLunchMenuItems());		
+					catg_1.setLunchMenuItems(mList);
+					if (catg_1.getLunchMenuItems().size() >= MAX_LUNCHMENU_ITEMS) //don't add if there is already an empty row
+						MAX_LUNCHMENU_ITEMS++;
+					break;
+				case DINNER:
+					mList = deleteEmpties(catg_1.getDinnerMenuItems());		
+					catg_1.setDinnerMenuItems(mList);
+					if (catg_1.getDinnerMenuItems().size() >= MAX_DINNERMENU_ITEMS)
+						MAX_DINNERMENU_ITEMS++;
+					break;
+				case BREAKFAST:
+					mList = deleteEmpties(catg_1.getBreakfastMenuItems());		
+					catg_1.setBreakfastMenuItems(mList);
+					if (catg_1.getBreakfastMenuItems().size() >= MAX_BKFSTMENU_ITEMS)
+						MAX_BKFSTMENU_ITEMS++;
+					break;	
+				case BFAST_SIDES:
+					mList = deleteEmpties(catg_1.getBreakfastSides());		
+					catg_1.setBreakfastSides(mList);
+					if (catg_1.getBreakfastSides().size() >= MAX_BKFSTSIDES_ITEMS)
+						MAX_BKFSTSIDES_ITEMS++;
+					break;	
+				case LUNCH_SIDES:
+					mList = deleteEmpties(catg_1.getLunchSides());		
+					catg_1.setLunchSides(mList);
+					if (catg_1.getLunchSides().size() >= MAX_LUNCHSIDES_ITEMS)
+						MAX_LUNCHSIDES_ITEMS++;
+					break;	
+				case DINNER_SIDES:
+					mList = deleteEmpties(catg_1.getDinnerSides());		
+					catg_1.setDinnerSides(mList);
+					if (catg_1.getDinnerSides().size() >= MAX_DINNERSIDES_ITEMS)
+						MAX_DINNERSIDES_ITEMS++;
+					break;			
+				case LUNCH_APPS:
+					mList = deleteEmpties(catg_1.getLunchApps());		
+					catg_1.setLunchApps(mList);
+					if (catg_1.getLunchApps().size() >= MAX_LUNCHAPPS_ITEMS)
+						MAX_LUNCHAPPS_ITEMS++;
+					break;	
+				case DINNER_APPS:
+					mList = deleteEmpties(catg_1.getDinnerApps());		
+					catg_1.setDinnerApps(mList);
+					if (catg_1.getDinnerApps().size() >= MAX_DINNERAPPS_ITEMS)
+						MAX_DINNERAPPS_ITEMS++;
+					break;		
+				case LUNCH_SOUPS:
+					mList = deleteEmpties(catg_1.getLunchSoups());		
+					catg_1.setLunchSoups(mList);
+					if (catg_1.getLunchSoups().size() >= MAX_LUNCHSOUPS_ITEMS)
+						MAX_LUNCHSOUPS_ITEMS++;
+					break;	
+				case DINNER_SOUPS:
+					mList = deleteEmpties(catg_1.getDinnerSoups());		
+					catg_1.setDinnerSoups(mList);
+					if (catg_1.getDinnerSoups().size() >= MAX_DINNERSOUPS_ITEMS)
+						MAX_DINNERSOUPS_ITEMS++;
+					break;	
+				case LUNCH_DESSERTS:
+					mList = deleteEmpties(catg_1.getLunchDesserts());		
+					catg_1.setLunchDesserts(mList);
+					if (catg_1.getLunchDesserts().size() >= MAX_LUNCHDESSERT_ITEMS)
+						MAX_LUNCHDESSERT_ITEMS++;
+					break;	
+				case DINNER_DESSERTS:
+					mList = deleteEmpties(catg_1.getDinnerDesserts());		
+					catg_1.setDinnerDesserts(mList);
+					if (catg_1.getDinnerDesserts().size() >= MAX_DINNERDESSERT_ITEMS)
+						MAX_DINNERDESSERT_ITEMS++;
+					break;	
+				case NON_ALCOHOL:
+					mList = deleteEmpties(catg_1.getNonAlcohol());		
+					catg_1.setNonAlcohol(mList);
+					if (catg_1.getNonAlcohol().size() >= MAX_NONALCOHOL_ITEMS)
+						MAX_NONALCOHOL_ITEMS++;
+					break;
+				case COCKTAILS:
+					mList = deleteEmpties(catg_1.getCocktails());		
+					catg_1.setCocktails(mList);
+					if (catg_1.getCocktails().size() >= MAX_COCKTAILS_ITEMS)
+						MAX_COCKTAILS_ITEMS++;
+					break;
+				case BEER_WINES:
+					mList = deleteEmpties(catg_1.getBeerWines());		
+					catg_1.setBeerWines(mList);
+					if (catg_1.getBeerWines().size() >= MAX_BEERWINES_ITEMS)
+						MAX_BEERWINES_ITEMS++;
+					break;					
+				case EVENT: //Event
+					//ToDo: implement the deleteEmpties for Event
+					if (catg_1.getEvents().size() >= MAX_EVENT_ITEMS)
+						MAX_EVENT_ITEMS++;
+					break;		
+				case LUNCH_MENU:
+					msList = deleteEmptySections(catg_1.getLunchMenu());		
+					catg_1.setLunchMenu(msList);
+					if (catg_1.getLunchMenu().size() >= MAX_LUNCHMENU_ITEMS)
+						MAX_LUNCHMENU_ITEMS++;
+					break;		
+				case DINNER_MENU:
+					msList = deleteEmptySections(catg_1.getDinnerMenu());		
+					catg_1.setDinnerMenu(msList);
+					if (catg_1.getDinnerMenu().size() >= MAX_DINNERMENU_ITEMS)
+						MAX_DINNERMENU_ITEMS++;
+					break;						
+				default:
+			}
+		}			
+			
+		for (int i = catg_1.getEvents().size(); i < MAX_EVENT_ITEMS; i++) {
+			Event event = new Event();
+			catg_1.events.add(event);
+		}
+		
+		for (int i = catg_1.getPhotos().size(); i < MAX_PHOTOS; i++) {
+			ImageFile photo = new ImageFile();
+			catg_1.photos.add(photo);
+		}
+		
+		//if (catg_1.getDinnerMenuItems() == null)
+			//catg_1.dinnerMenuItems = new ArrayList<MenuItem>();
+
+		for (int i = catg_1.getLunchMenuItems().size(); i < MAX_LUNCHMENU_ITEMS; i++) {
+			MenuItem mItem = new MenuItem();
+			mItem.setItemType(1);
+			catg_1.lunchMenuItems.add(mItem);
+		}
+		
+		for (int i = catg_1.getDinnerMenuItems().size(); i < MAX_DINNERMENU_ITEMS; i++) {
+			MenuItem mItem = new MenuItem();
+			mItem.setItemType(2);
+			catg_1.dinnerMenuItems.add(mItem);
+		}			
+		
+		for (int i = catg_1.getBreakfastMenuItems().size(); i < MAX_BKFSTMENU_ITEMS; i++) {
+			MenuItem mItem = new MenuItem();
+			mItem.setItemType(3);
+			catg_1.breakfastMenuItems.add(mItem);
+		}
+		
+		for (int i = catg_1.getBreakfastSides().size(); i < MAX_BKFSTSIDES_ITEMS; i++) {
+			MenuItem mItem = new MenuItem();
+			mItem.setItemType(4);
+			catg_1.breakfastSides.add(mItem);
+		}
+		
+		for (int i = catg_1.getLunchSides().size(); i < MAX_LUNCHSIDES_ITEMS; i++) {
+			MenuItem mItem = new MenuItem();
+			mItem.setItemType(5);
+			catg_1.lunchSides.add(mItem);
+		}
+		
+		for (int i = catg_1.getDinnerSides().size(); i < MAX_DINNERSIDES_ITEMS; i++) {
+			MenuItem mItem = new MenuItem();
+			mItem.setItemType(6);
+			catg_1.dinnerSides.add(mItem);
+		}
+	
+		for (int i = catg_1.getLunchApps().size(); i < MAX_LUNCHAPPS_ITEMS; i++) {
+			MenuItem mItem = new MenuItem();
+			mItem.setItemType(7);
+			catg_1.lunchApps.add(mItem);
+		}
+		
+		for (int i = catg_1.getDinnerApps().size(); i < MAX_DINNERAPPS_ITEMS; i++) {
+			MenuItem mItem = new MenuItem();
+			mItem.setItemType(8);
+			catg_1.dinnerApps.add(mItem);
+		}	
+
+		for (int i = catg_1.getLunchSoups().size(); i < MAX_LUNCHSOUPS_ITEMS; i++) {
+			MenuItem mItem = new MenuItem();
+			mItem.setItemType(9);
+			catg_1.lunchSoups.add(mItem);
+		}
+		
+		for (int i = catg_1.getDinnerSoups().size(); i < MAX_DINNERSOUPS_ITEMS; i++) {
+			MenuItem mItem = new MenuItem();
+			mItem.setItemType(10);
+			catg_1.dinnerSoups.add(mItem);
+		}
+		
+		for (int i = catg_1.getLunchDesserts().size(); i < MAX_LUNCHDESSERT_ITEMS; i++) {
+			MenuItem mItem = new MenuItem();
+			mItem.setItemType(11);
+			catg_1.lunchDesserts.add(mItem);
+		}		
+		
+		for (int i = catg_1.getDinnerDesserts().size(); i < MAX_DINNERDESSERT_ITEMS; i++) {
+			MenuItem mItem = new MenuItem();
+			mItem.setItemType(12);
+			catg_1.dinnerDesserts.add(mItem);
+		}	
+		
+		for (int i = catg_1.getNonAlcohol().size(); i < MAX_NONALCOHOL_ITEMS; i++) {
+			MenuItem mItem = new MenuItem();
+			mItem.setItemType(13);
+			catg_1.nonAlcohol.add(mItem);
+		}	
+		
+		for (int i = catg_1.getCocktails().size(); i < MAX_COCKTAILS_ITEMS; i++) {
+			MenuItem mItem = new MenuItem();
+			mItem.setItemType(14);
+			catg_1.cocktails.add(mItem);
+		}	
+		
+		for (int i = catg_1.getBeerWines().size(); i < MAX_BEERWINES_ITEMS; i++) {
+			MenuItem mItem = new MenuItem();
+			mItem.setItemType(15);
+			catg_1.beerWines.add(mItem);
+		}	
+	
+		for (int i = catg_1.getLunchMenu().size(); i < MAX_LUNCHMENU_ITEMS; i++) {
+			MenuSection ms = new MenuSection();
+			ms.setType(ItemEnum.LUNCH_MENU.getItem());
+			catg_1.lunchMenu.add(ms);
+		}
+		
+		for (int i = catg_1.getDinnerMenu().size(); i < MAX_DINNERMENU_ITEMS; i++) {
+			MenuSection ms = new MenuSection();
+			ms.setType(ItemEnum.DINNER_MENU.getItem());
+			catg_1.dinnerMenu.add(ms);
+		}
+		
+		return catg_1;
+	}
+	
+	public void save(HttpSession session) throws Exception {
+		List<MenuItem> mList = new ArrayList<MenuItem>();
+		List<MenuSection> msList = new ArrayList<MenuSection>();
+		List<Event> evList = new ArrayList<Event>();
+		List<ImageFile> photoList = new ArrayList<ImageFile>();
+		
+		//clear it first
+		this.getMenuItems().clear();
+		this.getMenuSections().clear();
+		
+		//merge all the menuItems
+		this.getMenuItems().addAll(this.getLunchMenuItems());
+		this.getMenuItems().addAll(this.getDinnerMenuItems());
+		this.getMenuItems().addAll(this.getBreakfastMenuItems());
+		this.getMenuItems().addAll(this.getBreakfastSides());
+		this.getMenuItems().addAll(this.getLunchSides());
+		this.getMenuItems().addAll(this.getDinnerSides());		
+		this.getMenuItems().addAll(this.getLunchApps());
+		this.getMenuItems().addAll(this.getDinnerApps());
+		this.getMenuItems().addAll(this.getLunchSoups());
+		this.getMenuItems().addAll(this.getDinnerSoups());
+		this.getMenuItems().addAll(this.getLunchDesserts());
+		this.getMenuItems().addAll(this.getDinnerDesserts());
+		this.getMenuItems().addAll(this.getNonAlcohol());
+		this.getMenuItems().addAll(this.getCocktails());
+		this.getMenuItems().addAll(this.getBeerWines());
+		
+		this.getMenuSections().addAll(this.getLunchMenu());
+		this.getMenuSections().addAll(this.getDinnerMenu());
+		
+		//delete the empties
+		mList = deleteEmpties(this.getMenuItems());
+		msList = deleteEmptySections(this.getMenuSections());
+	
+		this.setMenuItems(mList);		
+		this.setMenuSections(msList);
+		logger.debug("save:after size = " + this.getMenuSections().size());
+		
+		for (int i = 0; i < this.getEvents().size(); i++) {
+			Event event = this.getEvents().get(i);
+			if (event.getName() != null && event.getName().length() > 0)
+				evList.add(event);
+		}
+		this.setEvents(evList);
+		
+		for (int i = 0; i < this.getPhotos().size(); i++) {
+			ImageFile imgFile = this.getPhotos().get(i);
+			if (imgFile.getFile() != null && imgFile.getFile().getFileSize() > 0)
+				photoList.add(imgFile);
+		}
+		this.setPhotos(photoList);
+		
+		logger.debug("userid, catgid = " + this.getUserId() + ", " + this.getCategoryId());
+		
+		dao.saveDetails(this);
+		
+		//generate the xmlfile
+		this.toXML(session);
+	}
+	
+	public void toXML(HttpSession session) throws Exception {
+		List<LabelValueBean> cuisines = (List<LabelValueBean>)session.getAttribute("cuisines");
+		List<LabelValueBean> fonts = (List<LabelValueBean>)session.getAttribute("fonts");
+		
+		StringBuffer sb = new StringBuffer();
+		sb.append("<profile id=").append(this.getProfileId()).append("/>");
+		
+		sb.append("<general>");
+		sb.append("<cuisine>").append(this.getLabel(this.getCuisine(), cuisines)).append("</cuisine>");
+		sb.append("<dress>").append(this.getDressCode()).append("</dress>");
+		sb.append("<price>").append(this.getPrice()).append("</price>");
+		sb.append("<payment_options>").append(this.getPaymentOptionsDB()).append("</payment_options>");
+		sb.append("<meals_served>").append(this.getMealsServedDB()).append("</meals_served>");
+		
+		/*
+		Hours hours = this.getBusHours();
+		sb.append("<hours>");
+		sb.append("<mon>").append(hours.getMonOpen()).append(" - ").append(hours.getMonClose()).append("</mon>");
+		sb.append("<tue>").append(hours.getTueOpen()).append(" - ").append(hours.getTueClose()).append("</tue>");
+		sb.append("<wed>").append(hours.getWedOpen()).append(" - ").append(hours.getWedClose()).append("</wed>");
+		sb.append("<thu>").append(hours.getThuOpen()).append(" - ").append(hours.getThuClose()).append("</thu>");
+		sb.append("<fri>").append(hours.getFriOpen()).append(" - ").append(hours.getFriClose()).append("</fri>");
+		sb.append("<sat>").append(hours.getSatOpen()).append(" - ").append(hours.getSatClose()).append("</sat>");
+		sb.append("<sun>").append(hours.getSunOpen()).append(" - ").append(hours.getSunClose()).append("</sun>");
+		sb.append("</hours>");
+		*/
+		
+		sb.append("<hours>").append(this.getBusHours()).append("</hours>");
+		
+		sb.append("<contact_info>");
+		sb.append("<phone>").append(this.getPhone()).append("</phone>");
+		sb.append("<location>").append(this.getAddress()).append("</location>");
+		sb.append("</contact_info>");
+		
+		sb.append("<description>").append(this.getDescription()).append("</description>");
+		sb.append("</general>");
+		
+		sb.append("<current>");
+		
+		/*
+		//breakfast
+		sb.append("<breakfast>");
+		sb.append("<main>");
+		for (MenuItem mi : this.getBreakfastMenuItems()) {
+			sb.append("<name>").append(mi.getName()).append("</name>");
+			sb.append("<price>").append(mi.getPrice()).append("</price>");
+			sb.append("<description>").append(mi.getDescription()).append("</description>");
+		}
+		sb.append("</main>");
+		
+		sb.append("<sides>");
+		for (MenuItem mi : this.getBreakfastSides()) {
+			sb.append("<name>").append(mi.getName()).append("</name>");
+			sb.append("<price>").append(mi.getPrice()).append("</price>");
+			sb.append("<description>").append(mi.getDescription()).append("</description>");
+		}
+		sb.append("</sides>");		
+		sb.append("</breakfast>");
+		
+		//lunch
+		sb.append("<lunch>");
+		sb.append("<appetizers>");
+		for (MenuItem mi : this.getLunchApps()) {
+			sb.append("<name>").append(mi.getName()).append("</name>");
+			sb.append("<price>").append(mi.getPrice()).append("</price>");
+			sb.append("<description>").append(mi.getDescription()).append("</description>");
+		}
+		sb.append("</appetizers>");
+		
+		sb.append("<soups_salads>");
+		for (MenuItem mi : this.getLunchSoups()) {
+			sb.append("<name>").append(mi.getName()).append("</name>");
+			sb.append("<price>").append(mi.getPrice()).append("</price>");
+			sb.append("<description>").append(mi.getDescription()).append("</description>");
+		}
+		sb.append("</soups_salads>");
+		
+		sb.append("<main_course>");
+		for (MenuItem mi : this.getMenuItems()) {
+			sb.append("<name>").append(mi.getName()).append("</name>");
+			sb.append("<price>").append(mi.getPrice()).append("</price>");
+			sb.append("<description>").append(mi.getDescription()).append("</description>");
+		}
+		sb.append("</main_course>");
+		
+		sb.append("<sides>");
+		for (MenuItem mi : this.getLunchSides()) {
+			sb.append("<name>").append(mi.getName()).append("</name>");
+			sb.append("<price>").append(mi.getPrice()).append("</price>");
+			sb.append("<description>").append(mi.getDescription()).append("</description>");
+		}
+		sb.append("</sides>");
+		
+		sb.append("<desserts>");
+		for (MenuItem mi : this.getLunchDesserts()) {
+			sb.append("<name>").append(mi.getName()).append("</name>");
+			sb.append("<price>").append(mi.getPrice()).append("</price>");
+			sb.append("<description>").append(mi.getDescription()).append("</description>");
+		}
+		sb.append("</desserts>");		
+		sb.append("</lunch>");
+		
+		//dinner
+		sb.append("<dinner>");
+		sb.append("<appetizers>");
+		for (MenuItem mi : this.getDinnerApps()) {
+			sb.append("<name>").append(mi.getName()).append("</name>");
+			sb.append("<price>").append(mi.getPrice()).append("</price>");
+			sb.append("<description>").append(mi.getDescription()).append("</description>");
+		}
+		sb.append("</appetizers>");
+
+		sb.append("<soups_salads>");
+		for (MenuItem mi : this.getDinnerSoups()) {
+			sb.append("<name>").append(mi.getName()).append("</name>");
+			sb.append("<price>").append(mi.getPrice()).append("</price>");
+			sb.append("<description>").append(mi.getDescription()).append("</description>");
+		}
+		sb.append("</soups_salads>");
+		
+		sb.append("<main_course>");
+		for (MenuItem mi : this.getDinnerMenuItems()) {
+			sb.append("<name>").append(mi.getName()).append("</name>");
+			sb.append("<price>").append(mi.getPrice()).append("</price>");
+			sb.append("<description>").append(mi.getDescription()).append("</description>");
+		}
+		sb.append("</main_course>");
+		
+		sb.append("<sides>");
+		for (MenuItem mi : this.getDinnerSides()) {
+			sb.append("<name>").append(mi.getName()).append("</name>");
+			sb.append("<price>").append(mi.getPrice()).append("</price>");
+			sb.append("<description>").append(mi.getDescription()).append("</description>");
+		}
+		sb.append("</sides>");
+		
+		sb.append("<desserts>");
+		for (MenuItem mi : this.getDinnerDesserts()) {
+			sb.append("<name>").append(mi.getName()).append("</name>");
+			sb.append("<price>").append(mi.getPrice()).append("</price>");
+			sb.append("<description>").append(mi.getDescription()).append("</description>");
+		}
+		sb.append("</desserts>");		
+		sb.append("</dinner>");
+		*/
+		
+		sb.append("<lunch>");
+		for (MenuSection ms : this.getLunchMenu()) {
+			sb.append("<menu_section>").append(ms.getName()).append("</menu_section>");
+			sb.append("<itemline_font>").append(this.getLabel(ms.getItemLineFont(), fonts)).append("</itemline_font>");
+			sb.append("<descline_font>").append(this.getLabel(ms.getDescLineFont(), fonts)).append("</descline_font>");
+			sb.append("<intro_text>").append(ms.getIntroText()).append("</intro_text>");
+
+			BufferedReader br = new BufferedReader(new StringReader(ms.getContents()));
+			boolean line = true;
+			StringBuffer line1 = new StringBuffer();
+			StringBuffer line2 = new StringBuffer();
+			String s;
+			while ((s = br.readLine()) != null) {
+				if (s.length() == 0) //skip empty lines
+					continue;
+				if (line) { //item line
+					sb.append("<itemline>").append(s).append("</itemline>");
+				} else { //desc line
+					sb.append("<descline>").append(s).append("</descline>");
+				}
+
+				line = !line;
+			}
+		}
+		sb.append("</lunch>");
+		
+		sb.append("</current>");
+		
+		sb.append("<events>");
+		for (Event ev : this.getEvents()) {
+			sb.append("<name>").append(ev.getName()).append("</name>");
+			sb.append("<date>").append(ev.getDate()).append("</date>");
+			sb.append("<hours>").append(ev.getHourStart()).append(" to ")
+								.append(ev.getHourEnd()).append("</hours>");
+			sb.append("<description>").append(ev.getDescription()).append("</description>");
+		}
+		sb.append("</events>");
+		
+		//save it to a file
+		Properties props = new Properties();
+		props.load(this.getClass().getResourceAsStream("/MessageResources.properties"));
+
+		String xmlFile = props.getProperty("xmlFilePath") + "/" + this.getUserId() + ".xml";
+		BufferedWriter bw = new BufferedWriter(new FileWriter(xmlFile));
+		bw.write(sb.toString());
+		bw.close();
+	}
+	
+	private String arrayToString(String[] sa) {
+		StringBuffer sb = new StringBuffer();
+		for (String s : sa) 
+			if (sb.length() <= 0)
+					sb.append(s);
+			else 
+					sb.append(",").append(s);
+		
+		return sb.toString();
+	}
+	
+	//delete the empties
+	private List<MenuItem> deleteEmpties(List<MenuItem> theList) {
+		List<MenuItem> mList = new ArrayList<MenuItem>();
+		int size = theList.size();
+		logger.debug("deleteEmpties:before size = " + size);
+		for (int i = 0; i < size; i++) {
+			MenuItem mItem = theList.get(i);
+			if (mItem.getName() != null && mItem.getName().length() > 0)
+				mList.add(mItem);
+		}
+		return mList;
+	}
+	
+	private List<MenuSection> deleteEmptySections(List<MenuSection> theList) {
+		List<MenuSection> mList = new ArrayList<MenuSection>();
+		int size = theList.size();
+		logger.debug("deleteEmpties:before size = " + size);
+		for (int i = 0; i < size; i++) {
+			MenuSection mItem = theList.get(i);
+			if (mItem.getName() != null && mItem.getName().length() > 0)
+				mList.add(mItem);
+		}
+		return mList;
+	}
+	
+	/*
+	//delete the empties
+	private List<K> deleteEmpties(List<K> theList) {
+		List<K> mList = new ArrayList<K>();
+		int size = theList.size();
+		logger.debug("deleteEmpties:before size = " + size);
+		for (int i = 0; i < size; i++) {
+			K mItem = theList.get(i);
+			String name = null;
+			if (mItem instanceof MenuSection)
+				name = ((MenuSection)mItem).getName();
+			else if (mItem instanceof MenuItem)
+				name = ((MenuItem)mItem).getName();
+			if (name != null && name.length() > 0)
+				mList.add(mItem);
+		}
+		return mList;
+	}
+	*/
+}

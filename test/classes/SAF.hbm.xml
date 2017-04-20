@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+<class name="data.SAF" table="send_a_friend_offices">
+ <cache usage="read-write"/>
+
+<id name="officeId" column="office_id" type="java.lang.String">
+<generator class="assigned"/>
+</id>
+
+<property
+name="userId"
+type="java.lang.Long"
+column="user_id"
+/>
+
+<property
+name="entityId"
+type="java.lang.String"
+column="entity_id"
+/>
+
+<property
+name="keyword"
+type="java.lang.String"
+column="keyword"
+/>
+
+<property
+name="safMessage"
+type="java.lang.String"
+column="saf_message"
+/>
+
+<property
+name="includePhone"
+type="java.lang.String"
+column="include_phone"
+/>
+
+<property
+name="lastUpdated"
+type="java.util.Date"
+column="last_updated"
+/>
+
+</class>
+</hibernate-mapping>

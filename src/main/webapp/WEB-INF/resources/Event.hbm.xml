@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+<class 
+name="category_1.Event" 
+table="events">
+	
+<id name="id" column="event_id" type="java.lang.Integer">
+<generator class="native"/>
+</id>
+
+<many-to-one name="parent" column="profile_id" class="category_1.Category_1" not-null="true"/>
+
+<property
+name="date"
+type="java.lang.String"
+column="date"
+/>
+
+<property
+name="hourStart"
+type="java.lang.String"
+column="hour_start"
+/>
+
+<property
+name="hourEnd"
+type="java.lang.String"
+column="hour_end"
+/>
+
+<property
+name="name"
+type="java.lang.String"
+column="name"
+/>
+
+<property
+name="description"
+type="java.lang.String"
+column="description"
+/>
+
+<property
+name="offer"
+type="java.lang.String"
+column="offer"
+/>
+
+<property
+name="cost"
+type="java.lang.String"
+column="cost"
+/>
+
+</class>
+</hibernate-mapping>

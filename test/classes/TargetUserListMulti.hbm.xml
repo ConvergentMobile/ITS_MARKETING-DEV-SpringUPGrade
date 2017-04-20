@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+<class name="user.TargetUserListMulti" table="campaign_multi_list">
+	
+<id name="multiListId" column="multi_list_id" type="java.lang.String">
+<generator class="assigned"/>
+</id>
+
+<property
+name="userId"
+type="java.lang.Long"
+column="user_id"
+/>
+
+<property
+name="listId"
+type="java.lang.String"
+column="list_id"
+/>
+
+<property
+name="campaignId"
+type="java.lang.String"
+column="campaign_id"
+/>
+
+</class>
+</hibernate-mapping>

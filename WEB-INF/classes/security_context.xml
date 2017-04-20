@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  
+                                       http://www.springframework.org/schema/beans/spring-beans-4.3.xsd  
+                                      http://www.springframework.org/schema/context  
+                                       http://www.springframework.org/schema/context/spring-context-4.3.xsd  
+                                    http://www.springframework.org/schema/beans  
+                                    http://www.springframework.org/schema/beans/spring-beans-4.3.xsd  
+                                     http://www.springframework.org/schema/jee  
+                                     http://www.springframework.org/schema/jee/spring-jee-4.3.xsd
+                                     http://www.springframework.org/schema/security
+   									http://www.springframework.org/schema/security/spring-security-4.2.xsd
+    								http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd">
+
+<security:http pattern="/error1" security="none" />
+<security:http pattern="/rest" security="none" />
+<security:http pattern="/*libertytax.net/**" security="none" />
+<security:http pattern="/generateUrl" security="none" />
+<security:http pattern="/css" security="none" />
+<security:http pattern="/styles" security="none" />
+<security:http pattern="/scripts" security="none" />
+<security:http pattern="/js" security="none" />
+<security:http pattern="/images" security="none" />
+<security:http pattern="/ext" security="none" />
+
+<bean id="preAuthenticatedProcessingFilterEntryPoint" class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint" />
+
+ <security:http realm="My Realm" auto-config='false' use-expressions="true" entry-point-ref="preAuthenticatedProcessingFilterEntryPoint">
+   <!-- 
+    <security:intercept-url pattern="/myProfile/**" access="isAuthenticated()" requires-channel="https"/>
+   -->     
+    <security:intercept-url pattern="/error1" access="hasRole('ROLE_ANONYMOUS')"/> 
+    <security:intercept-url pattern="/rest/**" access="hasRole('ROLE_ANONYMOUS')"/> 
+    <security:intercept-url pattern="/ext/**" access="hasRole('ROLE_ANONYMOUS')"/> 
+    <security:intercept-url pattern="/**" access="isAuthenticated()" requires-channel="http"/>        
+    <security:custom-filter ref="preAuthFilter" position="PRE_AUTH_FILTER"/> 
+    <security:access-denied-handler ref="accessDeniedHandler" />   
+  </security:http>
+  
+   <security:authentication-manager alias="authenticationManager">
+    <security:authentication-provider ref='preAuthenticatedAuthenticationProvider'/>
+  </security:authentication-manager>
+    
+ <bean id="preAuthFilter" class="security.LTSPreAuthenticatedProcessingFilter">
+  	<property name="authenticationManager" ref="authenticationManager"/>
+    <!-- <property name="authenticationDetailsSource" ref="authenticationDetailsSource"/> -->
+    <property name="continueFilterChainOnUnsuccessfulAuthentication" value="false"/>  
+</bean>
+
+<bean id="accessDeniedHandler" class="security.LTSAccessDeniedHandler">
+<property name="errorPage" value="/error1" />
+</bean> 
+  
+  <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
+    <constructor-arg>
+      <list>
+        <ref bean="preAuthenticatedAuthenticationProvider"/>
+      </list>
+    </constructor-arg>
+  </bean>
+
+<!-- 
+  <bean id="authenticationDetailsSource" class="security.LTSAuthenticationDetailsSource" />
+
+  <bean id="preAuthenticatedAuthenticationProvider" class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
+   <property name="preAuthenticatedUserDetailsService" ref="preAuthenticatedUserDetailsService"/>
+  </bean>
+  
+  <bean id="preAuthenticatedUserDetailsService" class="org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesUserDetailsService"/>
+ -->
+ 
+  <bean id="preAuthenticatedAuthenticationProvider" class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
+  	<property name="preAuthenticatedUserDetailsService">
+   		<bean id="userDetailsServiceWrapper" class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
+    		<property name="userDetailsService" ref="myUserDetailsService" />
+   		</bean>
+  	</property>
+ </bean>
+ 
+  <bean id="myUserDetailsService" class="security.LTSUserDetailsService"/>
+   
+</beans>

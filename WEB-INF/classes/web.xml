@@ -1,0 +1,105 @@
+  <?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+<filter>
+  <filter-name>springSecurityFilterChain</filter-name>
+  <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+</filter>
+
+<filter-mapping>
+  <filter-name>springSecurityFilterChain</filter-name>
+  <url-pattern>/*</url-pattern>
+</filter-mapping>
+
+    <servlet>
+        <servlet-name>lts_marketing</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+	<servlet>
+		<servlet-name>LTSFileUpload</servlet-name>
+		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+	  	<init-param>
+	     	<param-name>com.sun.jersey.spi.container.ContainerRequestFilters</param-name>
+	     	<param-value>api.LTSFileUpload</param-value>
+	  	</init-param>  		
+		<init-param>
+			<param-name>com.sun.jersey.config.property.packages</param-name>
+			<param-value>api</param-value>
+		</init-param>
+        <init-param>
+            <param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
+            <param-value>true</param-value>
+        </init-param> 		
+		<load-on-startup>2</load-on-startup>
+	</servlet>	
+
+    <servlet>
+	<servlet-name>AmbassadorWH1</servlet-name>
+        <servlet-class>util.AmbassadorWH1</servlet-class>
+        <load-on-startup>4</load-on-startup>
+   </servlet>
+
+   <servlet-mapping>
+        <servlet-name>AmbassadorWH1</servlet-name>
+        <url-pattern>/ext/amb/*</url-pattern>
+   </servlet-mapping>   
+   
+	<servlet-mapping>
+		<servlet-name>LTSFileUpload</servlet-name>
+		<url-pattern>/rest/*</url-pattern>
+	</servlet-mapping>	
+				
+	 <listener>
+	  <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	 </listener>
+	 
+	<listener>
+	    <listener-class>
+	        org.springframework.web.context.request.RequestContextListener
+	    </listener-class>
+	</listener>	 
+ 
+    <servlet-mapping>
+        <servlet-name>lts_marketing</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+ 	<context-param>
+    	<param-name>contextConfigLocation</param-name>
+    	<param-value>/WEB-INF/lts_marketing-servlet.xml</param-value>
+  	</context-param>
+  	
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			/WEB-INF/application_context.xml,
+			/WEB-INF/security_context.xml
+		</param-value>
+	</context-param>  	
+
+    <error-page>
+        <error-code>403</error-code>
+        <location>/WEB-INF/view/error.jsp</location>
+    </error-page>
+    
+	<welcome-file-list>
+	    <welcome-file>/WEB-INF/jsp/index.jsp</welcome-file>
+	</welcome-file-list>
+	
+<!-- JMS stuff -->			 
+	<resource-env-ref>
+		<resource-env-ref-name>jms/connectionFactory</resource-env-ref-name>
+		<resource-env-ref-type>javax.jms.QueueConnectionFactory</resource-env-ref-type>
+	</resource-env-ref>
+	<resource-env-ref>
+		<resource-env-ref-name>jms/us411Queue</resource-env-ref-name>
+		<resource-env-ref-type>javax.jms.Queue</resource-env-ref-type>
+	</resource-env-ref>	 
+<!--  End JMS stuff -->	
+	
+</web-app>

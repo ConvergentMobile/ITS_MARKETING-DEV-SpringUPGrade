@@ -1,0 +1,91 @@
+package category_1;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.log4j.Logger;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.util.LabelValueBean;
+import org.apache.struts.validator.ValidatorForm;
+
+import user.CategoryForm;
+import user.User;
+import user.UserDAOManager;
+
+public class Category_1Form extends CategoryForm {
+	private static final long serialVersionUID = 1L;
+
+	private static final Logger logger = Logger.getLogger(Category_1Form.class);
+
+	private Category_1 category_1;
+
+	public Category_1 getCategory_1() {
+		return category_1;
+	}
+
+	public void setCategory_1(Category_1 category_1) {
+		this.category_1 = category_1;
+	}
+	
+	public String populateForm(CategoryForm cForm, HttpServletRequest request, String mode, Integer type) throws Exception {
+		logger.debug("Category_1Form:populateForm");
+		User user = (User)request.getSession().getAttribute("User");
+		category_1 = new Category_1(user.getUserId(), user.getCategoryId()).get(request, mode, type);
+		//cForm.setCategory_1Form(this);
+		request.getSession().setAttribute("category", category_1);
+		
+		//get the list of cuisines
+		List<LabelValueBean> cuisines = new UserDAOManager().getCuisine();
+		request.getSession().setAttribute("cuisines", cuisines);
+		
+		//get the list of hours
+		List<LabelValueBean> hours = new UserDAOManager().getHours();
+		request.getSession().setAttribute("hours", hours);
+		
+		//fonts
+		List<LabelValueBean> fonts = new UserDAOManager().getFonts();
+		request.getSession().setAttribute("fonts", fonts);
+		
+		return "category_1";
+	}
+	
+	//not needed - 10/15/2010
+	/*
+	public String preview(CategoryForm cForm, HttpServletRequest request) throws Exception {
+		category_1 = (Category_1)request.getSession().getAttribute("category");
+		category_1.setPreviewFile(category_1.preview(request.getSession()));
+		cForm.setCategory_1Form(this);
+		request.getSession().setAttribute("category", category_1);
+		return category_1.getPreviewFile();
+	}
+	*/
+	
+	public void reset(ActionMapping mapping, HttpServletRequest request) {
+		logger.debug("Category_1Form:reset");
+        this.category_1 = (Category_1)request.getSession().getAttribute("category");
+        if (category_1 == null) {
+        	logger.error("reset: Null category_1");
+        	return;
+        }
+                
+		/*
+        List<MenuItem> menuItems = ListUtils.lazyList(new ArrayList(),
+                new Factory() {
+                    public Object create() {
+                        return new MenuItem();
+                    }
+                });
+        
+        this.category_1 = (Category_1)request.getSession().getAttribute("category");
+        if (category_1 == null) {
+        	logger.error("reset: Null category_1");
+        	return;
+        }
+        this.category_1.setMenuItems(menuItems);
+        */
+	}
+}

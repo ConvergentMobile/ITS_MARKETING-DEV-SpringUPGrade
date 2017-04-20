@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+<class name="data.InfoForm" table="info_form">
+ <cache usage="read-write"/>
+
+<id name="id" column="id" type="java.lang.Long">
+<generator class="native"/>
+</id>
+
+<property
+name="entityId"
+type="java.lang.String"
+column="entity_id"
+/>
+
+<property
+name="officeId"
+type="java.lang.String"
+column="office_id"
+/>
+
+<property
+name="mobilePhone"
+type="java.lang.String"
+column="mobile_phone"
+/>
+
+<property
+name="firstName"
+type="java.lang.String"
+column="first_name"
+/>
+
+<property
+name="lastName"
+type="java.lang.String"
+column="last_name"
+/>
+
+<property
+name="email"
+type="java.lang.String"
+column="email"
+/>
+
+<property
+name="lastUpdated"
+type="java.util.Date"
+column="last_updated"
+/>
+
+</class>
+</hibernate-mapping>

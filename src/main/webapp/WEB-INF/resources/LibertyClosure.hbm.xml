@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+<class 
+name="liberty.LibertyClosure" 
+table="liberty_closure">
+	
+<id name="id" column="id" type="java.lang.Long">
+<generator class="native"/>
+</id>
+
+<property
+name="parentId"
+type="java.lang.String"
+column="parent_id"
+/>
+
+<property
+name="childId"
+type="java.lang.String"
+column="child_id"
+/>
+
+<property
+name="depth"
+type="java.lang.Integer"
+column="depth"
+/>
+
+</class>
+</hibernate-mapping>

@@ -1,0 +1,169 @@
+package user;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.log4j.Logger;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+
+import category_1.Category_1Form;
+import category_2.Category_2Form;
+import category_3.Category_3Form;
+import category_4.Category_4Form;
+import category_5.Category_5Form;
+import category_6.Category_6Form;
+
+public class CategoryForm extends ActionForm {
+	private static final long serialVersionUID = 1L;
+
+	private static final Logger logger = Logger.getLogger(CategoryForm.class);
+
+	private String currentPage; //keep track of the current page so you can return to it after save
+	
+	//private Category category;
+	private CategoryBase category;
+	private Category_1Form category_1Form = new Category_1Form();
+	private Category_2Form category_2Form = new Category_2Form();
+	private Category_3Form category_3Form = new Category_3Form();
+	private Category_4Form category_4Form = new Category_4Form();
+	private Category_5Form category_5Form = new Category_5Form();
+	private Category_6Form category_6Form = new Category_6Form();
+
+	public CategoryBase getCategory() {
+		return category;
+	}
+
+	public String getCurrentPage() {
+		return currentPage;
+	}
+
+	public void setCurrentPage(String currentPage) {
+		this.currentPage = currentPage;
+	}
+
+	public void setCategory(CategoryBase category) {
+		this.category = category;
+	}
+
+	public Category_1Form getCategory_1Form() {
+		return category_1Form;
+	}
+
+	public void setCategory_1Form(Category_1Form category_1Form) {
+		this.category_1Form = category_1Form;
+	}
+
+	public Category_2Form getCategory_2Form() {
+		return category_2Form;
+	}
+
+	public void setCategory_2Form(Category_2Form category_2Form) {
+		this.category_2Form = category_2Form;
+	}
+
+	public Category_3Form getCategory_3Form() {
+		return category_3Form;
+	}
+
+	public void setCategory_3Form(Category_3Form category_3Form) {
+		this.category_3Form = category_3Form;
+	}
+
+	public Category_4Form getCategory_4Form() {
+		return category_4Form;
+	}
+
+	public void setCategory_4Form(Category_4Form category_4Form) {
+		this.category_4Form = category_4Form;
+	}
+
+	public Category_5Form getCategory_5Form() {
+		return category_5Form;
+	}
+
+	public void setCategory_5Form(Category_5Form category_5Form) {
+		this.category_5Form = category_5Form;
+	}
+
+	public Category_6Form getCategory_6Form() {
+		return category_6Form;
+	}
+
+	public void setCategory_6Form(Category_6Form category_6Form) {
+		this.category_6Form = category_6Form;
+	}
+
+	public void reset(ActionMapping mapping, HttpServletRequest request) {
+		CategoryBase catg = (CategoryBase)request.getSession().getAttribute("category");
+		logger.debug("CategoryForm:reset:categoryId = " + catg.getCategoryId());
+		switch (catg.getCategoryId()) {
+			case 1:
+				category_1Form.reset(mapping, request);
+				break;
+			case 2:
+				category_2Form.reset(mapping, request);
+				break;
+			case 3:
+				category_3Form.reset(mapping, request);
+				break;	
+			case 4:
+				category_4Form.reset(mapping, request);
+				break;
+			case 5:
+				category_5Form.reset(mapping, request);
+				break;	
+			case 6:
+				category_6Form.reset(mapping, request);
+				break;				
+		}
+	}
+	
+	public String populateForm(Integer categoryId, HttpServletRequest request, String mode, Integer type) {
+		logger.debug("CategoryForm:populateForm:categoryId = " + categoryId);
+		try {
+			switch(categoryId) {
+				case 1:
+					return this.category_1Form.populateForm(this, request, mode, type);
+				case 2:
+					return this.category_2Form.populateForm(this, request, mode, type);
+				case 3:
+					return this.category_3Form.populateForm(this, request, mode, type);		
+				case 4:
+					return this.category_4Form.populateForm(this, request, mode, type);		
+				case 5:
+					return this.category_5Form.populateForm(this, request, mode, type);			
+				case 6:
+					return this.category_6Form.populateForm(this, request, mode, type);						
+				default:
+					logger.error("populateForm: Unrecognized catgeoryId: " + categoryId);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+		return null;
+	}
+	
+	//not needed - 10/15/2010
+	public String preview(Integer categoryId, HttpServletRequest request) throws Exception  {
+		switch(categoryId) {
+			case 1:
+				return this.category_1Form.preview(this, request);
+			case 2:
+				//return this.category_2Form.preview(this, request);
+			case 3:
+				return this.category_3Form.preview(this, request);		
+			case 4:
+				return this.category_4Form.preview(this, request);		
+			case 5:
+				return this.category_5Form.preview(this, request);		
+			case 6:
+				return this.category_6Form.preview(this, request);					
+			default:
+				logger.error("preview: Unrecognized catgeoryId: " + categoryId);
+		}
+		
+		return null;
+	}
+}
