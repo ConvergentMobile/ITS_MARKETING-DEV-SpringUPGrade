@@ -1,4 +1,4 @@
-<project name="lts_marketing" default="main" basedir=".">
+<project name="lts_marketingTW" default="main" basedir=".">
 
     <!--  This is a basic build script, only the minimums here -->
 
@@ -21,7 +21,7 @@
     <property name="build.dir"          value="./build/classes" />
 	<property name="git.build.dir"      value="D:/git_repo/lts_marketing/lts_marketing/build/classes" />	
     <property name="src.dir"            value="./src"/>
-    <property name="war.file"           value="lts_marketing"/>
+    <property name="war.file"           value="lts_marketingTW"/>
     <property name="war.file.name"      value="${war.file}.war"/>
 	<property name="test.dir" 			value="./test" />
 	<property name="testbuild.dir" 		value="./test/classes" />
